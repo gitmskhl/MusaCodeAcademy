@@ -1,8 +1,8 @@
-from sqlalchemy import Integer, String, Text, ForeignKey, DateTime, Enum as SQLEnum
+from sqlalchemy import Integer, String, DateTime, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime, UTC
 
-from app.core.database import Base
+from .base import Base
 from app.enums import UserRole
 
 
@@ -14,7 +14,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     
-    full_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    first_name: Mapped[str] = mapped_column(String(20), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(20), nullable=False)
     
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole),
