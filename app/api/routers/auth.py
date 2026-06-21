@@ -30,7 +30,12 @@ async def get_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: DBSession
 ):
-    user_id = await get_user_id(email=form_data.username, password=form_data.password, db=db)
+    user_id = await get_user_id(
+        email=form_data.username, 
+        password=form_data.password, 
+        db=db,
+        refresh_last_login_at=True
+    )
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

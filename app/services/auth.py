@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -18,7 +19,12 @@ async def email_exists(email: str, db: AsyncSession) -> bool:
     return True
 
 
-async def get_user_id(email: str, password: str, db: AsyncSession) -> int | None:
+async def get_user_id(
+        email: str,
+        password: str,
+        db: AsyncSession,
+        refresh_last_login_at: bool = False
+    ) -> int | None:
     result = await db.execute(
         select(User).where(
             func.lower(User.email) == email.lower()
@@ -28,6 +34,10 @@ async def get_user_id(email: str, password: str, db: AsyncSession) -> int | None
     
     if not user or not verify_password(password, user.password_hash):
         return None
+    
+    if refresh_last_login_at:
+        user.last_login_at = datetime.now(UTC)
+        await db.commit()
     return user.id
 
 
