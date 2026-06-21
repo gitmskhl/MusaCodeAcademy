@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход | Musa Code Academy</title>
+    <link rel="stylesheet" href="{{url_for('static', path='css/login.css')}}">
+    <script defer src="{{url_for('static', path='js/login.js')}}"></script>
+</head>
+<body>
+    <main class="page">
+        <section class="panel" aria-labelledby="login-title">
+            <div class="brand" aria-label="Musa Code Academy">
+                <span class="brand-mark">MC</span>
+                <span>Musa Code Academy</span>
+            </div>
+
+            <p class="eyebrow">Личный кабинет</p>
+            <h1 id="login-title">Вход в аккаунт</h1>
+            <p class="lead">Продолжайте обучение и возвращайтесь к своим курсам.</p>
+
+            <div class="message" id="form-message" role="status" aria-live="polite"></div>
+
+            <form class="form" id="login-form" action="/api/auth/token" method="post">
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="username" placeholder="Введите email" autocomplete="email" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Пароль</label>
+                    <input id="password" type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit">Войти</button>
+            </form>
+
+            <p class="switch-link">
+                Еще нет аккаунта?
+                <a href="/register">Зарегистрироваться</a>
+            </p>
+        </section>
+    </main>
+
+
+</body>
+</html>

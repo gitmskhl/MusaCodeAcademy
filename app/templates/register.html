@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | Musa Code Academy</title>
+    <link rel="stylesheet" href="{{url_for('static', path='css/register.css')}}">
+    <script defer src="{{url_for('static', path='js/register.js')}}"></script>
+</head>
+<body>
+    <main class="page">
+        <section class="panel" aria-labelledby="register-title">
+            <div class="brand" aria-label="Musa Code Academy">
+                <span class="brand-mark">MC</span>
+                <span>Musa Code Academy</span>
+            </div>
+
+            <p class="eyebrow">Старт обучения</p>
+            <h1 id="register-title">Создать аккаунт</h1>
+            <p class="lead">Зарегистрируйтесь, чтобы сохранять прогресс и проходить курсы.</p>
+
+            <div class="message" id="form-message" role="status" aria-live="polite"></div>
+
+            <form class="form" id="register-form" action="/api/auth/register" method="post">
+                <div class="field-group">
+                    <div class="field">
+                        <label for="first_name">Имя</label>
+                        <input id="first_name" type="text" name="first_name" placeholder="Имя" autocomplete="given-name" minlength="2" maxlength="20" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="last_name">Фамилия</label>
+                        <input id="last_name" type="text" name="last_name" placeholder="Фамилия" autocomplete="family-name" minlength="2" maxlength="20" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" name="email" placeholder="Введите email" autocomplete="email" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Пароль</label>
+                    <input id="password" type="password" name="password" placeholder="Минимум 8 символов" autocomplete="new-password" minlength="8" required>
+                </div>
+
+                <div class="field">
+                    <label for="password_confirm">Повторите пароль</label>
+                    <input id="password_confirm" type="password" name="password_confirm" placeholder="Повторите пароль" autocomplete="new-password" minlength="8" required>
+                </div>
+
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+
+            <p class="switch-link">
+                Уже есть аккаунт?
+                <a href="/login">Войти</a>
+            </p>
+        </section>
+    </main>
+
+</body>
+</html>
