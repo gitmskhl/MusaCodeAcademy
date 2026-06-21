@@ -14,7 +14,7 @@ DBSession = Annotated[AsyncSession, Depends(get_db)]
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: DBSession
-):
+) -> models.User:
     try:
         user_id = verify_access_token(token)
         result = await db.execute(

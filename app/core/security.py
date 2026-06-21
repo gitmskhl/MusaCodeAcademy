@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.exceptions import InvalidTokenError
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 password_hasher = PasswordHash.recommended()
 
