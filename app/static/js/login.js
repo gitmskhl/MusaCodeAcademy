@@ -31,8 +31,7 @@ form.addEventListener("submit", async (event) => {
         }
 
         localStorage.setItem("musa_code_academy_token", data.access_token);
-        showMessage("Вход выполнен. Данные авторизации сохранены.", "success");
-        form.reset();
+        window.location.href = '/dashboard'
     } catch (error) {
         showMessage(error.message, "error");
     } finally {

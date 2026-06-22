@@ -4,4 +4,5 @@ __pycache__/
 .agents/
 .env
 *.db
+data/*.py
 example/
