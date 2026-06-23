@@ -8,6 +8,7 @@ from app.core.security import (
 )
 from app.core.exceptions import InvalidTokenError
 from app import models
+from app.enums import UserRole
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 
@@ -36,3 +37,19 @@ async def get_current_user(
         )
 
 CurrentUser = Annotated[models.User, Depends(get_current_user)]
+
+
+def require_role(*allowed_roles: UserRole):
+    async def dependency(current_user: CurrentUser) -> models.User:
+        print('CURRENT ROLE:', current_user.role, allowed_roles)
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to perform this action",
+            )
+        return current_user
+    
+    return dependency
+
+
+OnlyAdmin = Annotated[models.User, Depends(require_role(UserRole.ADMIN))]
