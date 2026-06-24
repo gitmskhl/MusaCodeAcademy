@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель Musa Code Academy</title>
+    <title>Админка</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
     <script defer src="{{ url_for('static', path='js/admin.js') }}"></script>
 </head>
@@ -14,22 +14,12 @@
 
         <main class="admin-shell" data-admin-content hidden>
             <header class="admin-header">
-                <div class="admin-header__copy">
-                    <p class="eyebrow">Управление курсами</p>
-                    <h1>Админ-панель Musa Code Academy</h1>
-                    <p class="lead">Создавайте, просматривайте и дорабатывайте курсы в одном рабочем пространстве.</p>
-                </div>
-
-                <a class="button button--primary button--large" href="/admin/courses/create">Создать курс</a>
+                <h1>Админка</h1>
+                <a class="button button--primary" href="/admin/courses/create">Создать курс</a>
             </header>
 
             <section class="section-block" aria-labelledby="my-courses-title">
-                <div class="section-heading">
-                    <div>
-                        <h2 id="my-courses-title">Мои курсы</h2>
-                        <p>Откройте курс, чтобы продолжить редактирование структуры и деталей.</p>
-                    </div>
-                </div>
+                <h2 id="my-courses-title">Мои курсы</h2>
 
                 <div class="course-list" role="list" data-course-list></div>
             </section>

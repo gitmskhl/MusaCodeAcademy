@@ -38,3 +38,10 @@ async def admin_page(request: Request):
         request,
         "admin.html"
     )
+    
+@router.get("/admin/courses/create", response_class=HTMLResponse, include_in_schema=False)
+async def admin_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "create_course.html"
+    )

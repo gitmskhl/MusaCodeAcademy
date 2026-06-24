@@ -201,6 +201,10 @@
 
     const getMessageBox = (form) => form.querySelector('#course-form-message');
 
+    const getProgressBar = (form) => form.querySelector('[data-form-progress]');
+
+    const getSubmitButton = (form) => form.querySelector('[data-course-submit]');
+
     const setFormMessage = (box, kind, text) => {
         if (!box) return;
 
@@ -213,6 +217,23 @@
 
         box.className = 'form-message';
         box.textContent = '';
+    };
+
+    const setFormBusy = (form, isBusy) => {
+        const submitButton = getSubmitButton(form);
+        const progressBar = getProgressBar(form);
+
+        form.setAttribute('aria-busy', String(isBusy));
+
+        if (submitButton) {
+            submitButton.disabled = isBusy;
+            submitButton.textContent = isBusy ? 'Создание...' : 'Создать курс';
+        }
+
+        if (progressBar) {
+            progressBar.hidden = !isBusy;
+            progressBar.classList.toggle('is-active', isBusy);
+        }
     };
 
     const setFieldError = (form, fieldName, message) => {
@@ -243,15 +264,18 @@
 
     const validateCourseForm = (form) => {
         const title = form.querySelector('#course-title');
+        const shortDescription = form.querySelector('#course-short-description');
         const description = form.querySelector('#course-description');
         const slug = form.querySelector('#course-slug');
 
         clearFieldError(form, 'title');
+        clearFieldError(form, 'short_description');
         clearFieldError(form, 'description');
         clearFieldError(form, 'slug');
 
         const values = {
             title: title ? title.value.trim() : '',
+            short_description: shortDescription ? shortDescription.value.trim() : '',
             description: description ? description.value.trim() : '',
             slug: slug ? slug.value.trim() : '',
         };
@@ -261,21 +285,36 @@
         if (!values.title) {
             setFieldError(form, 'title', 'Название курса обязательно.');
             firstInvalid = firstInvalid || title;
-        } else if (values.title.length < 3) {
-            setFieldError(form, 'title', 'Название курса должно содержать минимум 3 символа.');
+        } else if (values.title.length < 5) {
+            setFieldError(form, 'title', 'Название курса должно содержать минимум 5 символов.');
             firstInvalid = firstInvalid || title;
         }
 
+        if (!values.short_description) {
+            setFieldError(form, 'short_description', 'Краткое описание обязательно.');
+            firstInvalid = firstInvalid || shortDescription;
+        } else if (values.short_description.length < 10) {
+            setFieldError(
+                form,
+                'short_description',
+                'Краткое описание должно содержать минимум 10 символов.'
+            );
+            firstInvalid = firstInvalid || shortDescription;
+        }
+
         if (!values.description) {
-            setFieldError(form, 'description', 'Краткое описание обязательно.');
+            setFieldError(form, 'description', 'Описание курса обязательно.');
             firstInvalid = firstInvalid || description;
-        } else if (values.description.length < 10) {
-            setFieldError(form, 'description', 'Описание должно содержать минимум 10 символов.');
+        } else if (values.description.length < 20) {
+            setFieldError(form, 'description', 'Описание курса должно содержать минимум 20 символов.');
             firstInvalid = firstInvalid || description;
         }
 
         if (!values.slug) {
             setFieldError(form, 'slug', 'Слаг обязателен.');
+            firstInvalid = firstInvalid || slug;
+        } else if (values.slug.length < 2) {
+            setFieldError(form, 'slug', 'Слаг должен содержать минимум 2 символа.');
             firstInvalid = firstInvalid || slug;
         } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug)) {
             setFieldError(form, 'slug', 'Используйте строчные буквы, цифры и дефисы.');
@@ -296,9 +335,17 @@
         }
 
         const title = form.querySelector('#course-title');
+        const shortDescription = form.querySelector('#course-short-description');
+        const description = form.querySelector('#course-description');
         const slug = form.querySelector('#course-slug');
         const messageBox = getMessageBox(form);
+        const progressBar = getProgressBar(form);
         let slugTouched = Boolean(slug && slug.value.trim());
+        let isSubmitting = false;
+
+        if (progressBar) {
+            progressBar.hidden = true;
+        }
 
         if (title && slug) {
             title.addEventListener('input', () => {
@@ -309,6 +356,20 @@
                 clearFormMessage(messageBox);
             });
 
+            if (shortDescription) {
+                shortDescription.addEventListener('input', () => {
+                    clearFieldError(form, 'short_description');
+                    clearFormMessage(messageBox);
+                });
+            }
+
+            if (description) {
+                description.addEventListener('input', () => {
+                    clearFieldError(form, 'description');
+                    clearFormMessage(messageBox);
+                });
+            }
+
             slug.addEventListener('input', () => {
                 slugTouched = Boolean(slug.value.trim());
                 clearFieldError(form, 'slug');
@@ -316,7 +377,7 @@
             });
         }
 
-        ['title', 'description', 'slug'].forEach((fieldName) => {
+        ['title', 'short_description', 'description', 'slug'].forEach((fieldName) => {
             const field = form.querySelector(`[name="${fieldName}"]`);
             if (!field) return;
 
@@ -325,8 +386,12 @@
             });
         });
 
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async (event) => {
             event.preventDefault();
+
+            if (isSubmitting) {
+                return;
+            }
 
             clearFormMessage(messageBox);
 
@@ -340,7 +405,72 @@
                 return;
             }
 
-            setFormMessage(messageBox, 'is-success', 'Проверка пройдена. Дальнейшая отправка подключится позже.');
+            const token = getToken();
+
+            if (!token) {
+                setFormMessage(messageBox, 'is-error', 'Не удалось найти токен доступа. Войдите заново.');
+                return;
+            }
+
+            const payload = {
+                title: title ? title.value.trim() : '',
+                slug: slug ? slug.value.trim() : '',
+                short_description: shortDescription ? shortDescription.value.trim() : '',
+                description: description ? description.value.trim() : '',
+            };
+
+            isSubmitting = true;
+            setFormBusy(form, true);
+
+            try {
+                const response = await fetch('/api/courses', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.status === 401) {
+                    clearToken();
+                    redirectHome();
+                    return;
+                }
+
+                if (!response.ok) {
+                    let errorMessage = 'Не удалось создать курс. Проверьте данные и попробуйте еще раз.';
+
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData?.detail || errorData?.message || errorMessage;
+                    } catch (jsonError) {
+                        try {
+                            const textError = await response.text();
+                            if (textError) {
+                                errorMessage = textError;
+                            }
+                        } catch (textReadError) {
+                            // Use fallback message.
+                        }
+                    }
+
+                    throw new Error(errorMessage);
+                }
+
+                window.location.href = '/admin';
+            } catch (error) {
+                setFormMessage(
+                    messageBox,
+                    'is-error',
+                    error instanceof Error && error.message
+                        ? error.message
+                        : 'Не удалось создать курс. Попробуйте еще раз.'
+                );
+            } finally {
+                isSubmitting = false;
+                setFormBusy(form, false);
+            }
         });
     };
 

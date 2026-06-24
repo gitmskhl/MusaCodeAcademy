@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -18,6 +19,19 @@ class CoursePublic(BaseModel):
     
     short_description: str
     description: str
+    
+    
+class CoursePrivate(BaseModel):
+    id: int
+    title: str
+    slug: str
+    
+    short_description: str
+    description: str
+    
+    is_published: bool
+    created_at: datetime
+    updated_at: datetime
     
     
 class CourseUpdate(BaseModel):
