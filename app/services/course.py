@@ -50,8 +50,13 @@ async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
         )
 
 
-async def get_all_courses(db: DBSession) -> Sequence[Course]:
+async def get_published_courses(db: DBSession) -> Sequence[Course]:
     result = await db.execute(select(Course).where(Course.is_published == True))
+    return result.scalars().all()
+
+
+async def get_all_courses(db: DBSession) -> Sequence[Course]:
+    result = await db.execute(select(Course))
     return result.scalars().all()
 
 

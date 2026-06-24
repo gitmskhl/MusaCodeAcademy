@@ -5,6 +5,7 @@ from app.api.dependencies import OnlyAdmin, DBSession
 from app.services.course import (
     create_course as service_create_coure,
     get_all_courses,
+    get_published_courses,
     update_course as service_update_course
 )
 
@@ -13,7 +14,7 @@ router = APIRouter()
 
 @router.get('', response_model=list[CoursePublic])
 async def get_courses(db: DBSession):
-    return await get_all_courses(db)
+    return await get_published_courses(db)
 
 
 @router.get('/admin', response_model=list[CoursePrivate])

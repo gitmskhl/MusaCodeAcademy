@@ -84,8 +84,7 @@
         if (!Array.isArray(courses) || courses.length === 0) {
             state.courseList.innerHTML = `
                 <div class="empty-state" role="status">
-                    <p class="empty-state__title">Курсы пока не добавлены.</p>
-                    <p class="empty-state__text">Нажмите «Создать курс», чтобы добавить первый курс.</p>
+                    <p class="empty-state__title">Курсы отсутствуют</p>
                 </div>
             `;
             return;
@@ -117,20 +116,25 @@
             topline.append(title, badgeEl);
             body.append(topline);
 
+            const description = document.createElement('p');
+            description.className = 'course-card__description';
+            description.textContent = course.short_description ?? '';
+            body.append(description);
+
             const actions = document.createElement('div');
             actions.className = 'course-card__actions';
 
-            const openLink = document.createElement('a');
-            openLink.className = 'button button--ghost';
-            openLink.href = `/admin/courses/${course.id}`;
-            openLink.textContent = 'Открыть';
+            const openButton = document.createElement('button');
+            openButton.className = 'button button--ghost';
+            openButton.type = 'button';
+            openButton.textContent = 'Открыть';
 
-            const settingsLink = document.createElement('a');
-            settingsLink.className = 'button button--ghost';
-            settingsLink.href = `/admin/courses/${course.id}#settings`;
-            settingsLink.textContent = 'Настройки';
+            const settingsButton = document.createElement('button');
+            settingsButton.className = 'button button--ghost';
+            settingsButton.type = 'button';
+            settingsButton.textContent = 'Настройки';
 
-            actions.append(openLink, settingsLink);
+            actions.append(openButton, settingsButton);
 
             card.append(body, actions);
 
@@ -175,28 +179,54 @@
         };
     };
 
-    const loadCourses = async (token) => {
+    const showCoursesLoading = () => {
+        hideError();
+        hideContent();
+        showLoading('Загрузка курсов...');
+    };
+
+    const showCoursesError = () => {
+        hideLoading();
+        showError('Не удалось загрузить список курсов');
+    };
+
+    const loadCourses = async () => {
         if (!state.courseList) return;
 
-        const response = await fetch('/api/courses', {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const token = getToken();
 
-        if (response.status === 401) {
-            clearToken();
+        if (!token) {
             redirectHome();
             return;
         }
 
-        if (!response.ok) {
-            throw new Error('Не удалось загрузить курсы.');
-        }
+        showCoursesLoading();
 
-        const courses = await response.json();
-        renderCourses(courses);
+        try {
+            const response = await fetch('/api/courses/admin', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.status === 401) {
+                clearToken();
+                redirectHome();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Не удалось загрузить список курсов');
+            }
+
+            const courses = await response.json();
+            renderCourses(Array.isArray(courses) ? courses : []);
+            hideLoading();
+            showContent();
+        } catch (error) {
+            showCoursesError();
+        }
     };
 
     const getMessageBox = (form) => form.querySelector('#course-form-message');
@@ -492,7 +522,8 @@
             }
 
             if (state.courseList) {
-                await loadCourses(access.token);
+                await loadCourses();
+                return;
             }
 
             hideLoading();
