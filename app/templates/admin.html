@@ -1,35 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
+    <title>Админ-панель Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <script defer src="{{ url_for('static', path='js/admin.js') }}"></script>
 </head>
 <body>
-    
-    <script>
+    <div class="admin-page">
+        <div class="admin-loading" data-admin-loading role="status" aria-live="polite">Проверка доступа...</div>
+        <div class="admin-error" data-admin-error hidden></div>
 
-        const token = localStorage.getItem("musa_code_academy_token")
-        if (!token)
-            window.location.href = '/dashboard'
-        
-        async function check() {
-            const resp = await fetch('/api/users/me', {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-            })
-            if (!resp.ok) window.location.href = '/dashboard'
-            const me = await resp.json()
-            if (me.role !== 'admin') window.location.href = '/dashboard'
-        }
+        <main class="admin-shell" data-admin-content hidden>
+            <header class="admin-header">
+                <div class="admin-header__copy">
+                    <p class="eyebrow">Управление курсами</p>
+                    <h1>Админ-панель Musa Code Academy</h1>
+                    <p class="lead">Создавайте, просматривайте и дорабатывайте курсы в одном рабочем пространстве.</p>
+                </div>
 
-        check()
+                <a class="button button--primary button--large" href="/admin/courses/create">Создать курс</a>
+            </header>
 
-    </script>
+            <section class="section-block" aria-labelledby="my-courses-title">
+                <div class="section-heading">
+                    <div>
+                        <h2 id="my-courses-title">Мои курсы</h2>
+                        <p>Откройте курс, чтобы продолжить редактирование структуры и деталей.</p>
+                    </div>
+                </div>
 
-    <h1>Admin</h1>
-
+                <div class="course-list" role="list" data-course-list></div>
+            </section>
+        </main>
+    </div>
 </body>
 </html>

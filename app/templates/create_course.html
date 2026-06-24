@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать курс | Админ-панель Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <script defer src="{{ url_for('static', path='js/admin.js') }}"></script>
+</head>
+<body>
+    <div class="admin-page">
+        <div class="admin-loading" data-admin-loading role="status" aria-live="polite">Проверка доступа...</div>
+        <div class="admin-error" data-admin-error hidden></div>
+
+        <main class="admin-shell admin-shell--narrow" data-admin-content hidden>
+            <header class="admin-header admin-header--stacked">
+                <div class="admin-header__copy">
+                    <a class="back-link" href="/admin">&larr; Назад к моим курсам</a>
+                    <p class="eyebrow">Новый курс</p>
+                    <h1>Создать курс</h1>
+                    <p class="lead">Заполните основные данные, прежде чем добавлять уроки и разделы.</p>
+                </div>
+            </header>
+
+            <section class="form-shell" aria-labelledby="create-course-title">
+                <div class="form-shell__header">
+                    <h2 id="create-course-title">Данные курса</h2>
+                    <p>Обязательные поля проверяются на стороне клиента перед отправкой формы.</p>
+                </div>
+
+                <div class="form-message" id="course-form-message" role="status" aria-live="polite"></div>
+
+                <form class="admin-form" data-course-form novalidate>
+                    <div class="field">
+                        <label for="course-title">Название курса</label>
+                        <input
+                            id="course-title"
+                            name="title"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Например: Python для начинающих"
+                            minlength="3"
+                            maxlength="120"
+                            required
+                        >
+                        <p class="field-hint">Используйте понятное название, которое легко узнать с первого взгляда.</p>
+                        <p class="field-error" data-error-for="title" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="course-description">Краткое описание</label>
+                        <textarea
+                            id="course-description"
+                            name="description"
+                            rows="5"
+                            placeholder="Кратко объясните, чему посвящён курс."
+                            minlength="10"
+                            maxlength="240"
+                            required
+                        ></textarea>
+                        <p class="field-hint">Пишите кратко, по делу и без лишних деталей.</p>
+                        <p class="field-error" data-error-for="description" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="course-slug">Слаг</label>
+                        <input
+                            id="course-slug"
+                            name="slug"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="python-dlya-nachinayushchikh"
+                            pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                            required
+                        >
+                        <p class="field-hint">Только строчные латинские буквы, цифры и дефисы.</p>
+                        <p class="field-error" data-error-for="slug" aria-live="polite"></p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="button button--primary" type="submit">Создать курс</button>
+                        <a class="button button--ghost" href="/admin">Отмена</a>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

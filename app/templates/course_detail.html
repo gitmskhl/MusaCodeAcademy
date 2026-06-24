@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор курса | Админ-панель Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <script defer src="{{ url_for('static', path='js/admin.js') }}"></script>
+</head>
+<body>
+    <div class="admin-page">
+        <div class="admin-loading" data-admin-loading role="status" aria-live="polite">Проверка доступа...</div>
+        <div class="admin-error" data-admin-error hidden></div>
+
+        <main class="admin-shell" data-admin-content hidden>
+            <header class="editor-header">
+                <div class="editor-header__copy">
+                    <a class="back-link" href="/admin">&larr; Назад к моим курсам</a>
+                    <p class="eyebrow">Редактор курса</p>
+                    <div class="title-row">
+                        <h1>Python для начинающих</h1>
+                        <span class="status-badge status-badge--draft">Черновик</span>
+                    </div>
+                    <p class="lead">Сначала отредактируйте обзор курса. Разделы можно добавить, когда структура будет готова.</p>
+                </div>
+
+                <button class="button button--primary" type="button">Редактировать курс</button>
+            </header>
+
+            <section class="editor-grid" aria-labelledby="sections-title">
+                <div class="section-block section-block--wide">
+                    <div class="section-heading">
+                        <div>
+                            <h2 id="sections-title">Разделы</h2>
+                            <p>Разделы появятся здесь.</p>
+                        </div>
+
+                        <button class="button button--ghost" type="button">Добавить раздел</button>
+                    </div>
+
+                    <div class="placeholder-panel" role="note" aria-label="Заполнитель разделов">
+                        <p>Разделы появятся здесь.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
