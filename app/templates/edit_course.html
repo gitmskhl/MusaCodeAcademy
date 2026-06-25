@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создать курс</title>
+    <title>Редактировать курс</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
     <script defer src="{{ url_for('static', path='js/admin.js') }}"></script>
 </head>
@@ -11,23 +11,22 @@
     <div class="admin-page">
         <div class="admin-loading" data-admin-loading role="status" aria-live="polite">Проверка доступа...</div>
         <div class="admin-error" data-admin-error hidden></div>
-        <div class="admin-notifications" data-admin-notifications aria-live="polite" aria-atomic="true"></div>
 
-        <main class="admin-shell admin-shell--narrow" data-admin-content hidden>
+        <main class="admin-shell admin-shell--narrow" data-admin-content hidden data-course-id="{{ course_id }}">
             <header class="admin-header admin-header--stacked">
                 <a class="back-link" href="/admin">&larr; Назад</a>
-                <h1>Создать курс</h1>
+                <h1>Редактировать курс</h1>
             </header>
 
-            <section class="form-shell" aria-labelledby="create-course-title">
-                <h2 id="create-course-title">Данные курса</h2>
+            <section class="form-shell" aria-labelledby="edit-course-title">
+                <h2 id="edit-course-title">Параметры курса</h2>
 
                 <div class="form-message" id="course-form-message" role="status" aria-live="polite"></div>
                 <div class="form-progress" data-form-progress hidden aria-hidden="true">
                     <span></span>
                 </div>
 
-                <form class="admin-form" data-course-form novalidate>
+                <form class="admin-form" data-course-edit-form novalidate>
                     <div class="field">
                         <label for="course-title">Название курса</label>
                         <input
@@ -38,37 +37,8 @@
                             placeholder="Например: Python для начинающих"
                             minlength="5"
                             maxlength="255"
-                            required
                         >
                         <p class="field-error" data-error-for="title" aria-live="polite"></p>
-                    </div>
-
-                    <div class="field">
-                        <label for="course-short-description">Краткое описание</label>
-                        <textarea
-                            id="course-short-description"
-                            name="short_description"
-                            rows="3"
-                            placeholder="Коротко опишите курс."
-                            minlength="10"
-                            maxlength="255"
-                            required
-                        ></textarea>
-                        <p class="field-error" data-error-for="short_description" aria-live="polite"></p>
-                    </div>
-
-                    <div class="field">
-                        <label for="course-description">Описание курса</label>
-                        <textarea
-                            id="course-description"
-                            name="description"
-                            rows="5"
-                            placeholder="Подробно опишите, чему посвящён курс."
-                            minlength="20"
-                            maxlength="5000"
-                            required
-                        ></textarea>
-                        <p class="field-error" data-error-for="description" aria-live="polite"></p>
                     </div>
 
                     <div class="field">
@@ -82,13 +52,45 @@
                             minlength="2"
                             maxlength="255"
                             pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
-                            required
                         >
                         <p class="field-error" data-error-for="slug" aria-live="polite"></p>
                     </div>
 
+                    <div class="field">
+                        <label for="course-short-description">Краткое описание</label>
+                        <textarea
+                            id="course-short-description"
+                            name="short_description"
+                            rows="3"
+                            placeholder="Коротко опишите курс."
+                            minlength="10"
+                            maxlength="255"
+                        ></textarea>
+                        <p class="field-error" data-error-for="short_description" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="course-description">Описание курса</label>
+                        <textarea
+                            id="course-description"
+                            name="description"
+                            rows="5"
+                            placeholder="Подробно опишите, чему посвящён курс."
+                            minlength="20"
+                            maxlength="5000"
+                        ></textarea>
+                        <p class="field-error" data-error-for="description" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field field--switch">
+                        <label class="switch-field" for="course-is-published">
+                            <input id="course-is-published" name="is_published" type="checkbox">
+                            <span>Курс опубликован</span>
+                        </label>
+                    </div>
+
                     <div class="form-actions">
-                        <button class="button button--primary" type="submit" data-course-submit>Создать курс</button>
+                        <button class="button button--primary" type="submit" data-course-submit>Сохранить</button>
                         <a class="button button--ghost" href="/admin">Отмена</a>
                     </div>
                 </form>

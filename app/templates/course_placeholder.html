@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курс {{ course_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+</head>
+<body>
+    <div class="admin-page">
+        <main class="admin-shell admin-shell--narrow">
+            <header class="admin-header admin-header--stacked">
+                <a class="back-link" href="/admin">&larr; Назад</a>
+                <h1>Карточка курса</h1>
+            </header>
+
+            <section class="section-block">
+                <div class="placeholder-panel">
+                    <div>
+                        <p class="empty-state__title">Страница курса пока не готова</p>
+                        <p class="empty-state__text">TODO: /admin/courses/{{ course_id }} будет открывать редактор курса.</p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="button button--primary" href="/admin/courses/{{ course_id }}/edit">Редактировать курс</a>
+                    <a class="button button--ghost" href="/admin">Назад к списку</a>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

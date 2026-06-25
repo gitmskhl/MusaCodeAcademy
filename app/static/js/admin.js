@@ -5,7 +5,12 @@
         content: null,
         loading: null,
         error: null,
+        notification: null,
         courseList: null,
+        activeMenu: null,
+        deleteDialog: null,
+        pendingDeleteCourseId: null,
+        notificationTimer: null,
     };
 
     const slugify = (value) =>
@@ -23,6 +28,303 @@
 
     const redirectHome = () => {
         window.location.href = '/';
+    };
+
+    const getCourseUrl = (courseId) => `/admin/courses/${courseId}`;
+
+    const getCourseEditUrl = (courseId) => `/admin/courses/${courseId}/edit`;
+
+    const hideNotification = () => {
+        if (state.notificationTimer) {
+            window.clearTimeout(state.notificationTimer);
+            state.notificationTimer = null;
+        }
+
+        if (!state.notification) {
+            return;
+        }
+
+        state.notification.hidden = true;
+        state.notification.innerHTML = '';
+    };
+
+    const showNotification = (message, kind) => {
+        if (!state.notification) {
+            return;
+        }
+
+        hideNotification();
+
+        const toast = document.createElement('div');
+        toast.className = `admin-notification admin-notification--${kind} is-visible`;
+        toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+        toast.textContent = message;
+
+        state.notification.hidden = false;
+        state.notification.appendChild(toast);
+        state.notificationTimer = window.setTimeout(hideNotification, 4000);
+    };
+
+    const getBackendErrorMessage = async (response, fallbackMessage) => {
+        const responseCopy = response.clone();
+
+        try {
+            const data = await response.json();
+            return data?.detail || data?.message || fallbackMessage;
+        } catch (jsonError) {
+            try {
+                const text = await responseCopy.text();
+                return text || fallbackMessage;
+            } catch (textError) {
+                return fallbackMessage;
+            }
+        }
+    };
+
+    const removeCourseCard = (courseId) => {
+        if (!state.courseList) {
+            return;
+        }
+
+        const card = state.courseList.querySelector(`[data-course-id="${courseId}"]`);
+        if (card) {
+            card.remove();
+        }
+
+        if (!state.courseList.querySelector('.course-card')) {
+            state.courseList.innerHTML = `
+                <div class="empty-state" role="status">
+                    <p class="empty-state__title">Курсы отсутствуют</p>
+                </div>
+            `;
+        }
+    };
+
+    const closeActiveMenu = () => {
+        if (!state.activeMenu) {
+            return;
+        }
+
+        const { card, trigger, menu } = state.activeMenu;
+
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        if (menu) {
+            menu.hidden = true;
+        }
+
+        if (card) {
+            card.classList.remove('is-menu-open');
+        }
+
+        state.activeMenu = null;
+    };
+
+    const openMenuForCard = (card) => {
+        const trigger = card.querySelector('[data-course-menu-trigger]');
+        const menu = card.querySelector('[data-course-menu]');
+
+        if (!trigger || !menu) {
+            return;
+        }
+
+        if (state.activeMenu && state.activeMenu.card !== card) {
+            closeActiveMenu();
+        }
+
+        const isOpen = state.activeMenu && state.activeMenu.card === card;
+
+        if (isOpen) {
+            closeActiveMenu();
+            return;
+        }
+
+        trigger.setAttribute('aria-expanded', 'true');
+        menu.hidden = false;
+        card.classList.add('is-menu-open');
+        state.activeMenu = { card, trigger, menu };
+    };
+
+    const deleteCourse = async (courseId) => {
+        const token = getToken();
+
+        if (!token) {
+            throw new Error('Failed to delete the course.');
+        }
+
+        const response = await fetch(`/api/courses/${courseId}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            const fallbackMessage = 'Failed to delete the course.';
+            const errorMessage = await getBackendErrorMessage(response, fallbackMessage);
+            throw new Error(errorMessage || fallbackMessage);
+        }
+
+        removeCourseCard(courseId);
+    };
+
+    const showDeleteDialog = (courseId) => {
+        if (!state.deleteDialog) {
+            const dialog = document.createElement('div');
+            dialog.className = 'dialog-overlay';
+            dialog.hidden = true;
+            dialog.innerHTML = `
+                <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="delete-course-title" aria-describedby="delete-course-description">
+                    <h2 id="delete-course-title">Delete this course?</h2>
+                    <p id="delete-course-description">This action cannot be undone.</p>
+                    <div class="dialog__actions">
+                        <button type="button" class="button button--ghost" data-delete-cancel>Cancel</button>
+                        <button type="button" class="button button--danger" data-delete-confirm>Delete</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+            state.deleteDialog = dialog;
+
+            dialog.addEventListener('click', (event) => {
+                if (event.target === dialog) {
+                    dialog.hidden = true;
+                    state.pendingDeleteCourseId = null;
+                }
+            });
+
+            dialog.querySelector('[data-delete-cancel]')?.addEventListener('click', () => {
+                dialog.hidden = true;
+                state.pendingDeleteCourseId = null;
+            });
+
+            dialog.querySelector('[data-delete-confirm]')?.addEventListener('click', async () => {
+                const confirmButton = dialog.querySelector('[data-delete-confirm]');
+                const cancelButton = dialog.querySelector('[data-delete-cancel]');
+                const targetCourseId = state.pendingDeleteCourseId;
+
+                if (!targetCourseId) {
+                    dialog.hidden = true;
+                    return;
+                }
+
+                if (confirmButton instanceof HTMLButtonElement) {
+                    confirmButton.disabled = true;
+                }
+
+                if (cancelButton instanceof HTMLButtonElement) {
+                    cancelButton.disabled = true;
+                }
+
+                try {
+                    await deleteCourse(targetCourseId);
+                    dialog.hidden = true;
+                    state.pendingDeleteCourseId = null;
+                    showNotification('Course deleted successfully.', 'success');
+                } catch (error) {
+                    dialog.hidden = true;
+                    state.pendingDeleteCourseId = null;
+                    showNotification(
+                        error instanceof Error && error.message ? error.message : 'Failed to delete the course.',
+                        'error'
+                    );
+                } finally {
+                    if (confirmButton instanceof HTMLButtonElement) {
+                        confirmButton.disabled = false;
+                    }
+
+                    if (cancelButton instanceof HTMLButtonElement) {
+                        cancelButton.disabled = false;
+                    }
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && state.deleteDialog && !state.deleteDialog.hidden) {
+                    state.deleteDialog.hidden = true;
+                    state.pendingDeleteCourseId = null;
+                }
+            });
+        }
+
+        state.pendingDeleteCourseId = courseId;
+        state.deleteDialog.hidden = false;
+        state.deleteDialog.querySelector('[data-delete-cancel]')?.focus();
+    };
+
+    const handleCourseListClick = (event) => {
+        const menuButton = event.target.closest('[data-course-menu-trigger]');
+        if (menuButton) {
+            event.preventDefault();
+            event.stopPropagation();
+            const card = menuButton.closest('.course-card');
+            if (card) {
+                openMenuForCard(card);
+            }
+            return;
+        }
+
+        const menuItem = event.target.closest('[data-course-menu-item]');
+        if (menuItem) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const card = menuItem.closest('.course-card');
+            const courseId = card?.dataset.courseId;
+            const action = menuItem.dataset.courseMenuItem;
+
+            closeActiveMenu();
+
+            if (!courseId) {
+                return;
+            }
+
+            if (action === 'edit') {
+                window.location.href = getCourseEditUrl(courseId);
+            } else if (action === 'delete') {
+                showDeleteDialog(courseId);
+            }
+
+            return;
+        }
+
+        const menu = event.target.closest('[data-course-menu]');
+        if (menu) {
+            event.stopPropagation();
+            return;
+        }
+
+        const card = event.target.closest('.course-card');
+        if (card && state.courseList?.contains(card)) {
+            const courseId = card.dataset.courseId;
+
+            if (courseId) {
+                closeActiveMenu();
+                window.location.href = getCourseUrl(courseId);
+            }
+        }
+    };
+
+    const handleDocumentClick = (event) => {
+        if (!state.activeMenu) {
+            return;
+        }
+
+        const clickedInsideCard = event.target.closest('.course-card') === state.activeMenu.card;
+
+        if (!clickedInsideCard) {
+            closeActiveMenu();
+            return;
+        }
+
+        const clickedTrigger = event.target.closest('[data-course-menu-trigger]');
+        const clickedMenu = event.target.closest('[data-course-menu]');
+
+        if (!clickedTrigger && !clickedMenu) {
+            closeActiveMenu();
+        }
     };
 
     const showLoading = (message = 'Проверка доступа...') => {
@@ -79,6 +381,7 @@
     const renderCourses = (courses) => {
         if (!state.courseList) return;
 
+        closeActiveMenu();
         state.courseList.innerHTML = '';
 
         if (!Array.isArray(courses) || courses.length === 0) {
@@ -99,6 +402,8 @@
             const card = document.createElement('article');
             card.className = 'course-card';
             card.setAttribute('role', 'listitem');
+            card.dataset.courseId = String(course.id ?? '');
+            card.tabIndex = 0;
 
             const body = document.createElement('div');
             body.className = 'course-card__body';
@@ -124,17 +429,30 @@
             const actions = document.createElement('div');
             actions.className = 'course-card__actions';
 
-            const openButton = document.createElement('button');
-            openButton.className = 'button button--ghost';
-            openButton.type = 'button';
-            openButton.textContent = 'Открыть';
+            const menuWrap = document.createElement('div');
+            menuWrap.className = 'course-card__menu-wrap';
 
-            const settingsButton = document.createElement('button');
-            settingsButton.className = 'button button--ghost';
-            settingsButton.type = 'button';
-            settingsButton.textContent = 'Настройки';
+            const menuButton = document.createElement('button');
+            menuButton.className = 'course-card__menu-button';
+            menuButton.type = 'button';
+            menuButton.setAttribute('aria-label', 'Открыть меню курса');
+            menuButton.setAttribute('aria-haspopup', 'menu');
+            menuButton.setAttribute('aria-expanded', 'false');
+            menuButton.setAttribute('data-course-menu-trigger', '');
+            menuButton.textContent = '⋮';
 
-            actions.append(openButton, settingsButton);
+            const menu = document.createElement('div');
+            menu.className = 'course-card__menu';
+            menu.hidden = true;
+            menu.setAttribute('data-course-menu', '');
+            menu.setAttribute('role', 'menu');
+            menu.innerHTML = `
+                <button type="button" class="course-card__menu-item" data-course-menu-item="edit" role="menuitem">Edit</button>
+                <button type="button" class="course-card__menu-item course-card__menu-item--danger" data-course-menu-item="delete" role="menuitem">Delete</button>
+            `;
+
+            menuWrap.append(menuButton, menu);
+            actions.append(menuWrap);
 
             card.append(body, actions);
 
@@ -469,33 +787,21 @@
                 }
 
                 if (!response.ok) {
-                    let errorMessage = 'Не удалось создать курс. Проверьте данные и попробуйте еще раз.';
+                    const errorMessage = await getBackendErrorMessage(
+                        response,
+                        'Failed to create the course.'
+                    );
 
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData?.detail || errorData?.message || errorMessage;
-                    } catch (jsonError) {
-                        try {
-                            const textError = await response.text();
-                            if (textError) {
-                                errorMessage = textError;
-                            }
-                        } catch (textReadError) {
-                            // Use fallback message.
-                        }
-                    }
-
-                    throw new Error(errorMessage);
+                    throw new Error(errorMessage || 'Failed to create the course.');
                 }
 
                 window.location.href = '/admin';
             } catch (error) {
-                setFormMessage(
-                    messageBox,
-                    'is-error',
+                showNotification(
                     error instanceof Error && error.message
                         ? error.message
-                        : 'Не удалось создать курс. Попробуйте еще раз.'
+                        : 'Failed to create the course.',
+                    'error'
                 );
             } finally {
                 isSubmitting = false;
@@ -508,11 +814,38 @@
         state.content = document.querySelector('[data-admin-content]');
         state.loading = document.querySelector('[data-admin-loading]');
         state.error = document.querySelector('[data-admin-error]');
+        state.notification = document.querySelector('[data-admin-notifications]');
         state.courseList = document.querySelector('[data-course-list]');
 
         hideError();
+        hideNotification();
         hideContent();
         showLoading();
+
+        if (state.courseList) {
+            state.courseList.addEventListener('click', handleCourseListClick);
+            state.courseList.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                const card = event.target.closest('.course-card');
+                if (!card || event.target.closest('[data-course-menu-trigger]') || event.target.closest('[data-course-menu]')) {
+                    return;
+                }
+
+                const courseId = card.dataset.courseId;
+                if (!courseId) {
+                    return;
+                }
+
+                event.preventDefault();
+                closeActiveMenu();
+                window.location.href = getCourseUrl(courseId);
+            });
+        }
+
+        document.addEventListener('click', handleDocumentClick);
 
         try {
             const access = await checkAdminAccess();

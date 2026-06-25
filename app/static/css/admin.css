@@ -124,6 +124,49 @@ button {
     line-height: 1.45;
 }
 
+.admin-notifications {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    z-index: 70;
+    display: grid;
+    gap: 10px;
+    width: min(100%, 420px);
+    pointer-events: none;
+    transform: translateX(-50%);
+}
+
+.admin-notification {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(16, 24, 40, 0.14);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    pointer-events: auto;
+}
+
+.admin-notification.is-visible {
+    display: flex;
+}
+
+.admin-notification--success {
+    color: var(--success-text);
+    border-color: rgba(2, 122, 72, 0.18);
+    background: var(--success-bg);
+}
+
+.admin-notification--error {
+    color: var(--danger-text);
+    border-color: rgba(180, 35, 24, 0.18);
+    background: var(--danger-bg);
+}
+
 .admin-header,
 .editor-header {
     display: flex;
@@ -240,10 +283,24 @@ h3 {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    position: relative;
     padding: 12px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: #ffffff;
+    cursor: pointer;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background-color 160ms ease;
+}
+
+.course-card.is-menu-open {
+    z-index: 20;
+}
+
+.course-card:hover,
+.course-card:focus-within {
+    border-color: #b7c6d8;
+    box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
+    transform: translateY(-1px);
 }
 
 .course-card__body {
@@ -272,6 +329,125 @@ h3 {
     gap: 8px;
     flex-shrink: 0;
     flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.course-card__menu-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+.course-card__menu-button {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.course-card__menu-button:hover,
+.course-card__menu-button:focus-visible {
+    border-color: #b7c6d8;
+    background: #f9fbff;
+    box-shadow: 0 8px 16px rgba(16, 24, 40, 0.08);
+    transform: translateY(-1px);
+}
+
+.course-card__menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 30;
+    min-width: 160px;
+    padding: 6px;
+    border: 1px solid rgba(216, 224, 234, 0.95);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 14px 32px rgba(16, 24, 40, 0.12);
+}
+
+.course-card__menu-item {
+    display: flex;
+    width: 100%;
+    min-height: 34px;
+    padding: 0 10px;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.course-card__menu-item:hover,
+.course-card__menu-item:focus-visible {
+    background: #f3f6fb;
+}
+
+.course-card__menu-item--danger {
+    color: var(--danger-text);
+}
+
+.course-card__menu-item--danger:hover,
+.course-card__menu-item--danger:focus-visible {
+    background: rgba(180, 35, 24, 0.08);
+}
+
+.dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(16, 24, 40, 0.42);
+}
+
+.dialog {
+    width: min(100%, 420px);
+    padding: 20px;
+    border: 1px solid rgba(216, 224, 234, 0.95);
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 24px 60px rgba(16, 24, 40, 0.2);
+}
+
+.dialog h2 {
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.dialog p {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.button--danger {
+    color: #ffffff;
+    background: var(--danger-text);
+    box-shadow: 0 8px 16px rgba(180, 35, 24, 0.12);
+}
+
+.button--danger:hover {
+    background: #932111;
 }
 
 .status-badge {
