@@ -42,3 +42,4 @@ class CourseUpdate(BaseModel):
     
     short_description: str | None = Field(default=None, min_length=10)
     description: str | None = Field(default=None, min_length=20)
+    is_published: bool | None = Field(default=None)

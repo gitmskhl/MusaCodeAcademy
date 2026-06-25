@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактировать курс</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
-    <script defer src="{{ url_for('static', path='js/admin.js') }}"></script>
+    <script defer src="{{ url_for('static', path='js/edit_course.js') }}"></script>
 </head>
 <body>
     <div class="admin-page">
@@ -82,11 +82,12 @@
                         <p class="field-error" data-error-for="description" aria-live="polite"></p>
                     </div>
 
-                    <div class="field field--switch">
-                        <label class="switch-field" for="course-is-published">
-                            <input id="course-is-published" name="is_published" type="checkbox">
-                            <span>Курс опубликован</span>
-                        </label>
+                    <div class="field">
+                        <label for="course-is-published">Публикация</label>
+                        <select id="course-is-published" name="is_published">
+                            <option value="true">Publish</option>
+                            <option value="false">Unpublish</option>
+                        </select>
                     </div>
 
                     <div class="form-actions">

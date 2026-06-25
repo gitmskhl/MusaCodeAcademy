@@ -6,7 +6,7 @@ from app.services.course import (
     create_course as service_create_coure,
     get_all_courses,
     get_published_courses,
-    get_course_info,
+    get_course_info as service_get_course_info,
     get_published_course_info,
     update_course as service_update_course,
     delete_course as service_delete_course
@@ -32,7 +32,7 @@ async def get_course_info(course_id: int, db: DBSession):
 
 @router.get('/{course_id}/admin', response_model=CoursePrivate)
 async def get_course_private_info(course_id: int, admin: OnlyAdmin, db: DBSession):
-    return await get_course_info(course_id, db)
+    return await service_get_course_info(course_id, db)
 
 
 @router.post('', response_model=CoursePublic, status_code=status.HTTP_201_CREATED)

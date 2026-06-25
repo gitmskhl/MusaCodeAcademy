@@ -640,7 +640,8 @@ textarea:focus-visible {
 }
 
 input,
-textarea {
+textarea,
+select {
     width: 100%;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -654,6 +655,11 @@ input {
     padding: 0 12px;
 }
 
+select {
+    min-height: 38px;
+    padding: 0 12px;
+}
+
 textarea {
     resize: vertical;
     min-height: 96px;
@@ -662,13 +668,15 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
     border-color: rgba(29, 78, 216, 0.5);
     box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
 }
 
 input[aria-invalid="true"],
-textarea[aria-invalid="true"] {
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] {
     border-color: rgba(180, 35, 24, 0.45);
     box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.08);
 }
