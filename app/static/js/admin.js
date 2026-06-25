@@ -341,10 +341,10 @@
         }
 
         if (!values.slug) {
-            setFieldError(form, 'slug', 'Слаг обязателен.');
+            setFieldError(form, 'slug', 'Slug обязателен.');
             firstInvalid = firstInvalid || slug;
         } else if (values.slug.length < 2) {
-            setFieldError(form, 'slug', 'Слаг должен содержать минимум 2 символа.');
+            setFieldError(form, 'slug', 'Slug должен содержать минимум 2 символа.');
             firstInvalid = firstInvalid || slug;
         } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug)) {
             setFieldError(form, 'slug', 'Используйте строчные буквы, цифры и дефисы.');

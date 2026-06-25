@@ -60,6 +60,31 @@ async def get_all_courses(db: DBSession) -> Sequence[Course]:
     return result.scalars().all()
 
 
+async def get_published_course_info(course_id: int, db: DBSession) -> Course:
+    course = await db.get(Course, course_id)
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    if not course.is_published:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Course is not published"
+        )
+    return course
+
+
+async def get_course_info(course_id: int, db: DBSession) -> Course:
+    course = await db.get(Course, course_id)
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    return course
+
+
 async def update_course(course_id: int, updateInfo: CourseUpdate, db: DBSession) -> Course:
     course = await db.get(Course, course_id)
     if not course:
@@ -90,3 +115,21 @@ async def update_course(course_id: int, updateInfo: CourseUpdate, db: DBSession)
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Course with this slug already exists"
             )
+        
+        
+async def delete_course(course_id: int, db: DBSession):
+    course = await db.get(Course, course_id)
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    try:
+        await db.delete(course)
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while deleting the course"
+        )

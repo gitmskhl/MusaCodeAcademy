@@ -41,7 +41,6 @@ CurrentUser = Annotated[models.User, Depends(get_current_user)]
 
 def require_role(*allowed_roles: UserRole):
     async def dependency(current_user: CurrentUser) -> models.User:
-        print('CURRENT ROLE:', current_user.role, allowed_roles)
         if current_user.role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

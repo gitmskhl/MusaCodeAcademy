@@ -6,7 +6,10 @@ from app.services.course import (
     create_course as service_create_coure,
     get_all_courses,
     get_published_courses,
-    update_course as service_update_course
+    get_course_info,
+    get_published_course_info,
+    update_course as service_update_course,
+    delete_course as service_delete_course
 )
 
 
@@ -22,6 +25,16 @@ async def get_courses_private(admin: OnlyAdmin, db: DBSession):
     return await get_all_courses(db)
 
 
+@router.get('/{course_id}', response_model=CoursePublic)
+async def get_course_info(course_id: int, db: DBSession):
+    return await get_published_course_info(course_id, db)
+
+
+@router.get('/{course_id}/admin', response_model=CoursePrivate)
+async def get_course_private_info(course_id: int, admin: OnlyAdmin, db: DBSession):
+    return await get_course_info(course_id, db)
+
+
 @router.post('', response_model=CoursePublic, status_code=status.HTTP_201_CREATED)
 async def create_course(courseInfo: CourseCreate, admin: OnlyAdmin, db: DBSession):
     return await service_create_coure(courseInfo, db)
@@ -35,3 +48,12 @@ async def update_course(
     db: DBSession
 ):
     return await service_update_course(course_id, updateInfo, db)
+
+
+@router.delete('/{course_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_course(
+    course_id: int,
+    admin: OnlyAdmin,
+    db: DBSession
+):
+    await service_delete_course(course_id, db)
