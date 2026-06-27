@@ -1,4 +1,5 @@
 from httpx import AsyncClient, ASGITransport
+import pytest
 import pytest_asyncio
 from sqlalchemy import delete
 from sqlalchemy.pool import StaticPool
@@ -6,6 +7,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from app.core.database import get_db
 from app.models.base import Base
 from app.main import app
+from app.core.config import settings
 
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -61,3 +63,46 @@ async def client(db):
         yield client
         
     app.dependency_overrides.clear()
+    
+    
+
+@pytest.fixture
+def user_data():
+    return {
+        "email": "test@example.com",
+        "password": "12345678",
+        "first_name": "Alex",
+        "last_name": "Silver"
+    }
+   
+    
+@pytest_asyncio.fixture
+async def auth_headers(client, user_data):
+    response = await client.post(
+        "/api/auth/register",
+        json=user_data
+    )
+    
+    token = response.json()["token"]["access_token"]
+    return {
+        "Authorization": f"Bearer {token}"
+    }
+    
+
+    
+@pytest_asyncio.fixture
+async def auth_expired_token_headers(client, user_data, monkeypatch):
+    monkeypatch.setattr(
+        settings, 
+        "access_token_expire_minutes",
+        -1
+    )
+    response = await client.post(
+        "/api/auth/register",
+        json=user_data
+    )
+    
+    token = response.json()["token"]["access_token"]
+    return {
+        "Authorization": f"Bearer {token}"
+    }
