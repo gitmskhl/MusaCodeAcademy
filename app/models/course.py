@@ -1,7 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from sqlalchemy import String, Text, Boolean, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
+
+if TYPE_CHECKING:
+    from .section import Section
 
 class Course(Base):
     __tablename__ = "courses"
@@ -27,4 +32,9 @@ class Course(Base):
         onupdate=lambda: datetime.now(UTC)
     )
 
+    sections: Mapped[list["Section"]] = relationship(
+        back_populates="course",
+        cascade="all, delete-orphan",
+        order_by="Section.order"
+    )
 

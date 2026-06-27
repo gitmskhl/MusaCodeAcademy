@@ -18,6 +18,10 @@ class UserPublic(BaseModel):
     role: UserRole
 
 
+class UserPublicDetailed(UserPublic):
+    email: EmailStr
+
+
 class UserUpdate(BaseModel):
     email: EmailStr | None = None
     first_name: str | None = Field(default=None, min_length=2, max_length=20)

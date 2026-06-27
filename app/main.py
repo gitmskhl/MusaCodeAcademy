@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routers import authRouter, userRouter, pagesRouter, courseRouter
+from app.api.routers import authRouter, userRouter, pagesRouter, courseRouter, sectionRouter
 from app.core.database import engine
 from app.models import Base
 
@@ -41,4 +41,10 @@ app.include_router(
     courseRouter,
     prefix='/api/courses',
     tags=['course']
+)
+
+app.include_router(
+    sectionRouter,
+    prefix='/api/sections',
+    tags=['section']
 )

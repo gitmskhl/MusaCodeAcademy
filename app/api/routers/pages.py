@@ -40,14 +40,14 @@ async def admin_page(request: Request):
     )
     
 @router.get("/admin/courses/create", response_class=HTMLResponse, include_in_schema=False)
-async def admin_page(request: Request):
+async def admin_create_course_page(request: Request):
     return templates.TemplateResponse(
         request,
         "create_course.html"
     )
   
 @router.get("/admin/courses/{course_id}/edit", response_class=HTMLResponse, include_in_schema=False)
-async def admin_page(request: Request, course_id: int):
+async def admin_edit_course_page(request: Request, course_id: int):
     return templates.TemplateResponse(
         request,
         "edit_course.html", {"course_id": course_id}
