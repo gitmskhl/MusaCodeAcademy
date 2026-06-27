@@ -117,3 +117,96 @@ async def test_register_missing_required_fields(client):
         "first_name",
         "last_name"
     }
+
+
+@pytest.mark.asyncio
+async def test_get_token_success(client):
+    email = "test@example.com"
+    password = "12345678"
+    first_name = "Alex"
+    last_name = "Silver"
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": email,
+            "password": password,
+            "first_name": first_name,
+            "last_name": last_name
+        }
+    )
+    
+    response = await client.post(
+        "/api/auth/token",
+        data={
+            "username": email,
+            "password": password
+        }
+    )
+    
+    assert response.status_code == status.HTTP_200_OK
+    
+    data = response.json()
+    assert "access_token" in data
+    assert data["access_token"] is not None
+    assert "token_type" in data
+    assert data["token_type"] is not None
+    
+    
+@pytest.mark.asyncio
+async def test_get_token_wrong_username(client):
+    email = "test@example.com"
+    password = "12345678"
+    first_name = "Alex"
+    last_name = "Silver"
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": email,
+            "password": password,
+            "first_name": first_name,
+            "last_name": last_name
+        }
+    )
+    
+    response = await client.post(
+        "/api/auth/token",
+        data={
+            "username": "wrong@gmail.com",
+            "password": password
+        }
+    )
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {
+        "detail": "Incorrect email or password"
+    }
+    
+    
+@pytest.mark.asyncio
+async def test_get_token_wrong_password(client):
+    email = "test@example.com"
+    password = "12345678"
+    first_name = "Alex"
+    last_name = "Silver"
+    response = await client.post(
+        "/api/auth/register",
+        json={
+            "email": email,
+            "password": password,
+            "first_name": first_name,
+            "last_name": last_name
+        }
+    )
+    
+    response = await client.post(
+        "/api/auth/token",
+        data={
+            "username": email,
+            "password": "asdasdasdasdasdasd"
+        }
+    )
+    
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {
+        "detail": "Incorrect email or password"
+    }
