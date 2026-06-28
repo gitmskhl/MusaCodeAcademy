@@ -1,11 +1,14 @@
+import select
+
 from httpx import AsyncClient, ASGITransport
 import pytest
 import pytest_asyncio
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.database import get_db
-from app.models.base import Base
+from app.enums import UserRole
+from app.models import Base, Course, User
 from app.main import app
 from app.core.config import settings
 
@@ -89,6 +92,16 @@ async def auth_headers(client, user_data):
     }
     
 
+@pytest_asyncio.fixture
+async def admin_headers(auth_headers, user_data, db):
+    
+    result = await db.execute(select(User).where(User.email == user_data["email"].lower()))
+    user = result.scalars().first()
+    user.role = UserRole.ADMIN
+    await db.commit()
+    
+    return auth_headers
+
     
 @pytest_asyncio.fixture
 async def auth_expired_token_headers(client, user_data, monkeypatch):
@@ -106,3 +119,24 @@ async def auth_expired_token_headers(client, user_data, monkeypatch):
     return {
         "Authorization": f"Bearer {token}"
     }
+    
+    
+@pytest_asyncio.fixture
+async def course_factory(db):
+    async def create_course(*, slug, title="Python basics", is_published=False):
+        
+        new_course = Course(
+            slug=slug,
+            title=title,
+            short_description="A test course for testing",
+            description="A test course to test the functionality of the service",
+            is_published=is_published
+        )
+        
+        db.add(new_course)
+        await db.commit()
+        await db.refresh(new_course)
+        return new_course
+
+    return create_course
+
