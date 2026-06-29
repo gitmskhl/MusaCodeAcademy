@@ -1,5 +1,5 @@
 import select
-
+from uuid import uuid4
 from httpx import AsyncClient, ASGITransport
 import pytest
 import pytest_asyncio
@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.database import get_db
 from app.enums import UserRole
-from app.models import Base, Course, User
+from app.models import Base, Course, User, Section
 from app.main import app
 from app.core.config import settings
 
@@ -171,3 +171,30 @@ async def course_factory(db):
 @pytest_asyncio.fixture
 async def real_course(course_factory, course_data):
     return await course_factory(**course_data)
+
+                
+@pytest_asyncio.fixture
+async def section_factory(course_factory, db):
+    async def create_section(
+        *,
+        course_id: int | None,
+        is_published: bool,
+        order: int,
+        title="Some section",
+        description="Some description in a section"
+    ):
+        if course_id is None:
+            course = await course_factory(slug=uuid4().hex, is_published=is_published)
+            course_id = course.id
+        section = Section(
+            course_id=course_id,
+            title=title,
+            description=description,
+            order=order
+        )
+        db.add(section)
+        await db.commit()
+        await db.refresh(section)
+        return section
+
+    return create_section
