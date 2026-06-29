@@ -89,6 +89,15 @@ def course_data():
         "is_published": False
     }
    
+   
+@pytest.fixture
+def section_data():
+    return {
+        "course_id": 1,
+        "title": "print & variables",
+        "description": "Learn how print works",
+        "order": 0,
+    }
     
 @pytest_asyncio.fixture
 async def auth_headers(client, user_data):
@@ -134,13 +143,20 @@ async def auth_expired_token_headers(client, user_data, monkeypatch):
     
 @pytest_asyncio.fixture
 async def course_factory(db):
-    async def create_course(*, slug, title="Python basics", is_published=False):
+    async def create_course(
+        *,
+        slug,
+        title="Python basics",
+        is_published=False,
+        short_description="A test course for testing",
+        description="A test course to test the functionality of the service"
+    ):
         
         new_course = Course(
             slug=slug,
             title=title,
-            short_description="A test course for testing",
-            description="A test course to test the functionality of the service",
+            short_description=short_description,
+            description=description,
             is_published=is_published
         )
         
@@ -151,3 +167,7 @@ async def course_factory(db):
 
     return create_course
 
+
+@pytest_asyncio.fixture
+async def real_course(course_factory, course_data):
+    return await course_factory(**course_data)
