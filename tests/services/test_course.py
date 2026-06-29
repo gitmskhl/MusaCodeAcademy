@@ -9,7 +9,7 @@ from app.schemas.course import CourseCreate, CourseUpdate
 from app.services import course as service_course
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_create_course_success(db):
     course_info = CourseCreate(
         title="Python basics",
@@ -28,7 +28,7 @@ async def test_create_course_success(db):
     assert course.is_published is False
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_create_course_slug_exists_case_insensitive(course_factory, db):
     await course_factory(slug="pypy")
     course_info = CourseCreate(
@@ -45,7 +45,7 @@ async def test_create_course_slug_exists_case_insensitive(course_factory, db):
     assert exc.value.detail == "Course with this slug already exists"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_create_course_integrity_error_returns_conflict(db, monkeypatch):
     course_info = CourseCreate(
         title="Python basics",
@@ -68,14 +68,14 @@ async def test_create_course_integrity_error_returns_conflict(db, monkeypatch):
     rollback_mock.assert_awaited_once()
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_course_exists_by_slug_returns_false(db):
     result = await service_course.course_exists_by_slug(slug="python", db=db)
 
     assert result is False
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_course_exists_by_slug_returns_true_case_insensitive(
     course_factory,
     db,
@@ -87,14 +87,14 @@ async def test_course_exists_by_slug_returns_true_case_insensitive(
     assert result is True
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_published_courses_returns_empty_list(db):
     courses = await service_course.get_published_courses(db)
 
     assert courses == []
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_published_courses_returns_only_published(
     course_factory,
     db,
@@ -118,14 +118,14 @@ async def test_get_published_courses_returns_only_published(
     assert all(course.is_published for course in courses)
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_all_courses_returns_empty_list(db):
     courses = await service_course.get_all_courses(db)
 
     assert courses == []
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_all_courses_returns_published_and_drafts(
     course_factory,
     db,
@@ -138,7 +138,7 @@ async def test_get_all_courses_returns_published_and_drafts(
     assert {course.id for course in courses} == {published.id, draft.id}
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_published_course_info_success(course_factory, db):
     course = await course_factory(slug="published", is_published=True)
 
@@ -147,7 +147,7 @@ async def test_get_published_course_info_success(course_factory, db):
     assert result.id == course.id
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_published_course_info_not_found(db):
     with pytest.raises(HTTPException) as exc:
         await service_course.get_published_course_info(999_999, db)
@@ -156,7 +156,7 @@ async def test_get_published_course_info_not_found(db):
     assert exc.value.detail == "Course not found"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_published_course_info_rejects_draft(course_factory, db):
     course = await course_factory(slug="draft", is_published=False)
 
@@ -167,7 +167,7 @@ async def test_get_published_course_info_rejects_draft(course_factory, db):
     assert exc.value.detail == "Course is not published"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_course_info_returns_draft(course_factory, db):
     course = await course_factory(slug="draft", is_published=False)
 
@@ -176,7 +176,7 @@ async def test_get_course_info_returns_draft(course_factory, db):
     assert result.id == course.id
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_get_course_info_not_found(db):
     with pytest.raises(HTTPException) as exc:
         await service_course.get_course_info(999_999, db)
@@ -185,7 +185,7 @@ async def test_get_course_info_not_found(db):
     assert exc.value.detail == "Course not found"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_update_course_updates_only_provided_fields(course_factory, db):
     course = await course_factory(
         slug="python",
@@ -210,7 +210,7 @@ async def test_update_course_updates_only_provided_fields(course_factory, db):
     assert updated_course.description == original_description
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_update_course_normalizes_slug(course_factory, db):
     course = await course_factory(slug="python")
     update_info = CourseUpdate(slug="FastAPI")
@@ -224,7 +224,7 @@ async def test_update_course_normalizes_slug(course_factory, db):
     assert updated_course.slug == "fastapi"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_update_course_allows_same_slug_with_different_case(
     course_factory,
     db,
@@ -241,7 +241,7 @@ async def test_update_course_allows_same_slug_with_different_case(
     assert updated_course.slug == "python"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_update_course_duplicate_slug_returns_conflict(
     course_factory,
     db,
@@ -261,7 +261,7 @@ async def test_update_course_duplicate_slug_returns_conflict(
     assert exc.value.detail == "Course with this slug already exists"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_update_course_not_found(db):
     update_info = CourseUpdate(title="Advanced Python")
 
@@ -276,7 +276,7 @@ async def test_update_course_not_found(db):
     assert exc.value.detail == "Course not found"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_update_course_integrity_error_returns_conflict(
     course_factory,
     db,
@@ -303,7 +303,7 @@ async def test_update_course_integrity_error_returns_conflict(
     rollback_mock.assert_awaited_once()
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_delete_course_success(course_factory, db):
     course = await course_factory(slug="course-to-delete")
     course_id = course.id
@@ -313,7 +313,7 @@ async def test_delete_course_success(course_factory, db):
     assert await db.get(Course, course_id) is None
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_delete_course_not_found(db):
     with pytest.raises(HTTPException) as exc:
         await service_course.delete_course(999_999, db)
@@ -322,7 +322,7 @@ async def test_delete_course_not_found(db):
     assert exc.value.detail == "Course not found"
 
 
-@pytest.mark.asyncio(loop_scope="session")
+@pytest.mark.asyncio
 async def test_delete_course_database_error_returns_internal_server_error(
     course_factory,
     db,

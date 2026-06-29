@@ -78,6 +78,17 @@ def user_data():
         "last_name": "Silver"
     }
    
+   
+@pytest.fixture
+def course_data():
+    return {
+        "title": "Python for basics",
+        "slug": "python-for-basics",
+        "short_description": "A test course for testing",
+        "description": "A test course to test the functionality of the service",
+        "is_published": False
+    }
+   
     
 @pytest_asyncio.fixture
 async def auth_headers(client, user_data):
