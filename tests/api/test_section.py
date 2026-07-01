@@ -270,3 +270,82 @@ async def test_delete_section_admin_rejects_invalid_id(
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "section_id"]
+
+
+@pytest.mark.asyncio
+async def test_update_section_success(client, section_factory, admin_headers):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    response = await client.patch(
+        f"/api/sections/{section.id}/admin",
+        headers=admin_headers,
+        json={
+            "title": "New title",
+            "description": "New description"
+        }
+    )
+    
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["title"] == "New title"
+    assert data["description"] == "New description"
+    
+    
+@pytest.mark.asyncio
+async def test_update_section_success_title(client, section_factory, admin_headers):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    response = await client.patch(
+        f"/api/sections/{section.id}/admin",
+        headers=admin_headers,
+        json={
+            "title": "New title"
+        }
+    )
+    
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["title"] == "New title"
+    assert data["description"] == section.description
+    
+    
+@pytest.mark.asyncio
+async def test_update_section_success_description(client, section_factory, admin_headers):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    response = await client.patch(
+        f"/api/sections/{section.id}/admin",
+        headers=admin_headers,
+        json={
+            "description": "New description"
+        }
+    )
+    
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["title"] == section.title
+    assert data["description"] == "New description"
+    
+    
+@pytest.mark.asyncio
+async def test_update_section_not_found(client, admin_headers):
+    response = await client.patch(
+        "/api/sections/999999/admin",
+        headers=admin_headers,
+        json={
+            "title": "New title",
+            "description": "New description"
+        }
+    )
+    
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Section not found"}
