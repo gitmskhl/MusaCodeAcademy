@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Section
-from app.schemas.section import SectionCreate
+from app.schemas.section import SectionCreate, SectionUpdate
 from app.services import section as service_section
 
 
@@ -283,3 +283,79 @@ async def test_delete_section_integrity_error(real_course, db, monkeypatch):
         "Failed to delete section due to integrity error"
     )
     rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_section_success(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0
+    )
+    updated_section = await service_section.update_section(
+        section_id=section.id,
+        sectionUpdate=SectionUpdate(title="New title", description="New description"),
+        db=db
+    )
+    
+    assert updated_section.id == section.id
+    assert updated_section.course_id == section.course_id
+    assert updated_section.order == 0
+    assert updated_section.title == "New title"
+    assert updated_section.description == "New description"
+    
+   
+@pytest.mark.asyncio
+async def test_update_section_success_title(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0
+    )
+    updated_section = await service_section.update_section(
+        section_id=section.id,
+        sectionUpdate=SectionUpdate(title="New title"),
+        db=db
+    )
+    
+    assert updated_section.id == section.id
+    assert updated_section.course_id == section.course_id
+    assert updated_section.order == 0
+    assert updated_section.title == "New title"
+    assert updated_section.description == section.description
+   
+   
+@pytest.mark.asyncio
+async def test_update_section_success_description(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0
+    )
+    updated_section = await service_section.update_section(
+        section_id=section.id,
+        sectionUpdate=SectionUpdate(description="New description"),
+        db=db
+    )
+    
+    assert updated_section.id == section.id
+    assert updated_section.course_id == section.course_id
+    assert updated_section.order == 0
+    assert updated_section.title == section.title
+    assert updated_section.description ==    "New description"
+
+    
+@pytest.mark.asyncio
+async def test_update_section_section_not_exists(db):
+    updatedSection = SectionUpdate(title="New title", description="New description")
+    with pytest.raises(HTTPException) as exc:
+        await service_section.update_section(
+            section_id=0,
+            sectionUpdate=updatedSection,
+            db=db
+        )
+    
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Section not found"
+    
+

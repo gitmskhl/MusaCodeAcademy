@@ -549,6 +549,219 @@ textarea:focus-visible {
     gap: 12px;
 }
 
+.course-structure-header {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 18px;
+    border: 1px solid rgba(216, 224, 234, 0.85);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: var(--shadow);
+}
+
+.section-list {
+    display: grid;
+    gap: 10px;
+}
+
+.section-item {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.section-item:hover,
+.section-item:focus-within,
+.section-item.is-menu-open,
+.section-item.is-editing {
+    border-color: #b7c6d8;
+    box-shadow: 0 12px 22px rgba(16, 24, 40, 0.08);
+}
+
+.section-item:hover {
+    transform: translateY(-1px);
+}
+
+.section-item.is-menu-open {
+    z-index: 20;
+}
+
+.section-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 70px;
+    padding: 12px 14px;
+}
+
+.section-row__drag-handle {
+    display: grid;
+    grid-template-columns: repeat(2, 4px);
+    grid-template-rows: repeat(3, 4px);
+    flex: 0 0 auto;
+    gap: 3px;
+    padding: 8px 5px;
+    border-radius: 7px;
+    cursor: grab;
+}
+
+.section-row__drag-handle:hover {
+    background: var(--surface-muted);
+}
+
+.section-row__drag-handle span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #98a2b3;
+}
+
+.section-row__body {
+    display: grid;
+    flex: 1 1 auto;
+    gap: 4px;
+    min-width: 0;
+}
+
+.section-row__title {
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+    color: var(--text);
+    background: transparent;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.section-row__description {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.section-row__title:hover,
+.section-row__title:focus-visible {
+    color: var(--primary);
+}
+
+.section-row__menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.section-row__menu-button {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: var(--muted);
+    background: transparent;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.section-row__menu-button:hover,
+.section-row__menu-button:focus-visible,
+.section-row__menu-button[aria-expanded="true"] {
+    border-color: var(--border);
+    color: var(--text);
+    background: var(--surface-muted);
+}
+
+.section-row__menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 30;
+    min-width: 140px;
+    padding: 6px;
+    border: 1px solid rgba(216, 224, 234, 0.95);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 14px 32px rgba(16, 24, 40, 0.12);
+}
+
+.section-row__menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: var(--text);
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.section-row__menu-item:hover,
+.section-row__menu-item:focus-visible {
+    background: #f3f6fb;
+}
+
+.section-row__menu-item--danger {
+    color: var(--danger-text);
+}
+
+.section-row__menu-item--danger:hover,
+.section-row__menu-item--danger:focus-visible {
+    background: rgba(180, 35, 24, 0.08);
+}
+
+.inline-section-form {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid rgba(199, 209, 222, 0.85);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+}
+
+.inline-section-form--edit {
+    margin: 0 12px 12px;
+    border-top-color: var(--border);
+}
+
+.inline-section-form .field-error {
+    min-height: 0;
+}
+
+.inline-section-form textarea {
+    min-height: 92px;
+}
+
+.new-section {
+    display: grid;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.new-section__button {
+    width: 100%;
+    min-height: 48px;
+    border-style: dashed;
+    color: var(--primary);
+    font-size: 14px;
+}
+
 .form-message {
     display: none;
     margin-bottom: 12px;
@@ -728,6 +941,7 @@ select[aria-invalid="true"] {
 
     .admin-header,
     .editor-header,
+    .course-structure-header,
     .section-block,
     .form-shell {
         padding: 14px;
@@ -745,6 +959,11 @@ select[aria-invalid="true"] {
     .course-card__actions,
     .form-actions {
         width: 100%;
+    }
+
+    .section-row {
+        gap: 10px;
+        padding: 12px;
     }
 
     .course-card__actions .button,

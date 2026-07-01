@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course sections</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <script defer src="{{ url_for('static', path='js/course_sections.js') }}"></script>
+</head>
+<body>
+    <div class="admin-page">
+        <div class="admin-loading" data-admin-loading role="status" aria-live="polite">
+            Checking access...
+        </div>
+        <div class="admin-error" data-admin-error role="alert" hidden></div>
+        <div
+            class="admin-notifications"
+            data-admin-notifications
+            aria-live="polite"
+            aria-atomic="true"
+        ></div>
+
+        <main
+            class="admin-shell admin-shell--narrow"
+            data-admin-content
+            data-course-id="{{ course_id }}"
+            hidden
+        >
+            <header class="course-structure-header">
+                <a class="back-link" href="/admin">&larr; Back to courses</a>
+                <h1 data-course-title></h1>
+            </header>
+
+            <section class="section-block" aria-labelledby="sections-title">
+                <h2 id="sections-title">Sections</h2>
+
+                <div class="section-list" data-section-list role="list"></div>
+
+                <div class="new-section">
+                    <button
+                        class="button button--ghost new-section__button"
+                        type="button"
+                        data-new-section
+                    >
+                        + New Section
+                    </button>
+
+                    <form class="inline-section-form" data-create-form novalidate hidden>
+                        <div class="field">
+                            <label for="new-section-title">Section title</label>
+                            <input
+                                id="new-section-title"
+                                name="title"
+                                type="text"
+                                minlength="3"
+                                maxlength="255"
+                                autocomplete="off"
+                                required
+                            >
+                            <p class="field-error" data-title-error aria-live="polite"></p>
+                        </div>
+                        <div class="field">
+                            <label for="new-section-description">Description</label>
+                            <textarea
+                                id="new-section-description"
+                                name="description"
+                                rows="4"
+                                minlength="10"
+                                placeholder="Briefly describe what this section covers"
+                            ></textarea>
+                            <p
+                                class="field-error"
+                                data-description-error
+                                aria-live="polite"
+                            ></p>
+                        </div>
+                        <div class="form-actions">
+                            <button class="button button--primary" type="submit" data-create-submit>
+                                Create
+                            </button>
+                            <button class="button button--ghost" type="button" data-create-cancel>
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

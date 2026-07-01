@@ -30,7 +30,7 @@
         window.location.href = '/';
     };
 
-    const getCourseUrl = (courseId) => `/admin/courses/${courseId}`;
+    const getCourseUrl = (courseId) => `/admin/courses/${encodeURIComponent(courseId)}`;
 
     const getCourseEditUrl = (courseId) => `/admin/courses/${courseId}/edit`;
 
