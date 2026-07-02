@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course sections</title>
+    <title>Course structure</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
     <script defer src="{{ url_for('static', path='js/course_sections.js') }}"></script>
@@ -28,29 +28,29 @@
             hidden
         >
             <header class="course-structure-header">
-                <a class="back-link" href="/admin">&larr; Back to courses</a>
-                <h1 data-course-title></h1>
+                <a class="back-link" href="/admin" data-structure-back>&larr; Back to courses</a>
+                <h1 data-structure-title></h1>
             </header>
 
-            <section class="section-block" aria-labelledby="sections-title">
-                <h2 id="sections-title">Sections</h2>
+            <section class="section-block" aria-labelledby="structure-list-title">
+                <h2 id="structure-list-title" data-list-title>Sections</h2>
 
-                <div class="section-list" data-section-list role="list"></div>
+                <div class="section-list" data-item-list role="list"></div>
 
                 <div class="new-section">
                     <button
                         class="button button--ghost new-section__button"
                         type="button"
-                        data-new-section
+                        data-new-item
                     >
                         + New Section
                     </button>
 
                     <form class="inline-section-form" data-create-form novalidate hidden>
                         <div class="field">
-                            <label for="new-section-title">Section title</label>
+                            <label for="new-item-title" data-form-title-label>Section title</label>
                             <input
-                                id="new-section-title"
+                                id="new-item-title"
                                 name="title"
                                 type="text"
                                 minlength="3"
@@ -61,9 +61,9 @@
                             <p class="field-error" data-title-error aria-live="polite"></p>
                         </div>
                         <div class="field">
-                            <label for="new-section-description">Description</label>
+                            <label for="new-item-description" data-form-description-label>Description</label>
                             <textarea
-                                id="new-section-description"
+                                id="new-item-description"
                                 name="description"
                                 rows="4"
                                 minlength="10"

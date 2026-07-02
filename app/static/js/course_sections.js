@@ -3,20 +3,24 @@
 
     const state = {
         courseId: null,
-        sections: [],
+        sectionId: null,
+        config: null,
+        items: [],
         activeMenu: null,
-        editingSectionId: null,
-        pendingDeleteSectionId: null,
+        editingItemId: null,
+        pendingDeleteItemId: null,
         deleteDialog: null,
         notificationTimer: null,
         loading: null,
         error: null,
         content: null,
-        courseTitle: null,
-        sectionList: null,
-        sectionSortable: null,
+        structureTitle: null,
+        listTitle: null,
+        itemList: null,
+        sortable: null,
         notification: null,
-        newSectionButton: null,
+        backLink: null,
+        newItemButton: null,
         createForm: null,
     };
 
@@ -28,9 +32,77 @@
         window.location.href = '/';
     };
 
-    const getCourseId = () => {
-        const value = state.content?.dataset.courseId;
-        return value && /^\d+$/.test(value) ? value : null;
+    const getNumericValue = (value) => (value && /^\d+$/.test(value) ? value : null);
+
+    const getCourseId = () => getNumericValue(state.content?.dataset.courseId);
+
+    const getSectionId = () => {
+        const searchParams = new URLSearchParams(window.location.search);
+        return getNumericValue(searchParams.get('section'));
+    };
+
+    const getCourseUrl = () => `/admin/courses/${encodeURIComponent(state.courseId)}`;
+
+    const getLessonsUrl = (sectionId) =>
+        `${getCourseUrl()}?section=${encodeURIComponent(sectionId)}`;
+
+    const getLessonEditorUrl = (lessonId) =>
+        `/admin/lessons/${encodeURIComponent(lessonId)}/edit`;
+
+    const createConfig = () => {
+        if (state.sectionId) {
+            return {
+                kind: 'lesson',
+                singular: 'Lesson',
+                singularLower: 'lesson',
+                plural: 'Lessons',
+                pluralLower: 'lessons',
+                backText: '← Назад к разделам',
+                backUrl: getCourseUrl(),
+                listTitle: 'Уроки',
+                newButtonText: 'Добавить урок',
+                titleLabel: 'Название урока',
+                descriptionLabel: 'Описание',
+                descriptionPlaceholder: 'Кратко опишите содержание урока',
+                emptyText: 'Уроков пока нет',
+                parentLoadingText: 'Загрузка раздела...',
+                parentFallback: 'Раздел без названия',
+                pageSuffix: 'Уроки',
+                parentUrl: `/api/sections/${state.sectionId}/admin`,
+                itemsUrl: `/api/sections/${state.sectionId}/admin/lessons`,
+                createUrl: `/api/sections/${state.sectionId}/admin/lessons`,
+                orderUrl: '/api/lessons/admin/order',
+                orderPayloadKey: 'lessons',
+                itemUrl: (itemId) => `/api/lessons/${itemId}/admin`,
+                itemDestination: getLessonEditorUrl,
+            };
+        }
+
+        return {
+            kind: 'section',
+            singular: 'Section',
+            singularLower: 'section',
+            plural: 'Sections',
+            pluralLower: 'sections',
+            backText: '← Back to courses',
+            backUrl: '/admin',
+            listTitle: 'Sections',
+            newButtonText: '+ New Section',
+            titleLabel: 'Section title',
+            descriptionLabel: 'Description',
+            descriptionPlaceholder: 'Briefly describe what this section covers',
+            emptyText: 'No sections yet',
+            parentLoadingText: 'Loading course...',
+            parentFallback: 'Untitled course',
+            pageSuffix: 'Sections',
+            parentUrl: `/api/courses/${state.courseId}/admin`,
+            itemsUrl: `/api/courses/${state.courseId}/sections/admin`,
+            createUrl: `/api/courses/${state.courseId}/sections`,
+            orderUrl: '/api/sections/admin/order',
+            orderPayloadKey: 'sections',
+            itemUrl: (itemId) => `/api/sections/${itemId}/admin`,
+            itemDestination: getLessonsUrl,
+        };
     };
 
     const getBackendErrorMessage = async (response, fallbackMessage) => {
@@ -101,8 +173,8 @@
     };
 
     const toggleMenu = (item) => {
-        const trigger = item.querySelector('[data-section-menu-trigger]');
-        const menu = item.querySelector('[data-section-menu]');
+        const trigger = item.querySelector('[data-item-menu-trigger]');
+        const menu = item.querySelector('[data-item-menu]');
 
         if (!trigger || !menu) {
             return;
@@ -120,34 +192,38 @@
         state.activeMenu = { item, trigger, menu };
     };
 
+    const clearFormErrors = (form) => {
+        form.querySelector('[name="title"]')?.removeAttribute('aria-invalid');
+        form.querySelector('[name="description"]')?.removeAttribute('aria-invalid');
+        form.querySelector('[data-title-error]').textContent = '';
+        form.querySelector('[data-description-error]').textContent = '';
+    };
+
     const closeCreateForm = () => {
         state.createForm.hidden = true;
         state.createForm.reset();
-        state.createForm.querySelector('[name="title"]')?.removeAttribute('aria-invalid');
-        state.createForm.querySelector('[name="description"]')?.removeAttribute('aria-invalid');
-        state.createForm.querySelector('[data-title-error]').textContent = '';
-        state.createForm.querySelector('[data-description-error]').textContent = '';
-        state.newSectionButton.hidden = false;
+        clearFormErrors(state.createForm);
+        state.newItemButton.hidden = false;
     };
 
     const closeEditor = () => {
-        if (state.editingSectionId === null) {
+        if (state.editingItemId === null) {
             return;
         }
 
-        state.editingSectionId = null;
-        renderSections();
+        state.editingItemId = null;
+        renderItems();
     };
 
     const openCreateForm = () => {
         closeActiveMenu();
         closeEditor();
-        state.newSectionButton.hidden = true;
+        state.newItemButton.hidden = true;
         state.createForm.hidden = false;
         state.createForm.querySelector('[name="title"]')?.focus();
     };
 
-    const validateSectionForm = (form) => {
+    const validateItemForm = (form) => {
         const titleInput = form.querySelector('[name="title"]');
         const descriptionInput = form.querySelector('[name="description"]');
         const titleError = form.querySelector('[data-title-error]');
@@ -158,11 +234,11 @@
         let descriptionMessage = '';
 
         if (!title) {
-            titleMessage = 'Section title is required.';
+            titleMessage = `${state.config.singular} title is required.`;
         } else if (title.length < 3) {
-            titleMessage = 'Section title must contain at least 3 characters.';
+            titleMessage = `${state.config.singular} title must contain at least 3 characters.`;
         } else if (title.length > 255) {
-            titleMessage = 'Section title must contain no more than 255 characters.';
+            titleMessage = `${state.config.singular} title must contain no more than 255 characters.`;
         }
 
         if (description && description.length < 10) {
@@ -187,16 +263,16 @@
         return { title, description };
     };
 
-    const createInlineEditor = (section) => {
+    const createInlineEditor = (item) => {
         const form = document.createElement('form');
         form.className = 'inline-section-form inline-section-form--edit';
-        form.dataset.editForm = String(section.id);
+        form.dataset.editForm = String(item.id);
         form.noValidate = true;
         form.innerHTML = `
             <div class="field">
-                <label for="section-title-${section.id}">Section title</label>
+                <label for="item-title-${item.id}">${state.config.titleLabel}</label>
                 <input
-                    id="section-title-${section.id}"
+                    id="item-title-${item.id}"
                     name="title"
                     type="text"
                     minlength="3"
@@ -207,13 +283,13 @@
                 <p class="field-error" data-title-error aria-live="polite"></p>
             </div>
             <div class="field">
-                <label for="section-description-${section.id}">Description</label>
+                <label for="item-description-${item.id}">${state.config.descriptionLabel}</label>
                 <textarea
-                    id="section-description-${section.id}"
+                    id="item-description-${item.id}"
                     name="description"
                     rows="4"
                     minlength="10"
-                    placeholder="Briefly describe what this section covers"
+                    placeholder="${state.config.descriptionPlaceholder}"
                 ></textarea>
                 <p class="field-error" data-description-error aria-live="polite"></p>
             </div>
@@ -222,16 +298,16 @@
                 <button class="button button--ghost" type="button" data-edit-cancel>Cancel</button>
             </div>
         `;
-        form.querySelector('[name="title"]').value = section.title ?? '';
-        form.querySelector('[name="description"]').value = section.description ?? '';
+        form.querySelector('[name="title"]').value = item.title ?? '';
+        form.querySelector('[name="description"]').value = item.description ?? '';
         return form;
     };
 
-    const createSectionItem = (section) => {
-        const item = document.createElement('article');
-        item.className = 'section-item';
-        item.dataset.sectionId = String(section.id);
-        item.setAttribute('role', 'listitem');
+    const createItem = (item) => {
+        const article = document.createElement('article');
+        article.className = 'section-item';
+        article.dataset.itemId = String(item.id);
+        article.setAttribute('role', 'listitem');
 
         const row = document.createElement('div');
         row.className = 'section-row';
@@ -240,7 +316,8 @@
         dragHandle.className = 'section-row__drag-handle';
         dragHandle.setAttribute('aria-hidden', 'true');
         dragHandle.title = 'Drag to reorder';
-        dragHandle.innerHTML = '<span></span><span></span><span></span><span></span><span></span><span></span>';
+        dragHandle.innerHTML =
+            '<span></span><span></span><span></span><span></span><span></span><span></span>';
 
         const body = document.createElement('div');
         body.className = 'section-row__body';
@@ -248,13 +325,13 @@
         const title = document.createElement('button');
         title.className = 'section-row__title';
         title.type = 'button';
-        title.dataset.sectionTitle = '';
-        title.textContent = section.title ?? 'Untitled section';
-        title.setAttribute('aria-label', `${title.textContent}. Section page coming later.`);
+        title.dataset.itemTitle = '';
+        title.textContent = item.title ?? `Untitled ${state.config.singularLower}`;
+        title.setAttribute('aria-label', `${title.textContent}. Open ${state.config.singularLower}.`);
 
         const description = document.createElement('p');
         description.className = 'section-row__description';
-        description.textContent = section.description ?? 'No description';
+        description.textContent = item.description ?? 'No description';
 
         body.append(title, description);
 
@@ -264,7 +341,7 @@
         const menuButton = document.createElement('button');
         menuButton.className = 'section-row__menu-button';
         menuButton.type = 'button';
-        menuButton.dataset.sectionMenuTrigger = '';
+        menuButton.dataset.itemMenuTrigger = '';
         menuButton.setAttribute('aria-label', `Open menu for ${title.textContent}`);
         menuButton.setAttribute('aria-haspopup', 'menu');
         menuButton.setAttribute('aria-expanded', 'false');
@@ -272,86 +349,87 @@
 
         const menu = document.createElement('div');
         menu.className = 'section-row__menu';
-        menu.dataset.sectionMenu = '';
+        menu.dataset.itemMenu = '';
         menu.setAttribute('role', 'menu');
         menu.hidden = true;
         menu.innerHTML = `
-            <button type="button" class="section-row__menu-item" data-section-action="edit" role="menuitem">Edit</button>
-            <button type="button" class="section-row__menu-item section-row__menu-item--danger" data-section-action="delete" role="menuitem">Delete</button>
+            <button type="button" class="section-row__menu-item" data-item-action="edit" role="menuitem">Edit</button>
+            <button type="button" class="section-row__menu-item section-row__menu-item--danger" data-item-action="delete" role="menuitem">Delete</button>
         `;
 
         menuWrap.append(menuButton, menu);
         row.append(dragHandle, body, menuWrap);
-        item.appendChild(row);
+        article.appendChild(row);
 
-        if (state.editingSectionId === String(section.id)) {
-            item.classList.add('is-editing');
-            item.appendChild(createInlineEditor(section));
+        if (state.editingItemId === String(item.id)) {
+            article.classList.add('is-editing');
+            article.appendChild(createInlineEditor(item));
         }
 
-        return item;
+        return article;
     };
 
-    const renderSections = () => {
+    const renderItems = () => {
         closeActiveMenu();
-        state.sectionList.innerHTML = '';
+        state.itemList.innerHTML = '';
 
-        if (state.sections.length === 0) {
-            state.sectionList.innerHTML = `
+        if (state.items.length === 0) {
+            state.itemList.innerHTML = `
                 <div class="empty-state" role="status">
-                    <p class="empty-state__title">No sections yet</p>
+                    <p class="empty-state__title">${state.config.emptyText}</p>
                 </div>
             `;
             return;
         }
 
         const fragment = document.createDocumentFragment();
-        state.sections.forEach((section) => fragment.appendChild(createSectionItem(section)));
-        state.sectionList.appendChild(fragment);
+        state.items.forEach((item) => fragment.appendChild(createItem(item)));
+        state.itemList.appendChild(fragment);
 
-        if (state.editingSectionId !== null) {
-            state.sectionList
-                .querySelector(`[data-edit-form="${state.editingSectionId}"] [name="title"]`)
+        if (state.editingItemId !== null) {
+            state.itemList
+                .querySelector(`[data-edit-form="${state.editingItemId}"] [name="title"]`)
                 ?.focus();
         }
     };
 
-    const updateSectionOrder = async () => {
-        const sectionItems = [...state.sectionList.querySelectorAll('.section-item')];
-        const sections = sectionItems.map((item, index) => ({
-            id: Number(item.dataset.sectionId),
+    const updateItemOrder = async () => {
+        const itemElements = [...state.itemList.querySelectorAll('.section-item')];
+        const orderedItems = itemElements.map((item, index) => ({
+            id: Number(item.dataset.itemId),
             order: index + 1,
         }));
 
-        const response = await fetch('/api/sections/admin/order', {
+        const response = await fetch(state.config.orderUrl, {
             method: 'PATCH',
             headers: {
                 Authorization: `Bearer ${getToken()}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ sections }),
+            body: JSON.stringify({
+                [state.config.orderPayloadKey]: orderedItems,
+            }),
         });
 
         if (!response.ok) {
             const message = await getBackendErrorMessage(
                 response,
-                'Failed to update section order.'
+                `Failed to update ${state.config.singularLower} order.`
             );
             throw new Error(message);
         }
 
-        const sectionsById = new Map(
-            state.sections.map((section) => [String(section.id), section])
-        );
-        state.sections = sectionItems
-            .map((item) => sectionsById.get(item.dataset.sectionId))
+        const itemsById = new Map(state.items.map((item) => [String(item.id), item]));
+        state.items = itemElements
+            .map((item) => itemsById.get(item.dataset.itemId))
             .filter(Boolean);
     };
 
-    const initSectionSorting = () => {
-        state.sectionSortable = new Sortable(state.sectionList, {
+    const initSorting = () => {
+        state.sortable = new Sortable(state.itemList, {
             animation: 150,
             draggable: '.section-item',
+            handle: '.section-row__drag-handle',
             ghostClass: 'section-item--drag-ghost',
             chosenClass: 'section-item--drag-chosen',
             dragClass: 'section-item--dragging',
@@ -366,14 +444,15 @@
                     return;
                 }
 
-                state.sectionSortable.option('disabled', true);
+                state.sortable.option('disabled', true);
 
                 try {
-                    await updateSectionOrder();
-                    state.sectionSortable.option('disabled', false);
+                    await updateItemOrder();
+                    state.sortable.option('disabled', false);
                 } catch (error) {
                     showNotification(
-                        error.message || 'Failed to update section order.',
+                        error.message ||
+                            `Failed to update ${state.config.singularLower} order.`,
                         'error'
                     );
                     window.setTimeout(() => window.location.reload(), 1500);
@@ -382,15 +461,15 @@
         });
     };
 
-    const openEditor = (sectionId) => {
+    const openEditor = (itemId) => {
         closeActiveMenu();
         closeCreateForm();
-        state.editingSectionId = sectionId;
-        renderSections();
+        state.editingItemId = itemId;
+        renderItems();
     };
 
-    const deleteSection = async (sectionId) => {
-        const response = await fetch(`/api/sections/${sectionId}/admin`, {
+    const deleteItem = async (itemId) => {
+        const response = await fetch(state.config.itemUrl(itemId), {
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${getToken()}`,
@@ -404,25 +483,30 @@
         }
 
         if (!response.ok) {
-            const message = await getBackendErrorMessage(response, 'Failed to delete section.');
+            const message = await getBackendErrorMessage(
+                response,
+                `Failed to delete ${state.config.singularLower}.`
+            );
             throw new Error(message);
         }
 
-        state.sections = state.sections.filter((section) => String(section.id) !== sectionId);
-        if (state.editingSectionId === sectionId) {
-            state.editingSectionId = null;
+        state.items = state.items.filter((item) => String(item.id) !== itemId);
+        if (state.editingItemId === itemId) {
+            state.editingItemId = null;
         }
-        renderSections();
+        renderItems();
         return true;
     };
 
     const closeDeleteDialog = () => {
         state.deleteDialog.hidden = true;
-        state.pendingDeleteSectionId = null;
+        state.pendingDeleteItemId = null;
     };
 
-    const showDeleteDialog = (sectionId) => {
-        state.pendingDeleteSectionId = sectionId;
+    const showDeleteDialog = (itemId) => {
+        state.pendingDeleteItemId = itemId;
+        state.deleteDialog.querySelector('[data-delete-dialog-title]').textContent =
+            `Delete this ${state.config.singularLower}?`;
         state.deleteDialog.hidden = false;
         state.deleteDialog.querySelector('[data-delete-cancel]')?.focus();
     };
@@ -432,9 +516,9 @@
         overlay.className = 'dialog-overlay';
         overlay.hidden = true;
         overlay.innerHTML = `
-            <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="delete-section-title" aria-describedby="delete-section-description">
-                <h2 id="delete-section-title">Delete this section?</h2>
-                <p id="delete-section-description">This action cannot be undone.</p>
+            <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="delete-item-title" aria-describedby="delete-item-description">
+                <h2 id="delete-item-title" data-delete-dialog-title></h2>
+                <p id="delete-item-description">This action cannot be undone.</p>
                 <div class="dialog__actions">
                     <button type="button" class="button button--ghost" data-delete-cancel>Cancel</button>
                     <button type="button" class="button button--danger" data-delete-confirm>Delete</button>
@@ -454,9 +538,9 @@
         overlay.querySelector('[data-delete-confirm]').addEventListener('click', async (event) => {
             const confirmButton = event.currentTarget;
             const cancelButton = overlay.querySelector('[data-delete-cancel]');
-            const sectionId = state.pendingDeleteSectionId;
+            const itemId = state.pendingDeleteItemId;
 
-            if (!sectionId) {
+            if (!itemId) {
                 closeDeleteDialog();
                 return;
             }
@@ -465,14 +549,17 @@
             cancelButton.disabled = true;
 
             try {
-                const deleted = await deleteSection(sectionId);
+                const deleted = await deleteItem(itemId);
                 closeDeleteDialog();
                 if (deleted) {
-                    showNotification('Section deleted.', 'success');
+                    showNotification(`${state.config.singular} deleted.`, 'success');
                 }
             } catch (error) {
                 closeDeleteDialog();
-                showNotification(error.message || 'Failed to delete section.', 'error');
+                showNotification(
+                    error.message || `Failed to delete ${state.config.singularLower}.`,
+                    'error'
+                );
             } finally {
                 confirmButton.disabled = false;
                 cancelButton.disabled = false;
@@ -480,33 +567,42 @@
         });
     };
 
-    const handleSectionListClick = (event) => {
-        const menuTrigger = event.target.closest('[data-section-menu-trigger]');
+    const handleItemListClick = (event) => {
+        const menuTrigger = event.target.closest('[data-item-menu-trigger]');
         if (menuTrigger) {
             toggleMenu(menuTrigger.closest('.section-item'));
             return;
         }
 
-        const actionButton = event.target.closest('[data-section-action]');
+        const actionButton = event.target.closest('[data-item-action]');
         if (actionButton) {
-            const sectionId = actionButton.closest('.section-item')?.dataset.sectionId;
-            const action = actionButton.dataset.sectionAction;
+            const itemId = actionButton.closest('.section-item')?.dataset.itemId;
+            const action = actionButton.dataset.itemAction;
 
             closeActiveMenu();
-            if (!sectionId) {
+            if (!itemId) {
                 return;
             }
 
             if (action === 'edit') {
-                openEditor(sectionId);
+                openEditor(itemId);
             } else if (action === 'delete') {
-                showDeleteDialog(sectionId);
+                showDeleteDialog(itemId);
             }
             return;
         }
 
         if (event.target.closest('[data-edit-cancel]')) {
             closeEditor();
+            return;
+        }
+
+        const itemTitle = event.target.closest('[data-item-title]');
+        if (itemTitle) {
+            const itemId = itemTitle.closest('.section-item')?.dataset.itemId;
+            if (itemId) {
+                window.location.href = state.config.itemDestination(itemId);
+            }
         }
     };
 
@@ -517,12 +613,12 @@
         }
 
         event.preventDefault();
-        const values = validateSectionForm(form);
+        const values = validateItemForm(form);
         if (!values) {
             return;
         }
 
-        const sectionId = form.dataset.editForm;
+        const itemId = form.dataset.editForm;
         const submitButton = form.querySelector('[type="submit"]');
         const cancelButton = form.querySelector('[data-edit-cancel]');
         submitButton.disabled = true;
@@ -530,7 +626,7 @@
         submitButton.textContent = 'Saving...';
 
         try {
-            const response = await fetch(`/api/sections/${sectionId}/admin`, {
+            const response = await fetch(state.config.itemUrl(itemId), {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -549,19 +645,25 @@
             }
 
             if (!response.ok) {
-                const message = await getBackendErrorMessage(response, 'Failed to update section.');
+                const message = await getBackendErrorMessage(
+                    response,
+                    `Failed to update ${state.config.singularLower}.`
+                );
                 throw new Error(message);
             }
 
-            const updatedSection = await response.json();
-            state.sections = state.sections.map((section) =>
-                String(section.id) === sectionId ? updatedSection : section
+            const updatedItem = await response.json();
+            state.items = state.items.map((item) =>
+                String(item.id) === itemId ? updatedItem : item
             );
-            state.editingSectionId = null;
-            renderSections();
-            showNotification('Section updated.', 'success');
+            state.editingItemId = null;
+            renderItems();
+            showNotification(`${state.config.singular} updated.`, 'success');
         } catch (error) {
-            showNotification(error.message || 'Failed to update section.', 'error');
+            showNotification(
+                error.message || `Failed to update ${state.config.singularLower}.`,
+                'error'
+            );
         } finally {
             submitButton.disabled = false;
             cancelButton.disabled = false;
@@ -571,7 +673,7 @@
 
     const handleCreateSubmit = async (event) => {
         event.preventDefault();
-        const values = validateSectionForm(state.createForm);
+        const values = validateItemForm(state.createForm);
         if (!values) {
             return;
         }
@@ -583,7 +685,7 @@
         submitButton.textContent = 'Creating...';
 
         try {
-            const response = await fetch(`/api/courses/${state.courseId}/sections`, {
+            const response = await fetch(state.config.createUrl, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -602,17 +704,23 @@
             }
 
             if (!response.ok) {
-                const message = await getBackendErrorMessage(response, 'Failed to create section.');
+                const message = await getBackendErrorMessage(
+                    response,
+                    `Failed to create ${state.config.singularLower}.`
+                );
                 throw new Error(message);
             }
 
-            const section = await response.json();
-            state.sections.push(section);
+            const item = await response.json();
+            state.items.push(item);
             closeCreateForm();
-            renderSections();
-            showNotification('Section created.', 'success');
+            renderItems();
+            showNotification(`${state.config.singular} created.`, 'success');
         } catch (error) {
-            showNotification(error.message || 'Failed to create section.', 'error');
+            showNotification(
+                error.message || `Failed to create ${state.config.singularLower}.`,
+                'error'
+            );
         } finally {
             submitButton.disabled = false;
             cancelButton.disabled = false;
@@ -653,51 +761,69 @@
         return true;
     };
 
-    const loadCourseStructure = async () => {
-        showLoading('Loading course...');
-        const token = getToken();
+    const applyViewText = () => {
+        state.backLink.href = state.config.backUrl;
+        state.backLink.textContent = state.config.backText;
+        state.listTitle.textContent = state.config.listTitle;
+        state.newItemButton.textContent = state.config.newButtonText;
+        state.createForm.querySelector('[data-form-title-label]').textContent =
+            state.config.titleLabel;
+        state.createForm.querySelector('[data-form-description-label]').textContent =
+            state.config.descriptionLabel;
+        state.createForm.querySelector('[name="description"]').placeholder =
+            state.config.descriptionPlaceholder;
+    };
+
+    const loadStructure = async () => {
+        showLoading(state.config.parentLoadingText);
         const headers = {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${getToken()}`,
         };
 
-        const [courseResponse, sectionsResponse] = await Promise.all([
-            fetch(`/api/courses/${state.courseId}/admin`, { headers }),
-            fetch(`/api/courses/${state.courseId}/sections/admin`, { headers }),
+        const [parentResponse, itemsResponse] = await Promise.all([
+            fetch(state.config.parentUrl, { headers }),
+            fetch(state.config.itemsUrl, { headers }),
         ]);
 
-        if (courseResponse.status === 401 || sectionsResponse.status === 401) {
+        if (parentResponse.status === 401 || itemsResponse.status === 401) {
             clearToken();
             redirectHome();
             return;
         }
 
-        if (!courseResponse.ok) {
-            const message = await getBackendErrorMessage(courseResponse, 'Failed to load course.');
+        if (!parentResponse.ok) {
+            const message = await getBackendErrorMessage(
+                parentResponse,
+                `Failed to load ${state.config.kind === 'lesson' ? 'section' : 'course'}.`
+            );
             throw new Error(message);
         }
 
-        if (!sectionsResponse.ok) {
-            const message = await getBackendErrorMessage(sectionsResponse, 'Failed to load sections.');
+        if (!itemsResponse.ok) {
+            const message = await getBackendErrorMessage(
+                itemsResponse,
+                `Failed to load ${state.config.pluralLower}.`
+            );
             throw new Error(message);
         }
 
-        const [course, sections] = await Promise.all([
-            courseResponse.json(),
-            sectionsResponse.json(),
+        const [parent, items] = await Promise.all([
+            parentResponse.json(),
+            itemsResponse.json(),
         ]);
 
-        state.courseTitle.textContent = course.title ?? 'Untitled course';
-        document.title = `${state.courseTitle.textContent} — Sections`;
-        state.sections = Array.isArray(sections) ? sections : [];
-        renderSections();
+        state.structureTitle.textContent = parent.title ?? state.config.parentFallback;
+        document.title = `${state.structureTitle.textContent} — ${state.config.pageSuffix}`;
+        state.items = Array.isArray(items) ? items : [];
+        renderItems();
         showContent();
     };
 
     const handleDocumentClick = (event) => {
         if (
             state.activeMenu &&
-            !event.target.closest('[data-section-menu]') &&
-            !event.target.closest('[data-section-menu-trigger]')
+            !event.target.closest('[data-item-menu]') &&
+            !event.target.closest('[data-item-menu-trigger]')
         ) {
             closeActiveMenu();
         }
@@ -712,7 +838,7 @@
             closeDeleteDialog();
         } else if (state.activeMenu) {
             closeActiveMenu();
-        } else if (state.editingSectionId !== null) {
+        } else if (state.editingItemId !== null) {
             closeEditor();
         } else if (!state.createForm.hidden) {
             closeCreateForm();
@@ -723,18 +849,28 @@
         state.loading = document.querySelector('[data-admin-loading]');
         state.error = document.querySelector('[data-admin-error]');
         state.content = document.querySelector('[data-admin-content]');
-        state.courseTitle = document.querySelector('[data-course-title]');
-        state.sectionList = document.querySelector('[data-section-list]');
+        state.structureTitle = document.querySelector('[data-structure-title]');
+        state.listTitle = document.querySelector('[data-list-title]');
+        state.itemList = document.querySelector('[data-item-list]');
         state.notification = document.querySelector('[data-admin-notifications]');
-        state.newSectionButton = document.querySelector('[data-new-section]');
+        state.backLink = document.querySelector('[data-structure-back]');
+        state.newItemButton = document.querySelector('[data-new-item]');
         state.createForm = document.querySelector('[data-create-form]');
         state.courseId = getCourseId();
+        state.sectionId = getSectionId();
 
+        if (!state.courseId) {
+            showError('Invalid course ID.');
+            return;
+        }
+
+        state.config = createConfig();
+        applyViewText();
         buildDeleteDialog();
-        initSectionSorting();
-        state.sectionList.addEventListener('click', handleSectionListClick);
-        state.sectionList.addEventListener('submit', handleEditSubmit);
-        state.newSectionButton.addEventListener('click', openCreateForm);
+        initSorting();
+        state.itemList.addEventListener('click', handleItemListClick);
+        state.itemList.addEventListener('submit', handleEditSubmit);
+        state.newItemButton.addEventListener('click', openCreateForm);
         state.createForm.addEventListener('submit', handleCreateSubmit);
         state.createForm
             .querySelector('[data-create-cancel]')
@@ -742,18 +878,16 @@
         document.addEventListener('click', handleDocumentClick);
         document.addEventListener('keydown', handleKeydown);
 
-        if (!state.courseId) {
-            showError('Invalid course ID.');
-            return;
-        }
-
         try {
             const hasAccess = await checkAdminAccess();
             if (hasAccess) {
-                await loadCourseStructure();
+                await loadStructure();
             }
         } catch (error) {
-            showError(error.message || 'Failed to load course structure.');
+            showError(
+                error.message ||
+                    `Failed to load ${state.config.kind === 'lesson' ? 'lessons' : 'course structure'}.`
+            );
         }
     };
 
