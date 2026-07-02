@@ -33,6 +33,6 @@ async def update_section(section_id: int, sectionUpdate: SectionUpdate, admin: O
     return await service_section.update_section(section_id=section_id, sectionUpdate=sectionUpdate, db=db)
 
 
-@router.patch('/admin/order', response_model=SectionAdmin)
+@router.patch('/admin/order', response_model=list[SectionAdmin])
 async def update_orders(order_list: SectionOrderUpdateList, admin: OnlyAdmin, db: DBSession):
-    pass
+    return await service_section.update_section_orders(order_list=order_list, db=db)

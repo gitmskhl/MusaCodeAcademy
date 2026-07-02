@@ -159,7 +159,7 @@ async def update_section_orders(order_list: SectionOrderUpdateList, db: AsyncSes
         section.order = new_orders[section.id]
     try:
         await db.commit()
-        return sections.scalars().all()
+        return scalar_sections
     except IntegrityError:
         await db.rollback()
         raise HTTPException(

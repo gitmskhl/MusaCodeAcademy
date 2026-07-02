@@ -371,3 +371,167 @@ async def test_update_section_rejects_non_admin(client, auth_headers, section_fa
     assert response.json() == {
         "detail": "You do not have permission to perform this action"
     }
+
+
+# PATCH /api/sections/admin/order
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_admin_success(
+    client,
+    admin_headers,
+    section_factory,
+):
+    first_section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=first_section.course_id,
+        is_published=False,
+        order=1,
+    )
+
+    response = await client.patch(
+        "/api/sections/admin/order",
+        headers=admin_headers,
+        json={
+            "sections": [
+                {"id": first_section.id, "order": 1},
+                {"id": second_section.id, "order": 0},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    print('DATA', data)
+    assert len(data) == 2
+    sections_by_id = {section["id"]: section for section in data}
+    assert set(sections_by_id) == {first_section.id, second_section.id}
+    assert all(set(section) == ADMIN_SECTION_FIELDS for section in data)
+    assert sections_by_id[first_section.id]["order"] == 1
+    assert sections_by_id[second_section.id]["order"] == 0
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_rejects_duplicate_section_ids(
+    client,
+    admin_headers,
+):
+    response = await client.patch(
+        "/api/sections/admin/order",
+        headers=admin_headers,
+        json={
+            "sections": [
+                {"id": 1, "order": 0},
+                {"id": 1, "order": 1},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Duplicate section IDs found"}
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_rejects_duplicate_order_values(
+    client,
+    admin_headers,
+):
+    response = await client.patch(
+        "/api/sections/admin/order",
+        headers=admin_headers,
+        json={
+            "sections": [
+                {"id": 1, "order": 0},
+                {"id": 2, "order": 0},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Duplicate order values found"}
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_rejects_sections_from_different_courses(
+    client,
+    admin_headers,
+    section_factory,
+):
+    first_section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+
+    response = await client.patch(
+        "/api/sections/admin/order",
+        headers=admin_headers,
+        json={
+            "sections": [
+                {"id": first_section.id, "order": 0},
+                {"id": second_section.id, "order": 1},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "All sections must belong to the same course"
+    }
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_rejects_negative_order(
+    client,
+    admin_headers,
+):
+    response = await client.patch(
+        "/api/sections/admin/order",
+        headers=admin_headers,
+        json={"sections": [{"id": 1, "order": -1}]},
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"][0]["loc"] == [
+        "body",
+        "sections",
+        0,
+        "order",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_rejects_non_admin(
+    client,
+    auth_headers,
+):
+    response = await client.patch(
+        "/api/sections/admin/order",
+        headers=auth_headers,
+        json={"sections": []},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "You do not have permission to perform this action"
+    }
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_requires_authentication(client):
+    response = await client.patch(
+        "/api/sections/admin/order",
+        json={"sections": []},
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}

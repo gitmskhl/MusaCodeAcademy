@@ -416,4 +416,151 @@ async def test_update_section_orders_success(section_factory, db):
     
     assert updated_section1.order == 1
     assert updated_section2.order == 0
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_duplicate_section_ids(db):
+    order_list = SectionOrderUpdateList(
+        sections=[
+            SectionOrderUpdate(id=1, order=0),
+            SectionOrderUpdate(id=1, order=1),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_section.update_section_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Duplicate section IDs found"
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_duplicate_order_values(db):
+    order_list = SectionOrderUpdateList(
+        sections=[
+            SectionOrderUpdate(id=1, order=0),
+            SectionOrderUpdate(id=2, order=0),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_section.update_section_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Duplicate order values found"
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_sections_from_different_courses(
+    section_factory,
+    db,
+):
+    first_section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    order_list = SectionOrderUpdateList(
+        sections=[
+            SectionOrderUpdate(id=first_section.id, order=0),
+            SectionOrderUpdate(id=second_section.id, order=1),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_section.update_section_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "All sections must belong to the same course"
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_integrity_error(
+    section_factory,
+    db,
+    monkeypatch,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    order_list = SectionOrderUpdateList(
+        sections=[
+            SectionOrderUpdate(id=section.id, order=1),
+        ]
+    )
+    commit_mock = AsyncMock(
+        side_effect=IntegrityError("forced error", {}, Exception("forced error"))
+    )
+    rollback_mock = AsyncMock()
+    monkeypatch.setattr(db, "commit", commit_mock)
+    monkeypatch.setattr(db, "rollback", rollback_mock)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_section.update_section_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == (
+        "Failed to update section orders due to integrity error"
+    )
+    commit_mock.assert_awaited_once()
+    rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_empty_list(db):
+    order_list = SectionOrderUpdateList(sections=[])
+
+    result = await service_section.update_section_orders(
+        order_list=order_list,
+        db=db,
+    )
+
+    assert result == []
+
+
+@pytest.mark.asyncio
+async def test_update_section_orders_ignores_unknown_section_id(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    unknown_section_id = section.id + 999_999
+    order_list = SectionOrderUpdateList(
+        sections=[
+            SectionOrderUpdate(id=section.id, order=1),
+            SectionOrderUpdate(id=unknown_section_id, order=2),
+        ]
+    )
+
+    await service_section.update_section_orders(
+        order_list=order_list,
+        db=db,
+    )
+
+    updated_section = await db.get(Section, section.id)
+    assert updated_section.order == 1
+    assert await db.get(Section, unknown_section_id) is None
     
