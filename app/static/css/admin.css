@@ -570,7 +570,23 @@ textarea:focus-visible {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: #ffffff;
+    cursor: grab;
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.section-item--drag-chosen,
+.section-item--dragging {
+    cursor: grabbing;
+}
+
+.section-item--drag-ghost {
+    opacity: 0.45;
+}
+
+.is-sorting-sections,
+.is-sorting-sections * {
+    cursor: grabbing !important;
+    user-select: none !important;
 }
 
 .section-item:hover,

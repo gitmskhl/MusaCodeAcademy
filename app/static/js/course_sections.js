@@ -14,6 +14,7 @@
         content: null,
         courseTitle: null,
         sectionList: null,
+        sectionSortable: null,
         notification: null,
         newSectionButton: null,
         createForm: null,
@@ -313,6 +314,72 @@
                 .querySelector(`[data-edit-form="${state.editingSectionId}"] [name="title"]`)
                 ?.focus();
         }
+    };
+
+    const updateSectionOrder = async () => {
+        const sectionItems = [...state.sectionList.querySelectorAll('.section-item')];
+        const sections = sectionItems.map((item, index) => ({
+            id: Number(item.dataset.sectionId),
+            order: index + 1,
+        }));
+
+        const response = await fetch('/api/sections/admin/order', {
+            method: 'PATCH',
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ sections }),
+        });
+
+        if (!response.ok) {
+            const message = await getBackendErrorMessage(
+                response,
+                'Failed to update section order.'
+            );
+            throw new Error(message);
+        }
+
+        const sectionsById = new Map(
+            state.sections.map((section) => [String(section.id), section])
+        );
+        state.sections = sectionItems
+            .map((item) => sectionsById.get(item.dataset.sectionId))
+            .filter(Boolean);
+    };
+
+    const initSectionSorting = () => {
+        state.sectionSortable = new Sortable(state.sectionList, {
+            animation: 150,
+            draggable: '.section-item',
+            ghostClass: 'section-item--drag-ghost',
+            chosenClass: 'section-item--drag-chosen',
+            dragClass: 'section-item--dragging',
+            onStart: () => {
+                closeActiveMenu();
+                document.body.classList.add('is-sorting-sections');
+            },
+            onEnd: async (event) => {
+                document.body.classList.remove('is-sorting-sections');
+
+                if (event.oldIndex === event.newIndex) {
+                    return;
+                }
+
+                state.sectionSortable.option('disabled', true);
+
+                try {
+                    await updateSectionOrder();
+                    state.sectionSortable.option('disabled', false);
+                } catch (error) {
+                    showNotification(
+                        error.message || 'Failed to update section order.',
+                        'error'
+                    );
+                    window.setTimeout(() => window.location.reload(), 1500);
+                }
+            },
+        });
     };
 
     const openEditor = (sectionId) => {
@@ -664,6 +731,7 @@
         state.courseId = getCourseId();
 
         buildDeleteDialog();
+        initSectionSorting();
         state.sectionList.addEventListener('click', handleSectionListClick);
         state.sectionList.addEventListener('submit', handleEditSubmit);
         state.newSectionButton.addEventListener('click', openCreateForm);
