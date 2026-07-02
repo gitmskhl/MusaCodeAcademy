@@ -117,7 +117,7 @@ async def update_lesson(lesson_id: int, lessonUpdate: LessonUpdate, db: AsyncSes
             detail="Lesson not found"
         )
     
-    for field, value in lessonUpdate.dict(exclude_unset=True).items():
+    for field, value in lessonUpdate.model_dump(exclude_unset=True).items():
         setattr(lesson, field, value)
     
     try:
