@@ -1,10 +1,11 @@
 from fastapi import APIRouter, status
-from app.schemas.section import SectionPublic, SectionAdmin, SectionUpdate, SectionOrderUpdateList
 from app.schemas.lesson import (
     LessonAdmin,
     LessonCreate,
     LessonPublic,
-    LessonUpdate, 
+    LessonUpdate,
+    LessonOrderUpdate,
+    LessonOrderUpdateList
 )
 from app.services import section as service_section
 from app.services import lesson as service_lesson
@@ -30,3 +31,8 @@ async def delete_lesson(lesson_id: int, admin: OnlyAdmin, db: DBSession):
 @router.patch('/{lesson_id}/admin', response_model=LessonAdmin)
 async def update_lesson(lesson_id: int, lessonUpdate: LessonUpdate, admin: OnlyAdmin, db: DBSession):
     return await service_lesson.update_lesson(lesson_id=lesson_id, lessonUpdate=lessonUpdate, db=db)
+
+
+@router.patch('/admin/order', response_model=list[LessonAdmin])
+async def update_orders(order_list: LessonOrderUpdateList, admin: OnlyAdmin, db: DBSession):
+    return await service_lesson.update_lesson_orders(order_list=order_list, db=db)

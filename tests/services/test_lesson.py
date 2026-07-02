@@ -6,7 +6,12 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Lesson
-from app.schemas.lesson import LessonCreate, LessonUpdate
+from app.schemas.lesson import (
+    LessonCreate,
+    LessonOrderUpdate,
+    LessonOrderUpdateList,
+    LessonUpdate,
+)
 from app.services import lesson as service_lesson
 
 
@@ -443,3 +448,187 @@ async def test_update_lesson_integrity_error(section_factory, db, monkeypatch):
     )
     commit_mock.assert_awaited_once()
     rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_success(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    first_lesson = await create_lesson(db, section_id=section.id, order=0)
+    second_lesson = await create_lesson(db, section_id=section.id, order=1)
+    order_list = LessonOrderUpdateList(
+        lessons=[
+            LessonOrderUpdate(id=first_lesson.id, order=1),
+            LessonOrderUpdate(id=second_lesson.id, order=0),
+        ]
+    )
+
+    result = await service_lesson.update_lesson_orders(
+        order_list=order_list,
+        db=db,
+    )
+
+    lessons_by_id = {lesson.id: lesson for lesson in result}
+    assert set(lessons_by_id) == {first_lesson.id, second_lesson.id}
+    assert lessons_by_id[first_lesson.id].order == 1
+    assert lessons_by_id[second_lesson.id].order == 0
+    assert (await db.get(Lesson, first_lesson.id)).order == 1
+    assert (await db.get(Lesson, second_lesson.id)).order == 0
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_duplicate_lesson_ids(db):
+    order_list = LessonOrderUpdateList(
+        lessons=[
+            LessonOrderUpdate(id=1, order=0),
+            LessonOrderUpdate(id=1, order=1),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_lesson.update_lesson_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Duplicate lesson IDs found"
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_duplicate_order_values(db):
+    order_list = LessonOrderUpdateList(
+        lessons=[
+            LessonOrderUpdate(id=1, order=0),
+            LessonOrderUpdate(id=2, order=0),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_lesson.update_lesson_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Duplicate order values found"
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_lessons_from_different_sections(
+    section_factory,
+    db,
+):
+    first_section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=first_section.course_id,
+        is_published=False,
+        order=1,
+    )
+    first_lesson = await create_lesson(
+        db,
+        section_id=first_section.id,
+        order=0,
+    )
+    second_lesson = await create_lesson(
+        db,
+        section_id=second_section.id,
+        order=0,
+    )
+    order_list = LessonOrderUpdateList(
+        lessons=[
+            LessonOrderUpdate(id=first_lesson.id, order=0),
+            LessonOrderUpdate(id=second_lesson.id, order=1),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_lesson.update_lesson_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "All lessons must belong to the same section"
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_integrity_error(
+    section_factory,
+    db,
+    monkeypatch,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id, order=0)
+    order_list = LessonOrderUpdateList(
+        lessons=[LessonOrderUpdate(id=lesson.id, order=1)]
+    )
+    commit_mock = AsyncMock(
+        side_effect=IntegrityError("forced error", {}, Exception("forced error"))
+    )
+    rollback_mock = AsyncMock()
+    monkeypatch.setattr(db, "commit", commit_mock)
+    monkeypatch.setattr(db, "rollback", rollback_mock)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_lesson.update_lesson_orders(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == (
+        "Failed to update lesson orders due to integrity error"
+    )
+    commit_mock.assert_awaited_once()
+    rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_empty_list(db):
+    result = await service_lesson.update_lesson_orders(
+        order_list=LessonOrderUpdateList(lessons=[]),
+        db=db,
+    )
+
+    assert result == []
+
+
+@pytest.mark.asyncio
+async def test_update_lesson_orders_ignores_unknown_lesson_id(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id, order=0)
+    unknown_lesson_id = lesson.id + 999_999
+    order_list = LessonOrderUpdateList(
+        lessons=[
+            LessonOrderUpdate(id=lesson.id, order=1),
+            LessonOrderUpdate(id=unknown_lesson_id, order=2),
+        ]
+    )
+
+    result = await service_lesson.update_lesson_orders(
+        order_list=order_list,
+        db=db,
+    )
+
+    assert [item.id for item in result] == [lesson.id]
+    assert (await db.get(Lesson, lesson.id)).order == 1
+    assert await db.get(Lesson, unknown_lesson_id) is None

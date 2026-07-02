@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from app.schemas.lesson import LessonCreate, LessonUpdate
+from app.schemas.lesson import LessonCreate, LessonUpdate, LessonOrderUpdate, LessonOrderUpdateList
 from app.models import Section, Lesson, Course
 
 
@@ -129,4 +129,43 @@ async def update_lesson(lesson_id: int, lessonUpdate: LessonUpdate, db: AsyncSes
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to update lesson due to integrity error."
+        )
+        
+
+async def update_lesson_orders(order_list: LessonOrderUpdateList, db: AsyncSession) -> list[Lesson]:
+    lessons_ids = [item.id for item in order_list.lessons]
+    if len(lessons_ids) != len(set(lessons_ids)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate lesson IDs found"
+        )
+    # check for duplicate order values
+    order_values = [item.order for item in order_list.lessons]
+    if len(order_values) != len(set(order_values)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate order values found"
+        )
+    lessons = await db.execute(
+        select(Lesson)
+            .where(Lesson.id.in_(lessons_ids))
+    )
+    scalar_lessons = lessons.scalars().all()
+    section_ids = {lesson.section_id for lesson in scalar_lessons}
+    if len(section_ids) > 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All lessons must belong to the same section"
+        )
+    new_orders = {item.id: item.order for item in order_list.lessons}
+    for lesson in scalar_lessons:
+        lesson.order = new_orders[lesson.id]
+    try:
+        await db.commit()
+        return list(scalar_lessons)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to update lesson orders due to integrity error"
         )
