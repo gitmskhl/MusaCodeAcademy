@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from sqlalchemy import Integer, String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.lesson import Lesson
 from .base import Base
 
 if TYPE_CHECKING:
@@ -37,3 +39,8 @@ class Section(Base):
     )
     
     course: Mapped["Course"] = relationship(back_populates="sections")
+    lessons: Mapped[list["Lesson"]] = relationship(
+        back_populates="section",
+        cascade="all, delete-orphan",
+        order_by="Lesson.order"
+    )
