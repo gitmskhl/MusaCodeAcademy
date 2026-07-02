@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from app.api.dependencies import DBSession
 from app.models import Section, Course
-from app.schemas.section import SectionCreate, SectionUpdate
+from app.schemas.section import SectionCreate, SectionUpdate, SectionOrderUpdateList
 
 async def get_course_sections(course_id: int, db: AsyncSession, check_published: bool) -> list[Section]:
     course = await db.get(Course, course_id)
@@ -126,3 +126,43 @@ async def update_section(section_id: int, sectionUpdate: SectionUpdate, db: Asyn
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Failed to update section due to integrity error"
             )
+        
+        
+async def update_section_orders(order_list: SectionOrderUpdateList, db: AsyncSession):
+    # check for duplicate section ids
+    section_ids = [item.id for item in order_list.sections]
+    if len(section_ids) != len(set(section_ids)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate section IDs found"
+        )
+    # check for duplicate order values
+    order_values = [item.order for item in order_list.sections]
+    if len(order_values) != len(set(order_values)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate order values found"
+        )
+    sections = await db.execute(
+        select(Section)
+            .where(Section.id.in_(section_ids))
+    )
+    scalar_sections = sections.scalars().all()
+    course_ids = {section.course_id for section in scalar_sections}
+    if len(course_ids) > 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All sections must belong to the same course"
+        )
+    new_orders = {item.id: item.order for item in order_list.sections}
+    for section in scalar_sections:
+        section.order = new_orders[section.id]
+    try:
+        await db.commit()
+        return sections.scalars().all()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to update section orders due to integrity error"
+        )

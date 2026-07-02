@@ -349,3 +349,25 @@ async def test_update_section_not_found(client, admin_headers):
     
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Section not found"}
+    
+
+@pytest.mark.asyncio
+async def test_update_section_rejects_non_admin(client, auth_headers, section_factory):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    response = await client.patch(
+        f"/api/sections/{section.id}/admin",
+        headers=auth_headers,
+        json={
+            "title": "New title",
+            "description": "New description"
+        }
+    )
+    
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "You do not have permission to perform this action"
+    }

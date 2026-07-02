@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Section
-from app.schemas.section import SectionCreate, SectionUpdate
+from app.schemas.section import SectionCreate, SectionUpdate, SectionOrderUpdateList, SectionOrderUpdate
 from app.services import section as service_section
 
 
@@ -359,3 +359,61 @@ async def test_update_section_section_not_exists(db):
     assert exc.value.detail == "Section not found"
     
 
+@pytest.mark.asyncio
+async def test_update_section_integrity_error(section_factory, db, monkeypatch):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0
+    )
+    updatedSection = SectionUpdate(title="New title", description="New description")
+    
+    commit_mock = AsyncMock(
+        side_effect=IntegrityError("forced error", {}, Exception("forced error"))
+    )
+    rollback_mock = AsyncMock()
+    monkeypatch.setattr(db, "commit", commit_mock)
+    monkeypatch.setattr(db, "rollback", rollback_mock)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_section.update_section(
+            section_id=section.id,
+            sectionUpdate=updatedSection,
+            db=db
+        )
+
+    assert exc.value.status_code == status.HTTP_409_CONFLICT
+    assert exc.value.detail == (
+        "Failed to update section due to integrity error"
+    )
+    rollback_mock.assert_awaited_once()
+    
+    
+@pytest.mark.asyncio
+async def test_update_section_orders_success(section_factory, db):
+    section1 = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0
+    )
+    section2 = await section_factory(
+        course_id=section1.course_id,
+        is_published=False,
+        order=1
+    )
+    
+    order_list = SectionOrderUpdateList(
+        sections=[
+            SectionOrderUpdate(id=section1.id, order=1),
+            SectionOrderUpdate(id=section2.id, order=0)
+        ]
+    )
+    
+    await service_section.update_section_orders(order_list=order_list, db=db)
+    
+    updated_section1 = await db.get(Section, section1.id)
+    updated_section2 = await db.get(Section, section2.id)
+    
+    assert updated_section1.order == 1
+    assert updated_section2.order == 0
+    

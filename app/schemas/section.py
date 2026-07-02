@@ -35,4 +35,9 @@ class SectionUpdate(BaseModel):
 
 
 class SectionOrderUpdate(BaseModel):
-    ordered_section_ids: list[int]
+    id: int
+    order: int = Field(ge=0, description="The new order of the section. Must be a non-negative integer.")
+    
+    
+class SectionOrderUpdateList(BaseModel):
+    sections: list[SectionOrderUpdate]

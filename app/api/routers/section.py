@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.schemas.section import SectionPublic, SectionAdmin, SectionUpdate
+from app.schemas.section import SectionPublic, SectionAdmin, SectionUpdate, SectionOrderUpdateList
 from app.services import section as service_section
 from app.api.dependencies import DBSession, OnlyAdmin
 
@@ -31,3 +31,8 @@ async def delete_section(section_id: int, admin: OnlyAdmin, db: DBSession):
 @router.patch('/{section_id}/admin', response_model=SectionAdmin)
 async def update_section(section_id: int, sectionUpdate: SectionUpdate, admin: OnlyAdmin, db: DBSession):
     return await service_section.update_section(section_id=section_id, sectionUpdate=sectionUpdate, db=db)
+
+
+@router.patch('/admin/order', response_model=SectionAdmin)
+async def update_orders(order_list: SectionOrderUpdateList, admin: OnlyAdmin, db: DBSession):
+    pass
