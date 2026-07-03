@@ -16,7 +16,7 @@ async def get_step_admin(step_id: int, admin: OnlyAdmin, db: DBSession):
     return await service_step.get_step(step_id=step_id, db=db, check_course_published=False)
 
 
-@router.delete('{step_id}/admin', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{step_id}/admin', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_step(step_id: int, admin: OnlyAdmin, db: DBSession):
     await service_step.delete_step(step_id=step_id, db=db)
     

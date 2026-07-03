@@ -9,6 +9,7 @@ from app.api.routers import (
     courseRouter,
     sectionRouter,
     lessonRouter,
+    stepRouter
 )
 from app.core.database import engine
 from app.models import Base
@@ -60,4 +61,10 @@ app.include_router(
     lessonRouter,
     prefix='/api/lessons',
     tags=['lesson']
+)
+
+app.include_router(
+    stepRouter,
+    prefix='/api/steps',
+    tags=['step']
 )
