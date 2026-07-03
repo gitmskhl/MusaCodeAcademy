@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Lesson, Step
-from app.schemas.steps.step import StepCreate
+from app.schemas.steps.step import StepCreate, StepUpdate
 from app.services import step as service_step
 
 
@@ -298,3 +298,274 @@ async def test_get_steps_returns_draft_when_course_check_disabled(
     )
 
     assert [item.id for item in steps] == [step.id]
+
+
+@pytest.mark.asyncio
+async def test_get_step_success_for_published_course(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    result = await service_step.get_step(step_id=step.id, db=db)
+
+    assert result.id == step.id
+
+
+@pytest.mark.asyncio
+async def test_get_step_returns_draft_when_course_check_disabled(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    result = await service_step.get_step(
+        step_id=step.id,
+        db=db,
+        check_course_published=False,
+    )
+
+    assert result.id == step.id
+
+
+@pytest.mark.asyncio
+async def test_get_step_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step(
+            step_id=999_999,
+            db=db,
+            check_course_published=False,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Step not found"
+
+
+@pytest.mark.asyncio
+async def test_get_step_lesson_not_found():
+    step = SimpleNamespace(lesson_id=123)
+    db = AsyncMock()
+    db.get.side_effect = [step, None]
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step(step_id=1, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Lesson not found"
+
+
+@pytest.mark.asyncio
+async def test_get_step_section_not_found():
+    step = SimpleNamespace(lesson_id=123)
+    lesson = SimpleNamespace(section_id=456)
+    db = AsyncMock()
+    db.get.side_effect = [step, lesson, None]
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step(step_id=1, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Section not found"
+
+
+@pytest.mark.asyncio
+async def test_get_step_course_not_found():
+    step = SimpleNamespace(lesson_id=123)
+    lesson = SimpleNamespace(section_id=456)
+    section = SimpleNamespace(course_id=789)
+    db = AsyncMock()
+    db.get.side_effect = [step, lesson, section, None]
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step(step_id=1, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_get_step_hides_step_from_draft_course(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step(step_id=step.id, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_delete_step_success(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    step_id = step.id
+
+    await service_step.delete_step(step_id=step_id, db=db)
+
+    assert await db.get(Step, step_id) is None
+
+
+@pytest.mark.asyncio
+async def test_delete_step_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await service_step.delete_step(step_id=999_999, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Step not found"
+
+
+@pytest.mark.asyncio
+async def test_delete_step_integrity_error(section_factory, db, monkeypatch):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    commit_mock = AsyncMock(
+        side_effect=IntegrityError("forced error", {}, Exception("forced error"))
+    )
+    rollback_mock = AsyncMock()
+    monkeypatch.setattr(db, "commit", commit_mock)
+    monkeypatch.setattr(db, "rollback", rollback_mock)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.delete_step(step_id=step.id, db=db)
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == (
+        "Failed to delete step due to integrity error"
+    )
+    commit_mock.assert_awaited_once()
+    rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_step_updates_only_provided_fields(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=3)
+    original_content = step.content
+
+    updated_step = await service_step.update_step(
+        step_id=step.id,
+        stepInfo=StepUpdate(title="Updated step"),
+        db=db,
+    )
+
+    assert updated_step.id == step.id
+    assert updated_step.lesson_id == lesson.id
+    assert updated_step.title == "Updated step"
+    assert updated_step.order == 3
+    assert updated_step.content == original_content
+    assert (await db.get(Step, step.id)).title == "Updated step"
+
+
+@pytest.mark.asyncio
+async def test_update_step_updates_content(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    original_title = step.title
+    update_info = StepUpdate(
+        content={
+            "version": 1,
+            "layout": "two_columns",
+            "left": [
+                {
+                    "type": "text",
+                    "data": {"text": "Left column"},
+                },
+            ],
+            "right": [
+                {
+                    "type": "text",
+                    "data": {"text": "Right column"},
+                },
+            ],
+        },
+    )
+
+    updated_step = await service_step.update_step(
+        step_id=step.id,
+        stepInfo=update_info,
+        db=db,
+    )
+
+    expected_content = update_info.content.model_dump()
+    assert updated_step.title == original_title
+    assert updated_step.content == expected_content
+    assert (await db.get(Step, step.id)).content == expected_content
+
+
+@pytest.mark.asyncio
+async def test_update_step_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await service_step.update_step(
+            step_id=999_999,
+            stepInfo=StepUpdate(title="Updated step"),
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Step not found"
+
+
+@pytest.mark.asyncio
+async def test_update_step_rolls_back_on_commit_error(
+    section_factory,
+    db,
+    monkeypatch,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    commit_mock = AsyncMock(side_effect=RuntimeError("forced error"))
+    rollback_mock = AsyncMock()
+    monkeypatch.setattr(db, "commit", commit_mock)
+    monkeypatch.setattr(db, "rollback", rollback_mock)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.update_step(
+            step_id=step.id,
+            stepInfo=StepUpdate(title="Updated step"),
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Failed to update step"
+    commit_mock.assert_awaited_once()
+    rollback_mock.assert_awaited_once()

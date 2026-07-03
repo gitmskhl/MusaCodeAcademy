@@ -3,7 +3,7 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Step, Lesson, Course, Section
-from app.schemas.steps.step import StepCreate
+from app.schemas.steps.step import StepCreate, StepUpdate
 
 async def create_step(lesson_id: int, stepInfo: StepCreate, db: AsyncSession) -> Step:
     lesson = await db.get(Lesson, lesson_id)
@@ -63,4 +63,73 @@ async def get_steps(lesson_id: int, db: AsyncSession, check_course_published: bo
             .order_by(Step.order)
     )
     steps = result.scalars().all()
-    return list(steps)
+    return steps # type: ignore
+
+
+async def get_step(step_id: int, db: AsyncSession, check_course_published: bool = True) -> Step:
+    step = await db.get(Step, step_id)
+    if not step:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Step not found"
+        )
+    if check_course_published:
+        lesson = await db.get(Lesson, step.lesson_id)
+        if not lesson:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Lesson not found"
+            )
+        section = await db.get(Section, lesson.section_id)
+        if not section:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Section not found"
+            )
+        course = await db.get(Course, section.course_id)
+        if not course or not course.is_published:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Course not found"
+            )
+    return step
+    
+
+
+async def delete_step(step_id: int, db: AsyncSession):
+    step = await db.get(Step, step_id)
+    if not step:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Step not found"
+        )
+    try:
+        await db.delete(step)
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to delete step due to integrity error"
+        )
+        
+        
+async def update_step(step_id: int, stepInfo: StepUpdate, db: AsyncSession) -> Step:
+    step = await db.get(Step, step_id)
+    if not step:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Step not found"
+        )
+    for key, value in stepInfo.model_dump(exclude_unset=True).items():
+        setattr(step, key, value)
+    
+    try:
+        await db.commit()
+        return step
+    except Exception:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to update step"
+        )

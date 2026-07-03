@@ -62,7 +62,7 @@ async def get_lessons(section_id: int, db: AsyncSession, check_course_published:
             .order_by(Lesson.order)
     )
     lessons = result.scalars().all()
-    return list(lessons)
+    return lessons # type: ignore
 
 
 async def get_lesson(lesson_id: int, db: AsyncSession, check_course_published: bool = True) -> Lesson:
@@ -162,7 +162,7 @@ async def update_lesson_orders(order_list: LessonOrderUpdateList, db: AsyncSessi
         lesson.order = new_orders[lesson.id]
     try:
         await db.commit()
-        return list(scalar_lessons)
+        return scalar_lessons # type: ignore
     except IntegrityError:
         await db.rollback()
         raise HTTPException(

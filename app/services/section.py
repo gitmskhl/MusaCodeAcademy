@@ -8,12 +8,7 @@ from app.schemas.section import SectionCreate, SectionUpdate, SectionOrderUpdate
 
 async def get_course_sections(course_id: int, db: AsyncSession, check_published: bool) -> list[Section]:
     course = await db.get(Course, course_id)
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Course not found"
-        )
-    if check_published and not course.is_published:
+    if not course or (check_published and not course.is_published):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found"
@@ -23,7 +18,7 @@ async def get_course_sections(course_id: int, db: AsyncSession, check_published:
             .where(Section.course_id == course_id)
             .order_by(Section.order)
     )
-    return list(result.scalars().all())
+    return result.scalars().all() # type: ignore
 
 
 async def create_course_section(

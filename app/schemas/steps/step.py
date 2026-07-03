@@ -19,3 +19,8 @@ class StepPublic(BaseModel):
     
 class StepAdmin(StepPublic):
     pass
+
+
+class StepUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    content: StepContent | None = None
