@@ -6,6 +6,10 @@ const blockTypes = new Map([
             description: 'Paragraphs and headings',
             icon: 'T',
             createData: () => ({ text: '' }),
+            summarize: (data) => {
+                const firstLine = data.text?.split(/\r?\n/, 1)[0].trim();
+                return firstLine || 'Empty text block';
+            },
         },
     ],
     [
@@ -15,6 +19,7 @@ const blockTypes = new Map([
             description: 'Image with accessible text',
             icon: '▧',
             createData: () => ({ url: '', alt: '', caption: '' }),
+            summarize: (data) => data.alt?.trim() || 'No image selected',
         },
     ],
     [
@@ -24,6 +29,10 @@ const blockTypes = new Map([
             description: 'Formatted code snippet',
             icon: '</>',
             createData: () => ({ code: '', language: '' }),
+            summarize: (data) => {
+                const firstLine = data.code?.split(/\r?\n/, 1)[0].trim();
+                return firstLine || 'Empty code block';
+            },
         },
     ],
 ]);
