@@ -1,6 +1,6 @@
 import { createBlock, getBlockTypes } from './block-types.js';
 import { renderBlockList } from './block-list-renderer.js';
-import { renderPreviewPlaceholder } from './preview.js';
+import { renderPreview } from './preview.js';
 import { renderPropertiesPanel } from './properties-panel.js';
 import {
     addBlock,
@@ -52,9 +52,10 @@ const renderProperties = () => {
     focusPropertiesAfterRender = false;
 };
 
-const renderEditor = (_currentStep, change = { type: 'initial-render' }) => {
+const renderEditor = (currentStep = step, change = { type: 'initial-render' }) => {
     renderLayout();
     renderBlocks();
+    renderPreview(elements.previewPanel, currentStep);
 
     // The active editor already contains the latest typed value. Keeping it
     // mounted preserves textarea focus and cursor position during live updates.
@@ -238,7 +239,6 @@ const init = () => {
     }
 
     renderBlockMenu();
-    renderPreviewPlaceholder(elements.previewPanel);
     subscribeToStep(renderEditor);
     renderEditor();
     bindEvents();
