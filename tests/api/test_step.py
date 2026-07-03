@@ -517,3 +517,184 @@ async def test_update_step_admin_rejects_invalid_id(client, admin_headers):
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "step_id"]
+
+
+# PATCH /api/steps/admin/order
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_admin_success(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    first_step = await create_step(
+        db,
+        lesson_id=lesson.id,
+        title="First step",
+        order=0,
+    )
+    second_step = await create_step(
+        db,
+        lesson_id=lesson.id,
+        title="Second step",
+        order=1,
+    )
+
+    response = await client.patch(
+        "/api/steps/admin/order",
+        headers=admin_headers,
+        json={
+            "steps": [
+                {"id": first_step.id, "order": 1},
+                {"id": second_step.id, "order": 0},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    steps_by_id = {step["id"]: step for step in data}
+    assert set(steps_by_id) == {first_step.id, second_step.id}
+    assert all(set(step) == STEP_FIELDS for step in data)
+    assert steps_by_id[first_step.id]["order"] == 1
+    assert steps_by_id[second_step.id]["order"] == 0
+    assert (await db.get(Step, first_step.id)).order == 1
+    assert (await db.get(Step, second_step.id)).order == 0
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_rejects_duplicate_step_ids(
+    client,
+    admin_headers,
+):
+    response = await client.patch(
+        "/api/steps/admin/order",
+        headers=admin_headers,
+        json={
+            "steps": [
+                {"id": 1, "order": 0},
+                {"id": 1, "order": 1},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Duplicate step IDs found"}
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_rejects_duplicate_order_values(
+    client,
+    admin_headers,
+):
+    response = await client.patch(
+        "/api/steps/admin/order",
+        headers=admin_headers,
+        json={
+            "steps": [
+                {"id": 1, "order": 0},
+                {"id": 2, "order": 0},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Duplicate order values found"}
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_rejects_steps_from_different_lessons(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    first_lesson = await create_lesson(db, section_id=section.id)
+    second_lesson = await create_lesson(db, section_id=section.id)
+    first_step = await create_step(
+        db,
+        lesson_id=first_lesson.id,
+        order=0,
+    )
+    second_step = await create_step(
+        db,
+        lesson_id=second_lesson.id,
+        order=0,
+    )
+
+    response = await client.patch(
+        "/api/steps/admin/order",
+        headers=admin_headers,
+        json={
+            "steps": [
+                {"id": first_step.id, "order": 0},
+                {"id": second_step.id, "order": 1},
+            ]
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "All steps must belong to the same lesson"
+    }
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_rejects_negative_order(
+    client,
+    admin_headers,
+):
+    response = await client.patch(
+        "/api/steps/admin/order",
+        headers=admin_headers,
+        json={"steps": [{"id": 1, "order": -1}]},
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"][0]["loc"] == [
+        "body",
+        "steps",
+        0,
+        "order",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_rejects_non_admin(
+    client,
+    auth_headers,
+):
+    response = await client.patch(
+        "/api/steps/admin/order",
+        headers=auth_headers,
+        json={"steps": []},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "You do not have permission to perform this action"
+    }
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_requires_authentication(client):
+    response = await client.patch(
+        "/api/steps/admin/order",
+        json={"steps": []},
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}

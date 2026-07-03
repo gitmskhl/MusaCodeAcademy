@@ -6,7 +6,12 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Lesson, Step
-from app.schemas.steps.step import StepCreate, StepUpdate
+from app.schemas.steps.step import (
+    StepCreate,
+    StepOrderUpdate,
+    StepOrderUpdateList,
+    StepUpdate,
+)
 from app.services import step as service_step
 
 
@@ -569,3 +574,195 @@ async def test_update_step_rolls_back_on_commit_error(
     assert exc.value.detail == "Failed to update step"
     commit_mock.assert_awaited_once()
     rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_success(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    first_step = await create_existing_step(
+        db,
+        lesson_id=lesson.id,
+        order=0,
+    )
+    second_step = await create_existing_step(
+        db,
+        lesson_id=lesson.id,
+        order=1,
+    )
+    order_list = StepOrderUpdateList(
+        steps=[
+            StepOrderUpdate(id=first_step.id, order=1),
+            StepOrderUpdate(id=second_step.id, order=0),
+        ]
+    )
+
+    result = await service_step.update_steps_order(
+        order_list=order_list,
+        db=db,
+    )
+
+    steps_by_id = {step.id: step for step in result}
+    assert set(steps_by_id) == {first_step.id, second_step.id}
+    assert steps_by_id[first_step.id].order == 1
+    assert steps_by_id[second_step.id].order == 0
+    assert (await db.get(Step, first_step.id)).order == 1
+    assert (await db.get(Step, second_step.id)).order == 0
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_duplicate_step_ids(db):
+    order_list = StepOrderUpdateList(
+        steps=[
+            StepOrderUpdate(id=1, order=0),
+            StepOrderUpdate(id=1, order=1),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.update_steps_order(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Duplicate step IDs found"
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_duplicate_order_values(db):
+    order_list = StepOrderUpdateList(
+        steps=[
+            StepOrderUpdate(id=1, order=0),
+            StepOrderUpdate(id=2, order=0),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.update_steps_order(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "Duplicate order values found"
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_steps_from_different_lessons(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    first_lesson = await create_lesson(db, section_id=section.id)
+    second_lesson = await create_lesson(db, section_id=section.id)
+    first_step = await create_existing_step(
+        db,
+        lesson_id=first_lesson.id,
+        order=0,
+    )
+    second_step = await create_existing_step(
+        db,
+        lesson_id=second_lesson.id,
+        order=0,
+    )
+    order_list = StepOrderUpdateList(
+        steps=[
+            StepOrderUpdate(id=first_step.id, order=0),
+            StepOrderUpdate(id=second_step.id, order=1),
+        ]
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.update_steps_order(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == "All steps must belong to the same lesson"
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_integrity_error(
+    section_factory,
+    db,
+    monkeypatch,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    order_list = StepOrderUpdateList(
+        steps=[StepOrderUpdate(id=step.id, order=1)]
+    )
+    commit_mock = AsyncMock(
+        side_effect=IntegrityError("forced error", {}, Exception("forced error"))
+    )
+    rollback_mock = AsyncMock()
+    monkeypatch.setattr(db, "commit", commit_mock)
+    monkeypatch.setattr(db, "rollback", rollback_mock)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.update_steps_order(
+            order_list=order_list,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc.value.detail == (
+        "Failed to update step orders due to integrity error"
+    )
+    commit_mock.assert_awaited_once()
+    rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_empty_list(db):
+    result = await service_step.update_steps_order(
+        order_list=StepOrderUpdateList(steps=[]),
+        db=db,
+    )
+
+    assert result == []
+
+
+@pytest.mark.asyncio
+async def test_update_steps_order_ignores_unknown_step_id(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    unknown_step_id = step.id + 999_999
+    order_list = StepOrderUpdateList(
+        steps=[
+            StepOrderUpdate(id=step.id, order=1),
+            StepOrderUpdate(id=unknown_step_id, order=2),
+        ]
+    )
+
+    result = await service_step.update_steps_order(
+        order_list=order_list,
+        db=db,
+    )
+
+    assert [item.id for item in result] == [step.id]
+    assert (await db.get(Step, step.id)).order == 1
+    assert await db.get(Step, unknown_step_id) is None

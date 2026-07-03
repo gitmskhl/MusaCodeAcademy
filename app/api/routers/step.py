@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.schemas.steps.step import StepPublic, StepAdmin, StepUpdate
+from app.schemas.steps.step import StepPublic, StepAdmin, StepUpdate, StepOrderUpdateList
 from app.services import step as service_step
 from app.api.dependencies import DBSession, OnlyAdmin
 
@@ -24,3 +24,8 @@ async def delete_step(step_id: int, admin: OnlyAdmin, db: DBSession):
 @router.patch('/{step_id}/admin', response_model=StepAdmin)
 async def update_step(step_id: int, stepInfo: StepUpdate, admin: OnlyAdmin, db: DBSession):
     return await service_step.update_step(step_id=step_id, stepInfo=stepInfo, db=db)
+
+
+@router.patch('/admin/order', response_model=list[StepAdmin])
+async def update_steps_order(order_list: StepOrderUpdateList, admin: OnlyAdmin, db: DBSession):
+    return await service_step.update_steps_order(order_list=order_list, db=db)

@@ -24,3 +24,12 @@ class StepAdmin(StepPublic):
 class StepUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     content: StepContent | None = None
+    
+
+class StepOrderUpdate(BaseModel):
+    id: int
+    order: int = Field(ge=0, description="The new order of the lesson. Must be a non-negative integer.")
+    
+    
+class StepOrderUpdateList(BaseModel):
+    steps: list[StepOrderUpdate]

@@ -3,7 +3,7 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Step, Lesson, Course, Section
-from app.schemas.steps.step import StepCreate, StepUpdate
+from app.schemas.steps.step import StepCreate, StepUpdate, StepOrderUpdateList
 
 async def create_step(lesson_id: int, stepInfo: StepCreate, db: AsyncSession) -> Step:
     lesson = await db.get(Lesson, lesson_id)
@@ -132,4 +132,43 @@ async def update_step(step_id: int, stepInfo: StepUpdate, db: AsyncSession) -> S
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to update step"
+        )
+        
+        
+async def update_steps_order(order_list: StepOrderUpdateList, db: AsyncSession) -> list[Step]:
+    steps_ids = [item.id for item in order_list.steps]
+    if len(steps_ids) != len(set(steps_ids)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate step IDs found"
+        )
+    # check for duplicate order values
+    order_values = [item.order for item in order_list.steps]
+    if len(order_values) != len(set(order_values)):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Duplicate order values found"
+        )
+    steps = await db.execute(
+        select(Step)
+            .where(Step.id.in_(steps_ids))
+    )
+    scalar_steps = steps.scalars().all()
+    section_ids = {step.lesson_id for step in scalar_steps}
+    if len(section_ids) > 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All steps must belong to the same lesson"
+        )
+    new_orders = {item.id: item.order for item in order_list.steps}
+    for step in scalar_steps:
+        step.order = new_orders[step.id]
+    try:
+        await db.commit()
+        return scalar_steps # type: ignore
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to update step orders due to integrity error"
         )
