@@ -1,14 +1,13 @@
 from fastapi import APIRouter, status
 from app.schemas.lesson import (
     LessonAdmin,
-    LessonCreate,
     LessonPublic,
     LessonUpdate,
-    LessonOrderUpdate,
     LessonOrderUpdateList
 )
-from app.services import section as service_section
+from app.schemas.steps.step import StepAdmin, StepCreate
 from app.services import lesson as service_lesson
+from app.services import step as service_step
 from app.api.dependencies import DBSession, OnlyAdmin
 
 router = APIRouter()
@@ -36,3 +35,8 @@ async def update_lesson(lesson_id: int, lessonUpdate: LessonUpdate, admin: OnlyA
 @router.patch('/admin/order', response_model=list[LessonAdmin])
 async def update_orders(order_list: LessonOrderUpdateList, admin: OnlyAdmin, db: DBSession):
     return await service_lesson.update_lesson_orders(order_list=order_list, db=db)
+
+
+@router.post('/{lesson_id}/steps/admin', response_model=StepAdmin, status_code=status.HTTP_201_CREATED)
+async def create_step(lesson_id: int, stepInfo: StepCreate, admin: OnlyAdmin, db: DBSession):
+    return await service_step.create_step(lesson_id=lesson_id, stepInfo=stepInfo, db=db)
