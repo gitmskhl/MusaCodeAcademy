@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -155,3 +156,145 @@ async def test_create_step_integrity_error(section_factory, db, monkeypatch):
     )
     commit_mock.assert_awaited_once()
     rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_get_steps_returns_steps_in_order(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    other_lesson = await create_lesson(db, section_id=section.id)
+    third = await create_existing_step(db, lesson_id=lesson.id, order=2)
+    first = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    second = await create_existing_step(db, lesson_id=lesson.id, order=1)
+    await create_existing_step(db, lesson_id=other_lesson.id, order=0)
+
+    steps = await service_step.get_steps(
+        lesson_id=lesson.id,
+        db=db,
+        check_course_published=False,
+    )
+
+    assert [step.id for step in steps] == [
+        first.id,
+        second.id,
+        third.id,
+    ]
+
+
+@pytest.mark.asyncio
+async def test_get_steps_returns_empty_list(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+
+    steps = await service_step.get_steps(
+        lesson_id=lesson.id,
+        db=db,
+        check_course_published=False,
+    )
+
+    assert steps == []
+
+
+@pytest.mark.asyncio
+async def test_get_steps_lesson_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_steps(
+            lesson_id=999_999,
+            db=db,
+            check_course_published=False,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Lesson not found"
+
+
+@pytest.mark.asyncio
+async def test_get_steps_section_not_found():
+    lesson = SimpleNamespace(section_id=123)
+    db = AsyncMock()
+    db.get.side_effect = [lesson, None]
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_steps(lesson_id=1, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Section not found"
+
+
+@pytest.mark.asyncio
+async def test_get_steps_course_not_found():
+    lesson = SimpleNamespace(section_id=123)
+    section = SimpleNamespace(course_id=456)
+    db = AsyncMock()
+    db.get.side_effect = [lesson, section, None]
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_steps(lesson_id=1, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_get_steps_hides_steps_from_draft_course(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_steps(lesson_id=lesson.id, db=db)
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_get_steps_returns_steps_for_published_course(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    steps = await service_step.get_steps(lesson_id=lesson.id, db=db)
+
+    assert [item.id for item in steps] == [step.id]
+
+
+@pytest.mark.asyncio
+async def test_get_steps_returns_draft_when_course_check_disabled(
+    section_factory,
+    db,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    steps = await service_step.get_steps(
+        lesson_id=lesson.id,
+        db=db,
+        check_course_published=False,
+    )
+
+    assert [item.id for item in steps] == [step.id]

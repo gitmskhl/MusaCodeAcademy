@@ -5,7 +5,7 @@ from app.schemas.lesson import (
     LessonUpdate,
     LessonOrderUpdateList
 )
-from app.schemas.steps.step import StepAdmin, StepCreate
+from app.schemas.steps.step import StepAdmin, StepCreate, StepPublic
 from app.services import lesson as service_lesson
 from app.services import step as service_step
 from app.api.dependencies import DBSession, OnlyAdmin
@@ -40,3 +40,13 @@ async def update_orders(order_list: LessonOrderUpdateList, admin: OnlyAdmin, db:
 @router.post('/{lesson_id}/steps/admin', response_model=StepAdmin, status_code=status.HTTP_201_CREATED)
 async def create_step(lesson_id: int, stepInfo: StepCreate, admin: OnlyAdmin, db: DBSession):
     return await service_step.create_step(lesson_id=lesson_id, stepInfo=stepInfo, db=db)
+
+
+@router.get('/{lesson_id}/steps', response_model=list[StepPublic])
+async def get_steps(lesson_id: int, db: DBSession):
+    return await service_step.get_steps(lesson_id=lesson_id, db=db, check_course_published=True)
+
+
+@router.get('/{lesson_id}/steps/admin', response_model=list[StepAdmin])
+async def get_steps_admin(lesson_id: int, admin: OnlyAdmin, db: DBSession):
+    return await service_step.get_steps(lesson_id=lesson_id, db=db, check_course_published=False)
