@@ -58,4 +58,12 @@ async def admin_course_page(request: Request, course_id: int):
     return templates.TemplateResponse(
         request,
         "course_sections.html", {"course_id": course_id}
-    ) 
+    )
+
+
+@router.get("/admin/lessons/{lesson_id}", response_class=HTMLResponse, include_in_schema=False)
+async def admin_lesson_steps_page(request: Request, lesson_id: int):
+    return templates.TemplateResponse(
+        request,
+        "lesson_steps.html", {"lesson_id": lesson_id}
+    )

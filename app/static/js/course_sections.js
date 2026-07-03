@@ -46,8 +46,8 @@
     const getLessonsUrl = (sectionId) =>
         `${getCourseUrl()}?section=${encodeURIComponent(sectionId)}`;
 
-    const getLessonEditorUrl = (lessonId) =>
-        `/admin/lessons/${encodeURIComponent(lessonId)}/edit`;
+    const getLessonStepsUrl = (lessonId) =>
+        `/admin/lessons/${encodeURIComponent(lessonId)}`;
 
     const createConfig = () => {
         if (state.sectionId) {
@@ -74,7 +74,7 @@
                 orderUrl: '/api/lessons/admin/order',
                 orderPayloadKey: 'lessons',
                 itemUrl: (itemId) => `/api/lessons/${itemId}/admin`,
-                itemDestination: getLessonEditorUrl,
+                itemDestination: getLessonStepsUrl,
             };
         }
 
@@ -600,6 +600,19 @@
         const itemTitle = event.target.closest('[data-item-title]');
         if (itemTitle) {
             const itemId = itemTitle.closest('.section-item')?.dataset.itemId;
+            if (itemId) {
+                window.location.href = state.config.itemDestination(itemId);
+            }
+            return;
+        }
+
+        const itemRow = event.target.closest('.section-row');
+        if (
+            state.config.kind === 'lesson' &&
+            itemRow &&
+            !event.target.closest('.section-row__drag-handle')
+        ) {
+            const itemId = itemRow.closest('.section-item')?.dataset.itemId;
             if (itemId) {
                 window.location.href = state.config.itemDestination(itemId);
             }

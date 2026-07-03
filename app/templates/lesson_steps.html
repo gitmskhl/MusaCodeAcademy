@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson steps</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+    <script defer src="{{ url_for('static', path='js/lesson_steps.js') }}"></script>
+</head>
+<body>
+    <div class="admin-page">
+        <div class="admin-loading" data-admin-loading role="status" aria-live="polite">
+            Checking access...
+        </div>
+        <div class="admin-error" data-admin-error role="alert" hidden></div>
+        <div
+            class="admin-notifications"
+            data-admin-notifications
+            aria-live="polite"
+            aria-atomic="true"
+        ></div>
+
+        <main
+            class="admin-shell admin-shell--narrow"
+            data-admin-content
+            data-lesson-id="{{ lesson_id }}"
+            hidden
+        >
+            <header class="course-structure-header">
+                <a class="back-link" href="/admin" data-steps-back>&larr; Back to lessons</a>
+                <h1 data-steps-title></h1>
+            </header>
+
+            <section class="section-block" aria-labelledby="steps-list-title">
+                <h2 id="steps-list-title">Steps</h2>
+
+                <div class="section-list" data-step-list role="list"></div>
+
+                <div class="new-section">
+                    <button
+                        class="button button--ghost new-section__button"
+                        type="button"
+                        data-new-step
+                    >
+                        Add Step
+                    </button>
+
+                    <form class="inline-section-form" data-create-form novalidate hidden>
+                        <div class="field">
+                            <label for="new-step-title">Step title</label>
+                            <input
+                                id="new-step-title"
+                                name="title"
+                                type="text"
+                                minlength="1"
+                                maxlength="255"
+                                autocomplete="off"
+                                required
+                            >
+                            <p class="field-error" data-title-error aria-live="polite"></p>
+                        </div>
+                        <div class="form-actions">
+                            <button class="button button--primary" type="submit" data-create-submit>
+                                Create
+                            </button>
+                            <button class="button button--ghost" type="button" data-create-cancel>
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
