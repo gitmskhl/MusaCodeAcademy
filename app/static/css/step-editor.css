@@ -1696,34 +1696,27 @@ body {
 }
 
 .rendered-code {
+    position: relative;
     overflow: hidden;
     border-radius: 10px;
-    background: #20242d;
+    background: #fcfcfd;
 }
 
 .rendered-code__language {
-    display: block;
-    padding: 9px 14px 0;
-    color: #9da6b7;
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    right: 10px;
+    padding: 3px 6px;
+    border: 1px solid #dedfe4;
+    border-radius: 5px;
+    color: #777b85;
+    background: rgba(252, 252, 253, 0.92);
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-}
-
-.rendered-code pre {
-    margin: 0;
-    overflow-x: auto;
-    padding: 15px 17px;
-}
-
-.rendered-code code {
-    color: #e8ebf2;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 13px;
-    line-height: 1.6;
-    white-space: pre;
 }
 
 .block-card--code .block-properties--code {
@@ -1766,6 +1759,10 @@ body {
 
 .code-editor .cm-focused {
     outline: 0;
+}
+
+.code-editor--readonly .cm-matchingBracket {
+    background-color: rgba(50, 140, 130, 0.32);
 }
 
 @media (max-width: 720px) {

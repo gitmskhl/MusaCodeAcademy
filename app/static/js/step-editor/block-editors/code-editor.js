@@ -1,4 +1,4 @@
-import { createCodeEditorView } from '../codemirror/code-editor-view.js';
+import { mountCodeEditor } from '../codemirror/code-editor-instance.js';
 
 export const renderCodeEditor = ({ block, index, onChange }) => {
     const editor = document.createElement('div');
@@ -27,24 +27,18 @@ export const renderCodeEditor = ({ block, index, onChange }) => {
     codeText.className = 'property-field__label';
     codeText.textContent = 'Code';
 
-    const code = document.createElement('div');
-    code.className = 'code-editor';
-    code.id = `code-block-${index}`;
-    code.dataset.propertiesFirstField = '';
-    code.tabIndex = -1;
-    codeField.append(codeText, code);
-
-    const codeEditor = createCodeEditorView({
-        parent: code,
-        document: block.data.code ?? '',
-        language: block.data.language ?? '',
+    codeField.appendChild(codeText);
+    const codeEditor = mountCodeEditor({
+        block,
+        index,
+        parent: codeField,
+        editable: true,
         onChange: (value) => onChange({ code: value }),
     });
-    code.addEventListener('focus', () => codeEditor.focus());
 
     language.addEventListener('input', () => {
         onChange({ language: language.value });
-        codeEditor.setLanguage(language.value);
+        codeEditor.controller.setLanguage(language.value);
     });
 
     editor.append(languageLabel, codeField);

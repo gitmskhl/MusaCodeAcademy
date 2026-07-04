@@ -1,11 +1,9 @@
-export const renderCodeBlock = (block) => {
-    if (!block.data.code) {
-        const placeholder = document.createElement('p');
-        placeholder.className = 'rendered-block__placeholder';
-        placeholder.textContent = 'Click to add code…';
-        return placeholder;
-    }
+import { mountCodeEditor } from '../codemirror/code-editor-instance.js';
 
+export const renderCodeBlock = (
+    block,
+    { index, onChange = () => {} } = {}
+) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'rendered-code';
 
@@ -16,10 +14,12 @@ export const renderCodeBlock = (block) => {
         wrapper.appendChild(language);
     }
 
-    const pre = document.createElement('pre');
-    const code = document.createElement('code');
-    code.textContent = block.data.code;
-    pre.appendChild(code);
-    wrapper.appendChild(pre);
+    mountCodeEditor({
+        block,
+        index,
+        parent: wrapper,
+        editable: false,
+        onChange: (value) => onChange({ code: value }),
+    });
     return wrapper;
 };

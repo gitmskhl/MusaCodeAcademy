@@ -120,7 +120,10 @@ const createBlockCard = ({
         }));
     } else {
         const renderer = blockRenderers.get(block.type) ?? renderUnknownBlock;
-        content.appendChild(renderer(block));
+        content.appendChild(renderer(block, {
+            index,
+            onChange: (values) => onChange(index, values),
+        }));
     }
 
     card.appendChild(content);
