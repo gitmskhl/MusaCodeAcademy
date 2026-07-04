@@ -16,10 +16,12 @@ const blockTypes = new Map([
         'image',
         {
             label: 'Image',
-            description: 'Image with accessible text',
+            description: 'Uploaded image with caption',
             icon: '▧',
-            createData: () => ({ url: '', alt: '', caption: '' }),
-            summarize: (data) => data.alt?.trim() || 'No image selected',
+            createData: () => ({ file_id: null, width: 100, caption: '' }),
+            summarize: (data) =>
+                data.caption?.trim() ||
+                (data.file_id != null ? 'Uploaded image' : 'No image selected'),
         },
     ],
     [

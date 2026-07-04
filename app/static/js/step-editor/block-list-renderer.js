@@ -32,7 +32,7 @@ const getPreviewText = (block, summary) => {
     const previewValues = {
         text: block.data.text,
         code: block.data.code,
-        image: block.data.caption || block.data.alt || block.data.url,
+        image: block.data.caption,
     };
     const value = previewValues[block.type] ?? Object.values(block.data).find(
         (item) => typeof item === 'string' && item.trim()
