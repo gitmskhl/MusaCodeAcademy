@@ -1,8 +1,11 @@
 import select
+from io import BytesIO
 from uuid import uuid4
 from httpx import AsyncClient, ASGITransport
 import pytest
 import pytest_asyncio
+from fastapi import UploadFile
+from starlette.datastructures import Headers
 from sqlalchemy import delete, select
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -11,6 +14,7 @@ from app.enums import UserRole
 from app.models import Base, Course, User, Section
 from app.main import app
 from app.core.config import settings
+from app.services.storage import StorageService
 
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -200,3 +204,16 @@ async def section_factory(course_factory, db):
     return create_section
 
 
+@pytest.fixture
+def storage(tmp_path):
+    return StorageService(upload_dir=tmp_path)
+
+
+@pytest.fixture
+def valid_png() -> UploadFile:
+    with open("tests/assets/valid.png", "rb") as f:
+        return UploadFile(
+            filename="valid.png",
+            file=BytesIO(f.read()),
+            headers=Headers({"content-type": "image/png"})
+        )

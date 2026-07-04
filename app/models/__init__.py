@@ -4,3 +4,4 @@ from .course import Course
 from .section import Section
 from .lesson import Lesson
 from .step import Step
+from .file import File

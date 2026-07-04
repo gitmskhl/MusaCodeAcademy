@@ -9,7 +9,8 @@ from app.api.routers import (
     courseRouter,
     sectionRouter,
     lessonRouter,
-    stepRouter
+    stepRouter,
+    fileRouter
 )
 from app.core.database import engine
 from app.models import Base
@@ -23,12 +24,16 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
-
 app.mount(
     "/static",
     StaticFiles(directory="app/static"),
     name="static"
+)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory="uploads"),
+    name="uploads"
 )
 
 app.include_router(pagesRouter)
@@ -67,4 +72,10 @@ app.include_router(
     stepRouter,
     prefix='/api/steps',
     tags=['step']
+)
+
+app.include_router(
+    fileRouter,
+    prefix='/api/files',
+    tags=['file']
 )
