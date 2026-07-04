@@ -1,8 +1,13 @@
 import { getImageSource } from '../image-sources.js';
 
-const createImagePlaceholder = () => {
+const clampWidth = (value) => {
+    const width = Number(value);
+    return Number.isFinite(width) ? Math.min(100, Math.max(10, width)) : 100;
+};
+
+const createPlaceholder = () => {
     const placeholder = document.createElement('div');
-    placeholder.className = 'preview-block__placeholder preview-image__placeholder';
+    placeholder.className = 'rendered-block__placeholder rendered-image__placeholder';
     placeholder.innerHTML = `
         <span aria-hidden="true">▧</span>
         <p>No image uploaded</p>
@@ -10,20 +15,16 @@ const createImagePlaceholder = () => {
     return placeholder;
 };
 
-const clampWidth = (value) => {
-    const width = Number(value);
-    return Number.isFinite(width) ? Math.min(100, Math.max(10, width)) : 100;
-};
+export const renderImageBlock = (block) => {
+    const figure = document.createElement('figure');
+    figure.className = 'rendered-image';
+    figure.style.width = `${clampWidth(block.data.width)}%`;
 
-export const renderImagePreview = (block) => {
     const source = getImageSource(block.data.file_id);
     if (!source) {
-        return createImagePlaceholder();
+        figure.appendChild(createPlaceholder());
+        return figure;
     }
-
-    const figure = document.createElement('figure');
-    figure.className = 'preview-image';
-    figure.style.width = `${clampWidth(block.data.width)}%`;
 
     const image = document.createElement('img');
     image.src = source;
@@ -37,8 +38,7 @@ export const renderImagePreview = (block) => {
     }
 
     image.addEventListener('error', () => {
-        figure.replaceChildren(createImagePlaceholder());
+        figure.replaceChildren(createPlaceholder());
     });
-
     return figure;
 };

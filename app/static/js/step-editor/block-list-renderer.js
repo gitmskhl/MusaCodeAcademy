@@ -1,5 +1,23 @@
+import { renderCodeBlock } from './block-renderers/code-renderer.js';
+import { renderImageBlock } from './block-renderers/image-renderer.js';
+import { renderTextBlock } from './block-renderers/text-renderer.js';
+import { renderCodeEditor } from './block-editors/code-editor.js';
+import { renderImageEditor } from './block-editors/image-editor.js';
+import { renderTextEditor } from './block-editors/text-editor.js';
+import { renderUnavailableEditor } from './block-editors/unavailable-editor.js';
 import { getBlockType } from './block-types.js';
-import { createBlockEditor } from './properties-panel.js';
+
+const blockRenderers = new Map([
+    ['text', renderTextBlock],
+    ['image', renderImageBlock],
+    ['code', renderCodeBlock],
+]);
+
+const blockEditors = new Map([
+    ['text', renderTextEditor],
+    ['image', renderImageEditor],
+    ['code', renderCodeEditor],
+]);
 
 const createEmptyState = () => {
     const emptyState = document.createElement('div');
@@ -7,8 +25,8 @@ const createEmptyState = () => {
     emptyState.innerHTML = `
         <div>
             <span class="block-list__empty-icon" aria-hidden="true">+</span>
-            <strong>No content blocks yet</strong>
-            <p>Add your first block below to start writing.</p>
+            <strong>Start your document</strong>
+            <p>Add a text, image, or code block below.</p>
         </div>
     `;
     return emptyState;
@@ -28,91 +46,95 @@ const createDeleteButton = (blockLabel) => {
     return button;
 };
 
-const getPreviewText = (block, summary) => {
-    const previewValues = {
-        text: block.data.text,
-        code: block.data.code,
-        image: block.data.caption,
-    };
-    const value = previewValues[block.type] ?? Object.values(block.data).find(
-        (item) => typeof item === 'string' && item.trim()
-    );
-
-    return value?.trim() || summary;
+const renderUnknownBlock = (block) => {
+    const fallback = document.createElement('p');
+    fallback.className = 'rendered-block__placeholder';
+    fallback.textContent = `Rendering is unavailable for “${block.type}” blocks.`;
+    return fallback;
 };
 
-const createBlockCard = (block, index, selectedIndex, onChange) => {
-    const definition = getBlockType(block.type);
-    const label = definition?.label ?? block.type;
-    const summary = definition?.summarize?.(block.data) ?? `${label} block`;
+const createControls = (label) => {
+    const controls = document.createElement('div');
+    controls.className = 'block-card__controls';
 
-    const card = document.createElement('article');
-    card.className = 'block-card';
-    card.dataset.blockIndex = String(index);
-    card.tabIndex = index === selectedIndex ? -1 : 0;
-    card.setAttribute('aria-label', `${label} block. ${summary}`);
-
-    if (index === selectedIndex) {
-        card.classList.add('is-selected');
-        card.setAttribute('aria-current', 'true');
-    }
-
-    const dragHandle = document.createElement('span');
+    const dragHandle = document.createElement('button');
     dragHandle.className = 'block-card__drag-handle';
+    dragHandle.type = 'button';
+    dragHandle.draggable = true;
+    dragHandle.dataset.dragHandle = '';
     dragHandle.title = 'Drag to reorder';
-    dragHandle.setAttribute('aria-hidden', 'true');
+    dragHandle.setAttribute('aria-label', `Move ${label} block`);
     dragHandle.innerHTML =
         '<span></span><span></span><span></span><span></span><span></span><span></span>';
 
-    const header = document.createElement('header');
-    header.className = 'block-card__header';
-
-    const icon = document.createElement('span');
-    icon.className = 'block-card__type-icon';
-    icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = definition?.icon ?? '?';
-
-    const type = document.createElement('p');
+    const type = document.createElement('span');
     type.className = 'block-card__type';
     type.textContent = label;
 
-    const identity = document.createElement('div');
-    identity.className = 'block-card__identity';
-    identity.append(icon, type);
+    controls.append(dragHandle, type, createDeleteButton(label));
+    return controls;
+};
 
-    const actions = document.createElement('div');
-    actions.className = 'block-card__actions';
-    actions.appendChild(createDeleteButton(label));
+const createBlockCard = ({
+    block,
+    index,
+    selectedIndex,
+    editingIndex,
+    onChange,
+}) => {
+    const definition = getBlockType(block.type);
+    const label = definition?.label ?? block.type;
+    const summary = definition?.summarize?.(block.data) ?? `${label} block`;
+    const isSelected = index === selectedIndex;
+    const isEditing = index === editingIndex;
 
-    header.append(dragHandle, identity, actions);
-    card.appendChild(header);
-
-    if (index === selectedIndex) {
-        const editorWrap = document.createElement('div');
-        editorWrap.className = 'block-card__editor';
-        editorWrap.appendChild(createBlockEditor({
-            block,
-            index,
-            onChange: (values) => onChange(index, values),
-        }));
-        card.appendChild(editorWrap);
-    } else {
-        const preview = document.createElement(
-            block.type === 'code' ? 'pre' : 'p'
-        );
-        preview.className = `block-card__preview block-card__preview--${block.type}`;
-        preview.textContent = getPreviewText(block, summary);
-        card.appendChild(preview);
+    const card = document.createElement('article');
+    card.className = `block-card block-card--${block.type}`;
+    card.dataset.blockIndex = String(index);
+    card.tabIndex = isSelected ? -1 : 0;
+    card.setAttribute('aria-label', `${label} block. ${summary}`);
+    if (isSelected) {
+        card.classList.add('is-selected');
+        card.setAttribute('aria-current', 'true');
+    }
+    if (isEditing) {
+        card.classList.add('is-editing');
     }
 
+    card.appendChild(createControls(label));
+
+    const content = document.createElement('div');
+    content.className = 'block-card__content';
+    content.dataset.blockContent = '';
+
+    const shouldShowEditor =
+        isEditing ||
+        (isSelected && (block.type === 'image' || block.type === 'code'));
+    if (shouldShowEditor) {
+        const editor = blockEditors.get(block.type) ?? renderUnavailableEditor;
+        content.appendChild(editor({
+            block,
+            index,
+            label,
+            onChange: (values) => onChange(index, values),
+        }));
+    } else {
+        const renderer = blockRenderers.get(block.type) ?? renderUnknownBlock;
+        content.appendChild(renderer(block));
+    }
+
+    card.appendChild(content);
     return card;
 };
 
 export const renderBlockList = (
     container,
     blocks,
-    selectedIndex = null,
-    onChange = () => {}
+    {
+        selectedIndex = null,
+        editingIndex = null,
+        onChange = () => {},
+    } = {}
 ) => {
     container.replaceChildren();
 
@@ -123,7 +145,13 @@ export const renderBlockList = (
 
     const fragment = document.createDocumentFragment();
     blocks.forEach((block, index) => {
-        fragment.appendChild(createBlockCard(block, index, selectedIndex, onChange));
+        fragment.appendChild(createBlockCard({
+            block,
+            index,
+            selectedIndex,
+            editingIndex,
+            onChange,
+        }));
     });
     container.appendChild(fragment);
 };

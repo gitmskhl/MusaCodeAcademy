@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "npm run vendor:marked",
+    "vendor:marked": "cp node_modules/marked/lib/marked.esm.js node_modules/marked/lib/marked.esm.js.map app/static/vendor/"
+  },
+  "dependencies": {
+    "marked": "18.0.5"
+  }
+}

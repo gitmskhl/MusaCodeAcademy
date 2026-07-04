@@ -1,17 +1,17 @@
-export const renderCodePreview = (block) => {
+export const renderCodeBlock = (block) => {
     if (!block.data.code) {
-        const placeholder = document.createElement('div');
-        placeholder.className = 'preview-block__placeholder preview-code__placeholder';
-        placeholder.textContent = 'Empty code block';
+        const placeholder = document.createElement('p');
+        placeholder.className = 'rendered-block__placeholder';
+        placeholder.textContent = 'Click to add code…';
         return placeholder;
     }
 
     const wrapper = document.createElement('div');
-    wrapper.className = 'preview-code';
+    wrapper.className = 'rendered-code';
 
     if (block.data.language) {
         const language = document.createElement('span');
-        language.className = 'preview-code__language';
+        language.className = 'rendered-code__language';
         language.textContent = block.data.language;
         wrapper.appendChild(language);
     }

@@ -1,23 +1,26 @@
+const resizeTextarea = (textarea) => {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.max(80, textarea.scrollHeight)}px`;
+};
+
 export const renderTextEditor = ({ block, index, onChange }) => {
     const editor = document.createElement('div');
-    editor.className = 'block-properties';
-
-    const label = document.createElement('label');
-    label.className = 'property-field__label';
-    label.htmlFor = `text-block-${index}`;
-    label.textContent = 'Text';
+    editor.className = 'inline-text-editor';
 
     const textarea = document.createElement('textarea');
-    textarea.className = 'property-field__textarea';
-    textarea.id = label.htmlFor;
-    textarea.rows = 14;
-    textarea.placeholder = 'Write the content for this block…';
+    textarea.className = 'inline-text-editor__input';
+    textarea.id = `text-block-${index}`;
+    textarea.rows = 1;
+    textarea.placeholder = 'Write with Markdown…';
     textarea.value = block.data.text ?? '';
     textarea.dataset.propertiesFirstField = '';
+    textarea.setAttribute('aria-label', 'Markdown text');
     textarea.addEventListener('input', () => {
+        resizeTextarea(textarea);
         onChange({ text: textarea.value });
     });
 
-    editor.append(label, textarea);
+    editor.appendChild(textarea);
+    requestAnimationFrame(() => resizeTextarea(textarea));
     return editor;
 };

@@ -1,8 +1,8 @@
 import { createBlock, getBlockTypes } from './block-types.js';
 import { renderBlockList } from './block-list-renderer.js';
-import { renderPreview } from './preview.js';
 import {
     addBlock,
+    moveBlock,
     removeBlock,
     setLayout,
     step,
@@ -13,9 +13,6 @@ import {
 const elements = {
     root: document.querySelector('[data-step-editor]'),
     backButton: document.querySelector('[data-back-button]'),
-    editorPanel: document.querySelector('[data-editor-panel]'),
-    previewPanel: document.querySelector('[data-preview-panel]'),
-    modeButtons: [...document.querySelectorAll('[data-mode]')],
     layoutOptions: [...document.querySelectorAll('[data-layout-option]')],
     blockList: document.querySelector('[data-block-list]'),
     addBlockButton: document.querySelector('[data-add-block-button]'),
@@ -23,21 +20,37 @@ const elements = {
 };
 
 let selectedBlockIndex = null;
+let editingBlockIndex = null;
 let focusEditorAfterRender = false;
+let draggedBlockIndex = null;
 
 const renderLayout = () => {
     elements.layoutOptions.forEach((option) => {
         option.checked = option.value === step.layout;
     });
+    elements.blockList.classList.toggle(
+        'block-list--two-columns',
+        step.layout === 'two_columns'
+    );
+};
+
+const handleBlockChange = (index, values) => {
+    updateBlockData(index, values);
+
+    // An uploaded image changes from a placeholder into the shared image
+    // renderer, so that structural update needs one immediate repaint.
+    if (Object.hasOwn(values, 'file_id')) {
+        focusEditorAfterRender = true;
+        renderBlocks();
+    }
 };
 
 const renderBlocks = () => {
-    renderBlockList(
-        elements.blockList,
-        step.content.blocks,
-        selectedBlockIndex,
-        updateBlockData
-    );
+    renderBlockList(elements.blockList, step.content.blocks, {
+        selectedIndex: selectedBlockIndex,
+        editingIndex: editingBlockIndex,
+        onChange: handleBlockChange,
+    });
 
     if (focusEditorAfterRender) {
         elements.blockList.querySelector('[data-properties-first-field]')?.focus();
@@ -45,12 +58,11 @@ const renderBlocks = () => {
     }
 };
 
-const renderEditor = (currentStep = step, change = { type: 'initial-render' }) => {
+const renderEditor = (_currentStep = step, change = { type: 'initial-render' }) => {
     renderLayout();
-    renderPreview(elements.previewPanel, currentStep);
 
-    // The active editor already contains the latest typed value. Keeping it
-    // mounted preserves textarea focus and cursor position during live updates.
+    // Inputs update the state as the user types. Replacing their DOM here would
+    // lose focus and the caret, so only structural changes repaint the document.
     if (change.type !== 'block-data-updated') {
         renderBlocks();
     }
@@ -85,7 +97,6 @@ const renderBlockMenu = () => {
 const closeBlockMenu = ({ returnFocus = false } = {}) => {
     elements.blockMenu.hidden = true;
     elements.addBlockButton.setAttribute('aria-expanded', 'false');
-
     if (returnFocus) {
         elements.addBlockButton.focus();
     }
@@ -97,30 +108,32 @@ const openBlockMenu = () => {
     elements.blockMenu.querySelector('[role="menuitem"]')?.focus();
 };
 
-const setMode = (mode) => {
-    const isEditor = mode === 'editor';
-    elements.editorPanel.hidden = !isEditor;
-    elements.previewPanel.hidden = isEditor;
-
-    elements.modeButtons.forEach((button) => {
-        const isActive = button.dataset.mode === mode;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-pressed', String(isActive));
-    });
-
-    closeBlockMenu();
-};
-
-const selectBlock = (index) => {
-    if (!step.content.blocks[index]) {
+const activateBlock = (index, { focusEditor = false } = {}) => {
+    const block = step.content.blocks[index];
+    if (!block) {
         return;
     }
 
-    if (selectedBlockIndex === index) {
+    const shouldEditText = block.type === 'text';
+    if (
+        selectedBlockIndex === index &&
+        editingBlockIndex === (shouldEditText ? index : null)
+    ) {
         return;
     }
 
     selectedBlockIndex = index;
+    editingBlockIndex = shouldEditText ? index : null;
+    focusEditorAfterRender = focusEditor || shouldEditText;
+    renderBlocks();
+};
+
+const deactivateBlock = () => {
+    if (selectedBlockIndex === null && editingBlockIndex === null) {
+        return;
+    }
+    selectedBlockIndex = null;
+    editingBlockIndex = null;
     renderBlocks();
 };
 
@@ -130,22 +143,20 @@ const deleteBlock = (index) => {
     }
 
     if (selectedBlockIndex === index) {
-        if (index > 0) {
-            selectedBlockIndex = index - 1;
-        } else if (step.content.blocks.length > 1) {
-            selectedBlockIndex = 0;
-        } else {
-            selectedBlockIndex = null;
-        }
+        selectedBlockIndex = null;
+        editingBlockIndex = null;
     } else if (selectedBlockIndex !== null && index < selectedBlockIndex) {
         selectedBlockIndex -= 1;
+        if (editingBlockIndex !== null) {
+            editingBlockIndex -= 1;
+        }
     }
-
     removeBlock(index);
 };
 
 const addNewBlock = (type) => {
     selectedBlockIndex = step.content.blocks.length;
+    editingBlockIndex = type === 'text' ? selectedBlockIndex : null;
     focusEditorAfterRender = true;
     addBlock(createBlock(type));
     closeBlockMenu();
@@ -162,8 +173,110 @@ const handleBlockListClick = (event) => {
         deleteBlock(index);
         return;
     }
+    if (event.target.closest('[data-drag-handle]')) {
+        selectedBlockIndex = index;
+        editingBlockIndex = null;
+        renderBlocks();
+        return;
+    }
 
-    selectBlock(index);
+    activateBlock(index, { focusEditor: true });
+};
+
+const clearDropIndicators = () => {
+    elements.blockList
+        .querySelectorAll('.is-drop-before, .is-drop-after')
+        .forEach((card) => {
+            card.classList.remove('is-drop-before', 'is-drop-after');
+        });
+};
+
+const remapIndexAfterMove = (index, fromIndex, toIndex) => {
+    if (index === null || fromIndex === toIndex) {
+        return index;
+    }
+    if (index === fromIndex) {
+        return toIndex;
+    }
+    if (fromIndex < toIndex && index > fromIndex && index <= toIndex) {
+        return index - 1;
+    }
+    if (fromIndex > toIndex && index >= toIndex && index < fromIndex) {
+        return index + 1;
+    }
+    return index;
+};
+
+const bindDragAndDrop = () => {
+    elements.blockList.addEventListener('dragstart', (event) => {
+        const handle = event.target.closest('[data-drag-handle]');
+        const card = handle?.closest('[data-block-index]');
+        if (!card) {
+            event.preventDefault();
+            return;
+        }
+
+        draggedBlockIndex = Number(card.dataset.blockIndex);
+        card.classList.add('is-dragging');
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', String(draggedBlockIndex));
+    });
+
+    elements.blockList.addEventListener('dragover', (event) => {
+        if (draggedBlockIndex === null) {
+            return;
+        }
+        const card = event.target.closest('[data-block-index]');
+        if (!card) {
+            return;
+        }
+
+        event.preventDefault();
+        clearDropIndicators();
+        const after = event.clientY > card.getBoundingClientRect().top +
+            card.getBoundingClientRect().height / 2;
+        card.classList.add(after ? 'is-drop-after' : 'is-drop-before');
+        event.dataTransfer.dropEffect = 'move';
+    });
+
+    elements.blockList.addEventListener('drop', (event) => {
+        const card = event.target.closest('[data-block-index]');
+        if (draggedBlockIndex === null || !card) {
+            return;
+        }
+
+        event.preventDefault();
+        const fromIndex = draggedBlockIndex;
+        const targetIndex = Number(card.dataset.blockIndex);
+        const after = card.classList.contains('is-drop-after');
+        let toIndex = targetIndex + (after ? 1 : 0);
+        if (fromIndex < toIndex) {
+            toIndex -= 1;
+        }
+        toIndex = Math.max(0, Math.min(step.content.blocks.length - 1, toIndex));
+
+        selectedBlockIndex = remapIndexAfterMove(
+            selectedBlockIndex,
+            fromIndex,
+            toIndex
+        );
+        editingBlockIndex = remapIndexAfterMove(
+            editingBlockIndex,
+            fromIndex,
+            toIndex
+        );
+        clearDropIndicators();
+        draggedBlockIndex = null;
+        moveBlock(fromIndex, toIndex);
+    });
+
+    elements.blockList.addEventListener('dragend', () => {
+        draggedBlockIndex = null;
+        clearDropIndicators();
+        elements.blockList.querySelector('.is-dragging')?.classList.remove(
+            'is-dragging'
+        );
+    });
 };
 
 const bindEvents = () => {
@@ -172,10 +285,6 @@ const bindEvents = () => {
             event.preventDefault();
             window.history.back();
         }
-    });
-
-    elements.modeButtons.forEach((button) => {
-        button.addEventListener('click', () => setMode(button.dataset.mode));
     });
 
     elements.layoutOptions.forEach((option) => {
@@ -210,21 +319,58 @@ const bindEvents = () => {
             event.target === card
         ) {
             event.preventDefault();
-            selectBlock(Number(card.dataset.blockIndex));
+            activateBlock(Number(card.dataset.blockIndex), {
+                focusEditor: true,
+            });
         }
+    });
+
+    elements.blockList.addEventListener('focusout', (event) => {
+        const card = event.target.closest('[data-block-index]');
+        if (!card || Number(card.dataset.blockIndex) !== editingBlockIndex) {
+            return;
+        }
+        const index = Number(card.dataset.blockIndex);
+        requestAnimationFrame(() => {
+            const currentCard = elements.blockList.querySelector(
+                `[data-block-index="${index}"]`
+            );
+            if (
+                editingBlockIndex === index &&
+                !currentCard?.contains(document.activeElement)
+            ) {
+                editingBlockIndex = null;
+                renderBlocks();
+            }
+        });
     });
 
     document.addEventListener('click', (event) => {
         if (!event.target.closest('.add-block')) {
             closeBlockMenu();
         }
+        if (
+            !event.target.closest('[data-block-index]') &&
+            !event.target.closest('.add-block') &&
+            !event.target.closest('.layout-options')
+        ) {
+            deactivateBlock();
+        }
     });
 
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !elements.blockMenu.hidden) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+        if (!elements.blockMenu.hidden) {
             closeBlockMenu({ returnFocus: true });
+        } else if (editingBlockIndex !== null) {
+            editingBlockIndex = null;
+            renderBlocks();
         }
     });
+
+    bindDragAndDrop();
 };
 
 const init = () => {

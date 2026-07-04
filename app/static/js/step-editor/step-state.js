@@ -39,6 +39,22 @@ export const removeBlock = (index) => {
     return true;
 };
 
+export const moveBlock = (fromIndex, toIndex) => {
+    if (
+        !step.content.blocks[fromIndex] ||
+        toIndex < 0 ||
+        toIndex >= step.content.blocks.length ||
+        fromIndex === toIndex
+    ) {
+        return false;
+    }
+
+    const [block] = step.content.blocks.splice(fromIndex, 1);
+    step.content.blocks.splice(toIndex, 0, block);
+    notify({ type: 'block-moved', fromIndex, toIndex });
+    return true;
+};
+
 export const updateBlockData = (index, values) => {
     const block = step.content.blocks[index];
 
