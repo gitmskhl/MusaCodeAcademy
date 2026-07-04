@@ -1154,21 +1154,6 @@ body {
     line-height: 1.65;
 }
 
-.property-field__textarea--code {
-    min-height: 240px;
-    color: #e7ebf2;
-    border-color: #343946;
-    background: #20242d;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: 13px;
-    tab-size: 4;
-}
-
-.property-field__textarea--code:focus {
-    border-color: #7770df;
-    background: #20242d;
-}
-
 .property-field__textarea:focus {
     border-color: #8b84e8;
     background: var(--surface);
@@ -1749,8 +1734,38 @@ body {
     font-size: 11px;
 }
 
-.block-card--code .property-field__textarea--code {
+.block-card--code .code-editor {
     min-height: 220px;
+}
+
+.code-editor {
+    overflow: hidden;
+    min-height: 240px;
+    border: 1px solid #d9dade;
+    border-radius: 9px;
+    background: #fcfcfd;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.code-editor:focus-within {
+    border-color: #8b84e8;
+    box-shadow: 0 0 0 3px rgba(99, 91, 219, 0.09);
+}
+
+.code-editor .cm-editor {
+    min-height: inherit;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+}
+
+.code-editor .cm-scroller {
+    overflow-y: hidden;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.code-editor .cm-focused {
+    outline: 0;
 }
 
 @media (max-width: 720px) {
