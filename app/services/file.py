@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi import HTTPException, status
 from app.models import File
 from app.services.storage import SavedFile
 
@@ -23,6 +24,27 @@ class FileService:
             await db.commit()
             await db.refresh(new_file)
             return new_file
+        except Exception:
+            await db.rollback()
+            raise
+
+
+    async def delete(
+            self,
+            db: AsyncSession,
+            file_id: int
+    ) -> str:
+        file = await db.get(File, file_id)
+        if not file:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found"
+            )
+        try:
+            storage_path = file.storage_path
+            await db.delete(file)
+            await db.commit()
+            return storage_path
         except Exception:
             await db.rollback()
             raise
