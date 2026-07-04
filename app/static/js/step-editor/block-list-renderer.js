@@ -1,4 +1,5 @@
 import { getBlockType } from './block-types.js';
+import { createBlockEditor } from './properties-panel.js';
 
 const createEmptyState = () => {
     const emptyState = document.createElement('div');
@@ -7,7 +8,7 @@ const createEmptyState = () => {
         <div>
             <span class="block-list__empty-icon" aria-hidden="true">+</span>
             <strong>No content blocks yet</strong>
-            <p>Use “Add block” to start building this step.</p>
+            <p>Add your first block below to start writing.</p>
         </div>
     `;
     return emptyState;
@@ -27,7 +28,20 @@ const createDeleteButton = (blockLabel) => {
     return button;
 };
 
-const createBlockCard = (block, index, selectedIndex) => {
+const getPreviewText = (block, summary) => {
+    const previewValues = {
+        text: block.data.text,
+        code: block.data.code,
+        image: block.data.caption || block.data.alt || block.data.url,
+    };
+    const value = previewValues[block.type] ?? Object.values(block.data).find(
+        (item) => typeof item === 'string' && item.trim()
+    );
+
+    return value?.trim() || summary;
+};
+
+const createBlockCard = (block, index, selectedIndex, onChange) => {
     const definition = getBlockType(block.type);
     const label = definition?.label ?? block.type;
     const summary = definition?.summarize?.(block.data) ?? `${label} block`;
@@ -35,7 +49,7 @@ const createBlockCard = (block, index, selectedIndex) => {
     const card = document.createElement('article');
     card.className = 'block-card';
     card.dataset.blockIndex = String(index);
-    card.tabIndex = 0;
+    card.tabIndex = index === selectedIndex ? -1 : 0;
     card.setAttribute('aria-label', `${label} block. ${summary}`);
 
     if (index === selectedIndex) {
@@ -45,37 +59,61 @@ const createBlockCard = (block, index, selectedIndex) => {
 
     const dragHandle = document.createElement('span');
     dragHandle.className = 'block-card__drag-handle';
-    dragHandle.title = 'Drag to reorder (coming later)';
+    dragHandle.title = 'Drag to reorder';
     dragHandle.setAttribute('aria-hidden', 'true');
     dragHandle.innerHTML =
         '<span></span><span></span><span></span><span></span><span></span><span></span>';
 
-    const identity = document.createElement('div');
-    identity.className = 'block-card__identity';
+    const header = document.createElement('header');
+    header.className = 'block-card__header';
 
     const icon = document.createElement('span');
     icon.className = 'block-card__type-icon';
     icon.setAttribute('aria-hidden', 'true');
     icon.textContent = definition?.icon ?? '?';
 
-    const details = document.createElement('div');
     const type = document.createElement('p');
     type.className = 'block-card__type';
     type.textContent = label;
 
-    const meta = document.createElement('p');
-    meta.className = 'block-card__meta';
-    meta.textContent = summary;
-    meta.title = summary;
+    const identity = document.createElement('div');
+    identity.className = 'block-card__identity';
+    identity.append(icon, type);
 
-    details.append(type, meta);
-    identity.append(icon, details);
+    const actions = document.createElement('div');
+    actions.className = 'block-card__actions';
+    actions.appendChild(createDeleteButton(label));
 
-    card.append(dragHandle, identity, createDeleteButton(label));
+    header.append(dragHandle, identity, actions);
+    card.appendChild(header);
+
+    if (index === selectedIndex) {
+        const editorWrap = document.createElement('div');
+        editorWrap.className = 'block-card__editor';
+        editorWrap.appendChild(createBlockEditor({
+            block,
+            index,
+            onChange: (values) => onChange(index, values),
+        }));
+        card.appendChild(editorWrap);
+    } else {
+        const preview = document.createElement(
+            block.type === 'code' ? 'pre' : 'p'
+        );
+        preview.className = `block-card__preview block-card__preview--${block.type}`;
+        preview.textContent = getPreviewText(block, summary);
+        card.appendChild(preview);
+    }
+
     return card;
 };
 
-export const renderBlockList = (container, blocks, selectedIndex = null) => {
+export const renderBlockList = (
+    container,
+    blocks,
+    selectedIndex = null,
+    onChange = () => {}
+) => {
     container.replaceChildren();
 
     if (blocks.length === 0) {
@@ -85,7 +123,7 @@ export const renderBlockList = (container, blocks, selectedIndex = null) => {
 
     const fragment = document.createDocumentFragment();
     blocks.forEach((block, index) => {
-        fragment.appendChild(createBlockCard(block, index, selectedIndex));
+        fragment.appendChild(createBlockCard(block, index, selectedIndex, onChange));
     });
     container.appendChild(fragment);
 };

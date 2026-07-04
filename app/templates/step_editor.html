@@ -19,10 +19,7 @@
                         <path d="M15 18l-6-6 6-6"/>
                     </svg>
                 </a>
-                <div>
-                    <p class="editor-toolbar__eyebrow">Lesson builder</p>
-                    <h1>Step Editor</h1>
-                </div>
+                <h1>Step Editor</h1>
             </div>
 
             <div class="editor-toolbar__actions">
@@ -54,12 +51,7 @@
             <div class="editor-workspace">
                 <div class="editor-main">
                     <section class="editor-section editor-section--layout">
-                        <div class="editor-section__heading">
-                            <div>
-                                <h2>Layout</h2>
-                                <p>Choose how the step content will be arranged.</p>
-                            </div>
-                        </div>
+                        <h2>Layout</h2>
 
                         <div class="layout-options" role="radiogroup" aria-label="Step layout">
                             <label class="layout-option">
@@ -70,15 +62,10 @@
                                     data-layout-option
                                     checked
                                 >
-                                <span class="layout-option__visual layout-option__visual--vertical" aria-hidden="true">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
+                                <span class="layout-option__icon layout-option__icon--vertical" aria-hidden="true">
+                                    <i></i><i></i>
                                 </span>
-                                <span>
-                                    <strong>Vertical</strong>
-                                    <small>Stack blocks in a single column</small>
-                                </span>
+                                <strong>Vertical</strong>
                             </label>
 
                             <label class="layout-option">
@@ -88,14 +75,10 @@
                                     value="two_columns"
                                     data-layout-option
                                 >
-                                <span class="layout-option__visual layout-option__visual--columns" aria-hidden="true">
-                                    <span></span>
-                                    <span></span>
+                                <span class="layout-option__icon layout-option__icon--columns" aria-hidden="true">
+                                    <i></i><i></i>
                                 </span>
-                                <span>
-                                    <strong>Two columns</strong>
-                                    <small>Display content side by side</small>
-                                </span>
+                                <strong>Two columns</strong>
                             </label>
                         </div>
                     </section>
@@ -103,49 +86,37 @@
                     <section class="editor-section editor-section--blocks">
                         <div class="editor-section__heading">
                             <div>
-                                <h2>Content blocks</h2>
-                                <p>Select a block to edit its properties.</p>
-                            </div>
-
-                            <div class="add-block">
-                                <button
-                                    class="button button--secondary"
-                                    type="button"
-                                    data-add-block-button
-                                    aria-haspopup="menu"
-                                    aria-expanded="false"
-                                    aria-controls="block-menu"
-                                >
-                                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 5v14M5 12h14"/>
-                                    </svg>
-                                    Add block
-                                </button>
-                                <div
-                                    class="block-menu"
-                                    id="block-menu"
-                                    data-block-menu
-                                    role="menu"
-                                    hidden
-                                ></div>
+                                <p class="editor-section__eyebrow">Document</p>
+                                <h2>Content</h2>
                             </div>
                         </div>
 
                         <div class="block-list" data-block-list aria-live="polite"></div>
+
+                        <div class="add-block">
+                            <button
+                                class="add-block__button"
+                                type="button"
+                                data-add-block-button
+                                aria-haspopup="menu"
+                                aria-expanded="false"
+                                aria-controls="block-menu"
+                            >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Add block
+                            </button>
+                            <div
+                                class="block-menu"
+                                id="block-menu"
+                                data-block-menu
+                                role="menu"
+                                hidden
+                            ></div>
+                        </div>
                     </section>
                 </div>
-
-                <aside
-                    class="properties-panel"
-                    data-properties-panel
-                    aria-label="Block properties"
-                    aria-live="polite"
-                >
-                    <div class="properties-panel__empty">
-                        <span class="properties-panel__empty-icon" aria-hidden="true">⌁</span>
-                        <p>No block selected.</p>
-                    </div>
-                </aside>
             </div>
         </section>
 

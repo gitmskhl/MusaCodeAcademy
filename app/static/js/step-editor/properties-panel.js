@@ -1,11 +1,13 @@
 import { getBlockType } from './block-types.js';
+import { renderCodeEditor } from './block-editors/code-editor.js';
+import { renderImageEditor } from './block-editors/image-editor.js';
 import { renderTextEditor } from './block-editors/text-editor.js';
 import { renderUnavailableEditor } from './block-editors/unavailable-editor.js';
 
 const editorRenderers = new Map([
     ['text', renderTextEditor],
-    ['image', renderUnavailableEditor],
-    ['code', renderUnavailableEditor],
+    ['image', renderImageEditor],
+    ['code', renderCodeEditor],
 ]);
 
 const createEmptyState = () => {
@@ -36,6 +38,20 @@ const createHeader = (block, index) => {
     return { header, definition, label };
 };
 
+export const createBlockEditor = ({ block, index, onChange }) => {
+    const definition = getBlockType(block.type);
+    const label = definition?.label ?? block.type;
+    const renderer = editorRenderers.get(block.type) ?? renderUnavailableEditor;
+
+    return renderer({
+        block,
+        index,
+        label,
+        definition,
+        onChange,
+    });
+};
+
 export const registerBlockEditor = (type, renderer) => {
     editorRenderers.set(type, renderer);
 };
@@ -50,14 +66,7 @@ export const renderPropertiesPanel = (
     }
 
     const { header, definition, label } = createHeader(block, index);
-    const renderer = editorRenderers.get(block.type) ?? renderUnavailableEditor;
-    const editor = renderer({
-        block,
-        index,
-        label,
-        definition,
-        onChange,
-    });
+    const editor = createBlockEditor({ block, index, onChange });
 
     container.replaceChildren(header, editor);
 

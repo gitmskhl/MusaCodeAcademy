@@ -1,7 +1,6 @@
 import { createBlock, getBlockTypes } from './block-types.js';
 import { renderBlockList } from './block-list-renderer.js';
 import { renderPreview } from './preview.js';
-import { renderPropertiesPanel } from './properties-panel.js';
 import {
     addBlock,
     removeBlock,
@@ -16,7 +15,6 @@ const elements = {
     backButton: document.querySelector('[data-back-button]'),
     editorPanel: document.querySelector('[data-editor-panel]'),
     previewPanel: document.querySelector('[data-preview-panel]'),
-    propertiesPanel: document.querySelector('[data-properties-panel]'),
     modeButtons: [...document.querySelectorAll('[data-mode]')],
     layoutOptions: [...document.querySelectorAll('[data-layout-option]')],
     blockList: document.querySelector('[data-block-list]'),
@@ -25,7 +23,7 @@ const elements = {
 };
 
 let selectedBlockIndex = null;
-let focusPropertiesAfterRender = false;
+let focusEditorAfterRender = false;
 
 const renderLayout = () => {
     elements.layoutOptions.forEach((option) => {
@@ -34,33 +32,27 @@ const renderLayout = () => {
 };
 
 const renderBlocks = () => {
-    renderBlockList(elements.blockList, step.content.blocks, selectedBlockIndex);
-};
+    renderBlockList(
+        elements.blockList,
+        step.content.blocks,
+        selectedBlockIndex,
+        updateBlockData
+    );
 
-const renderProperties = () => {
-    const block =
-        selectedBlockIndex === null
-            ? null
-            : step.content.blocks[selectedBlockIndex] ?? null;
-
-    renderPropertiesPanel(elements.propertiesPanel, {
-        block,
-        index: selectedBlockIndex,
-        focusFirstField: focusPropertiesAfterRender,
-        onChange: (values) => updateBlockData(selectedBlockIndex, values),
-    });
-    focusPropertiesAfterRender = false;
+    if (focusEditorAfterRender) {
+        elements.blockList.querySelector('[data-properties-first-field]')?.focus();
+        focusEditorAfterRender = false;
+    }
 };
 
 const renderEditor = (currentStep = step, change = { type: 'initial-render' }) => {
     renderLayout();
-    renderBlocks();
     renderPreview(elements.previewPanel, currentStep);
 
     // The active editor already contains the latest typed value. Keeping it
     // mounted preserves textarea focus and cursor position during live updates.
     if (change.type !== 'block-data-updated') {
-        renderProperties();
+        renderBlocks();
     }
 };
 
@@ -124,9 +116,12 @@ const selectBlock = (index) => {
         return;
     }
 
+    if (selectedBlockIndex === index) {
+        return;
+    }
+
     selectedBlockIndex = index;
     renderBlocks();
-    renderProperties();
 };
 
 const deleteBlock = (index) => {
@@ -151,7 +146,7 @@ const deleteBlock = (index) => {
 
 const addNewBlock = (type) => {
     selectedBlockIndex = step.content.blocks.length;
-    focusPropertiesAfterRender = true;
+    focusEditorAfterRender = true;
     addBlock(createBlock(type));
     closeBlockMenu();
 };
@@ -208,15 +203,14 @@ const bindEvents = () => {
 
     elements.blockList.addEventListener('click', handleBlockListClick);
     elements.blockList.addEventListener('keydown', (event) => {
+        const card = event.target.closest('[data-block-index]');
         if (
             (event.key === 'Enter' || event.key === ' ') &&
-            !event.target.closest('[data-block-action]')
+            card &&
+            event.target === card
         ) {
             event.preventDefault();
-            const card = event.target.closest('[data-block-index]');
-            if (card) {
-                selectBlock(Number(card.dataset.blockIndex));
-            }
+            selectBlock(Number(card.dataset.blockIndex));
         }
     });
 
