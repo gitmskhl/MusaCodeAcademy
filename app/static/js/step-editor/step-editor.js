@@ -23,6 +23,12 @@ let selectedBlockIndex = null;
 let editingBlockIndex = null;
 let focusEditorAfterRender = false;
 let draggedBlockIndex = null;
+let dropInsertionIndex = null;
+
+const dropPlaceholder = document.createElement('div');
+dropPlaceholder.className = 'block-drop-placeholder';
+dropPlaceholder.dataset.dropPlaceholder = '';
+dropPlaceholder.setAttribute('aria-hidden', 'true');
 
 const renderLayout = () => {
     elements.layoutOptions.forEach((option) => {
@@ -184,11 +190,8 @@ const handleBlockListClick = (event) => {
 };
 
 const clearDropIndicators = () => {
-    elements.blockList
-        .querySelectorAll('.is-drop-before, .is-drop-after')
-        .forEach((card) => {
-            card.classList.remove('is-drop-before', 'is-drop-after');
-        });
+    dropInsertionIndex = null;
+    dropPlaceholder.remove();
 };
 
 const remapIndexAfterMove = (index, fromIndex, toIndex) => {
@@ -208,6 +211,15 @@ const remapIndexAfterMove = (index, fromIndex, toIndex) => {
 };
 
 const bindDragAndDrop = () => {
+    const showDropPlaceholder = (card, after) => {
+        const targetIndex = Number(card.dataset.blockIndex);
+        dropInsertionIndex = targetIndex + (after ? 1 : 0);
+        card.parentElement.insertBefore(
+            dropPlaceholder,
+            after ? card.nextSibling : card
+        );
+    };
+
     elements.blockList.addEventListener('dragstart', (event) => {
         const handle = event.target.closest('[data-drag-handle]');
         const card = handle?.closest('[data-block-index]');
@@ -220,36 +232,56 @@ const bindDragAndDrop = () => {
         card.classList.add('is-dragging');
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', String(draggedBlockIndex));
+        event.dataTransfer.setDragImage(card, 18, 18);
     });
 
     elements.blockList.addEventListener('dragover', (event) => {
         if (draggedBlockIndex === null) {
             return;
         }
+
+        if (event.target.closest('[data-drop-placeholder]')) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'move';
+            return;
+        }
+
         const card = event.target.closest('[data-block-index]');
         if (!card) {
+            const cards = [
+                ...elements.blockList.querySelectorAll('[data-block-index]'),
+            ];
+            const lastCard = cards.at(-1);
+            if (
+                lastCard &&
+                event.clientY >= lastCard.getBoundingClientRect().bottom
+            ) {
+                event.preventDefault();
+                showDropPlaceholder(lastCard, true);
+                event.dataTransfer.dropEffect = 'move';
+            }
             return;
         }
 
         event.preventDefault();
-        clearDropIndicators();
-        const after = event.clientY > card.getBoundingClientRect().top +
-            card.getBoundingClientRect().height / 2;
-        card.classList.add(after ? 'is-drop-after' : 'is-drop-before');
+        const cardRect = card.getBoundingClientRect();
+        const after = elements.blockList.classList.contains(
+            'block-list--two-columns'
+        )
+            ? event.clientX > cardRect.left + cardRect.width / 2
+            : event.clientY > cardRect.top + cardRect.height / 2;
+        showDropPlaceholder(card, after);
         event.dataTransfer.dropEffect = 'move';
     });
 
     elements.blockList.addEventListener('drop', (event) => {
-        const card = event.target.closest('[data-block-index]');
-        if (draggedBlockIndex === null || !card) {
+        if (draggedBlockIndex === null || dropInsertionIndex === null) {
             return;
         }
 
         event.preventDefault();
         const fromIndex = draggedBlockIndex;
-        const targetIndex = Number(card.dataset.blockIndex);
-        const after = card.classList.contains('is-drop-after');
-        let toIndex = targetIndex + (after ? 1 : 0);
+        let toIndex = dropInsertionIndex;
         if (fromIndex < toIndex) {
             toIndex -= 1;
         }
@@ -267,7 +299,9 @@ const bindDragAndDrop = () => {
         );
         clearDropIndicators();
         draggedBlockIndex = null;
-        moveBlock(fromIndex, toIndex);
+        if (!moveBlock(fromIndex, toIndex)) {
+            renderBlocks();
+        }
     });
 
     elements.blockList.addEventListener('dragend', () => {

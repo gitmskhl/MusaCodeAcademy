@@ -53,10 +53,7 @@ const renderUnknownBlock = (block) => {
     return fallback;
 };
 
-const createControls = (label) => {
-    const controls = document.createElement('div');
-    controls.className = 'block-card__controls';
-
+const createDragHandle = (label) => {
     const dragHandle = document.createElement('button');
     dragHandle.className = 'block-card__drag-handle';
     dragHandle.type = 'button';
@@ -66,12 +63,18 @@ const createControls = (label) => {
     dragHandle.setAttribute('aria-label', `Move ${label} block`);
     dragHandle.innerHTML =
         '<span></span><span></span><span></span><span></span><span></span><span></span>';
+    return dragHandle;
+};
+
+const createControls = (label) => {
+    const controls = document.createElement('div');
+    controls.className = 'block-card__controls';
 
     const type = document.createElement('span');
     type.className = 'block-card__type';
     type.textContent = label;
 
-    controls.append(dragHandle, type, createDeleteButton(label));
+    controls.append(type, createDeleteButton(label));
     return controls;
 };
 
@@ -101,7 +104,7 @@ const createBlockCard = ({
         card.classList.add('is-editing');
     }
 
-    card.appendChild(createControls(label));
+    card.append(createDragHandle(label), createControls(label));
 
     const content = document.createElement('div');
     content.className = 'block-card__content';

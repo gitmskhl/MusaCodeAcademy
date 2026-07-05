@@ -1351,24 +1351,38 @@ body {
     opacity: 0.42;
 }
 
-.block-card.is-drop-before::before,
-.block-card.is-drop-after::after {
+.block-drop-placeholder {
+    position: relative;
+    min-width: 0;
+    height: 12px;
+    border: 1px solid rgba(49, 87, 213, 0.22);
+    border-radius: 5px;
+    background: rgba(49, 87, 213, 0.08);
+    pointer-events: none;
+    animation: block-placeholder-in 100ms ease-out;
+}
+
+.block-drop-placeholder::after {
     position: absolute;
-    right: 4px;
-    left: 4px;
-    z-index: 5;
+    top: 50%;
+    right: 5px;
+    left: 5px;
     height: 2px;
     border-radius: 999px;
     background: var(--primary);
     content: "";
+    transform: translateY(-50%);
 }
 
-.block-card.is-drop-before::before {
-    top: -4px;
-}
-
-.block-card.is-drop-after::after {
-    bottom: -4px;
+@keyframes block-placeholder-in {
+    from {
+        height: 2px;
+        opacity: 0;
+    }
+    to {
+        height: 12px;
+        opacity: 1;
+    }
 }
 
 .block-card__controls {
@@ -1397,10 +1411,14 @@ body {
     transform: translateY(0);
 }
 
-.block-card__controls .block-card__drag-handle {
+.block-card > .block-card__drag-handle {
+    position: absolute;
+    top: 8px;
+    left: -35px;
+    z-index: 4;
     display: grid;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 34px;
     grid-template-columns: repeat(2, 3px);
     grid-template-rows: repeat(3, 3px);
     place-content: center;
@@ -1409,17 +1427,28 @@ body {
     border-radius: 6px;
     background: transparent;
     cursor: grab;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease, background 120ms ease;
 }
 
-.block-card__controls .block-card__drag-handle:active {
+.block-card:hover > .block-card__drag-handle,
+.block-card:focus-within > .block-card__drag-handle,
+.block-card.is-selected > .block-card__drag-handle {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.block-card > .block-card__drag-handle:active {
     cursor: grabbing;
 }
 
-.block-card__controls .block-card__drag-handle:hover {
-    background: var(--surface-subtle);
+.block-card > .block-card__drag-handle:hover,
+.block-card > .block-card__drag-handle:focus-visible {
+    background: #eeeff2;
 }
 
-.block-card__controls .block-card__drag-handle span {
+.block-card > .block-card__drag-handle span {
     width: 3px;
     height: 3px;
     border-radius: 50%;
