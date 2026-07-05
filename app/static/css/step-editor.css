@@ -1615,6 +1615,56 @@ body {
     object-fit: contain;
 }
 
+.image-resize-frame {
+    position: relative;
+}
+
+.image-resize-handle {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    width: 12px;
+    height: 52px;
+    padding: 0;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background: var(--primary);
+    box-shadow: 0 1px 5px rgba(23, 32, 51, 0.28);
+    cursor: ew-resize;
+    opacity: 0.92;
+    touch-action: none;
+    transform: translateY(-50%);
+    transition: opacity 100ms ease, box-shadow 100ms ease;
+}
+
+.image-resize-handle:hover,
+.image-resize-handle:focus-visible,
+.rendered-image.is-resizing .image-resize-handle {
+    opacity: 1;
+    box-shadow: 0 2px 8px rgba(23, 32, 51, 0.34);
+}
+
+.image-resize-handle:focus-visible {
+    outline: 3px solid rgba(49, 87, 213, 0.24);
+    outline-offset: 2px;
+}
+
+.image-resize-handle--left {
+    left: 0;
+    transform: translate(-50%, -50%);
+}
+
+.image-resize-handle--right {
+    right: 0;
+    transform: translate(50%, -50%);
+}
+
+.rendered-image.is-resizing,
+.rendered-image.is-resizing * {
+    cursor: ew-resize;
+    user-select: none;
+}
+
 .rendered-image figcaption,
 .inline-image-editor__caption {
     display: block;

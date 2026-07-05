@@ -1,8 +1,8 @@
 import { getImageSource } from '../image-sources.js';
 
-const clampWidth = (value) => {
+export const getImageWidth = (value) => {
     const width = Number(value);
-    return Number.isFinite(width) ? Math.min(100, Math.max(10, width)) : 100;
+    return Number.isFinite(width) ? Math.min(100, Math.max(20, width)) : 100;
 };
 
 const createPlaceholder = () => {
@@ -18,7 +18,7 @@ const createPlaceholder = () => {
 export const renderImageBlock = (block) => {
     const figure = document.createElement('figure');
     figure.className = 'rendered-image';
-    figure.style.width = `${clampWidth(block.data.width)}%`;
+    figure.style.width = `${getImageWidth(block.data.width)}%`;
 
     const source = getImageSource(block.data.file_id);
     if (!source) {
