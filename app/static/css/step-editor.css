@@ -1850,6 +1850,11 @@ body {
     outline: 0;
 }
 
+.code-editor:not(:focus-within) .cm-activeLine,
+.code-editor:not(:focus-within) .cm-activeLineGutter {
+    background-color: transparent;
+}
+
 .code-editor--readonly .cm-matchingBracket {
     background-color: rgba(50, 140, 130, 0.32);
 }
