@@ -37,8 +37,8 @@ TWO_COLUMNS_CONTENT = {
         {
             "type": "image",
             "data": {
-                "url": "https://example.com/image.png",
-                "alt": "Example",
+                "file_id": 1,
+                "width": 100,
                 "caption": None,
             },
         },
@@ -480,6 +480,54 @@ async def test_update_step_admin_requires_authentication(
                 "version": 1,
                 "layout": "unknown",
                 "blocks": [],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "image",
+                        "data": {"width": 100},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "image",
+                        "data": {"file_id": 0, "width": 100},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "image",
+                        "data": {"file_id": 1, "width": 9},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "image",
+                        "data": {"file_id": 1, "width": 101},
+                    }
+                ],
             }
         },
     ],

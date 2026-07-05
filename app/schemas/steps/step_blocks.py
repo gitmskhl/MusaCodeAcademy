@@ -6,8 +6,8 @@ class TextBlockData(BaseModel):
     
 
 class ImageBlockData(BaseModel):
-    url: str = Field(min_length=1)
-    alt: str | None = None
+    file_id: int = Field(gt=0)
+    width: int = Field(ge=10, le=100, default=100)
     caption: str | None = None
 
 
@@ -19,8 +19,8 @@ class TextBlock(BaseModel):
 class ImageBlock(BaseModel):
     type: Literal["image"]
     data: ImageBlockData
-    
-    
+
+
 StepBlock = Annotated[
     Union[TextBlock, ImageBlock],
     Field(discriminator="type")
