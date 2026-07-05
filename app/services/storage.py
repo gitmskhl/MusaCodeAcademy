@@ -53,6 +53,10 @@ class StorageService:
         self.image_upload_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
+    def make_url(storage_path: str) -> str:
+        return f"/uploads/{storage_path.lstrip('/')}"
+
+    @staticmethod
     def _validate_image(path: Path, extension: str) -> None:
         expected_formats = {
             ".jpg": "JPEG",

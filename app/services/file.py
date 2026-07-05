@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import HTTPException, status
@@ -48,5 +49,13 @@ class FileService:
         except Exception:
             await db.rollback()
             raise
+
+    async def get_many(self, file_ids: list[int], db: AsyncSession) -> list[File]:
+        result = await db.execute(
+            select(File)
+                .where(File.id.in_(set(file_ids)))
+        )
+        return result.scalars().all()
+
 
 file_service = FileService()

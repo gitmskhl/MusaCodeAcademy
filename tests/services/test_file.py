@@ -79,3 +79,31 @@ async def test_create_file_propagates_commit_error_and_rolls_back():
     db.commit.assert_awaited_once()
     db.refresh.assert_not_awaited()
     db.rollback.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_get_many_returns_existing_unique_files(db):
+    service = FileService()
+    first = await service.create(
+        db=db,
+        saved_file=make_saved_file(storage_path="images/first.png"),
+    )
+    second = await service.create(
+        db=db,
+        saved_file=make_saved_file(storage_path="images/second.png"),
+    )
+
+    files = await service.get_many(
+        file_ids=[second.id, first.id, second.id, 999999],
+        db=db,
+    )
+
+    assert {file.id for file in files} == {first.id, second.id}
+    assert len(files) == 2
+
+
+@pytest.mark.asyncio
+async def test_get_many_with_empty_ids_returns_empty_list(db):
+    files = await FileService().get_many(file_ids=[], db=db)
+
+    assert files == []

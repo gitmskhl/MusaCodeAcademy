@@ -40,6 +40,85 @@ def make_db_file(saved_file: SavedFile, *, file_id: int = 1):
     )
 
 
+# GET /api/files
+
+
+@pytest.mark.asyncio
+async def test_get_files_success_for_authenticated_user(
+    client,
+    auth_headers,
+    monkeypatch,
+):
+    first = make_db_file(make_saved_file(), file_id=1)
+    second_saved_file = make_saved_file()
+    second_saved_file.storage_path = "images/second.png"
+    second = make_db_file(second_saved_file, file_id=2)
+    get_many = AsyncMock(return_value=[first, second])
+    monkeypatch.setattr(file_router.file_service, "get_many", get_many)
+
+    response = await client.get(
+        "/api/files",
+        headers=auth_headers,
+        params=[("ids", "1"), ("ids", "2")],
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {"id": 1, "url": "/uploads/images/generated.png"},
+        {"id": 2, "url": "/uploads/images/second.png"},
+    ]
+    get_many.assert_awaited_once()
+    assert get_many.await_args.kwargs["file_ids"] == [1, 2]
+    assert get_many.await_args.kwargs["db"] is not None
+
+
+@pytest.mark.asyncio
+async def test_get_files_returns_only_files_found_by_service(
+    client,
+    auth_headers,
+    monkeypatch,
+):
+    existing = make_db_file(make_saved_file(), file_id=1)
+    get_many = AsyncMock(return_value=[existing])
+    monkeypatch.setattr(file_router.file_service, "get_many", get_many)
+
+    response = await client.get(
+        "/api/files",
+        headers=auth_headers,
+        params=[("ids", "1"), ("ids", "999999")],
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == [
+        {"id": 1, "url": "/uploads/images/generated.png"},
+    ]
+    assert get_many.await_args.kwargs["file_ids"] == [1, 999999]
+
+
+@pytest.mark.asyncio
+async def test_get_files_requires_ids(client, auth_headers, monkeypatch):
+    get_many = AsyncMock()
+    monkeypatch.setattr(file_router.file_service, "get_many", get_many)
+
+    response = await client.get("/api/files", headers=auth_headers)
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"][0]["loc"] == ["query", "ids"]
+    get_many.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_get_files_requires_authentication(client, monkeypatch):
+    get_many = AsyncMock()
+    monkeypatch.setattr(file_router.file_service, "get_many", get_many)
+
+    response = await client.get("/api/files", params={"ids": "1"})
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}
+    get_many.assert_not_awaited()
+
+
 # POST /api/files/images
 
 

@@ -13,6 +13,6 @@ class FilePublic(BaseModel):
     size: int
 
 
-class FileUploadResponse(BaseModel):
+class FileReference(BaseModel):
     id: int
     url: str

@@ -1,11 +1,27 @@
-from fastapi import APIRouter, status, UploadFile
+from typing import Annotated
+from fastapi import APIRouter, status, UploadFile, Query
 
-from app.schemas.file import FilePublic
-from app.api.dependencies import DBSession, OnlyAdmin
+from app.schemas.file import FilePublic, FileReference
+from app.api.dependencies import DBSession, OnlyAdmin, CurrentUser
 from app.services.storage import storage_service
 from app.services.file import file_service
 
 router = APIRouter()
+
+@router.get("", response_model=list[FileReference])
+async def get_files(
+    ids: Annotated[list[int], Query()],
+    _: CurrentUser,
+    db: DBSession
+):
+    files = await file_service.get_many(file_ids=ids, db=db)
+    return [
+        FileReference(
+            id=file.id,
+            url=storage_service.make_url(file.storage_path)
+        )
+        for file in files
+    ]
 
 
 @router.post('/images', response_model=FilePublic, status_code=status.HTTP_201_CREATED)
