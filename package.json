@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "npm run vendor",
+    "vendor": "npm run vendor:marked && npm run vendor:codemirror",
+    "vendor:marked": "cp node_modules/marked/lib/marked.esm.js node_modules/marked/lib/marked.esm.js.map app/static/vendor/",
+    "vendor:codemirror": "esbuild app/static/js/step-editor/codemirror/vendor-entry.js --bundle --format=esm --minify --sourcemap --outfile=app/static/vendor/codemirror.esm.js"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/lang-cpp": "^6.0.3",
+    "@codemirror/lang-java": "^6.0.2",
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/state": "^6.7.0",
+    "@codemirror/view": "^6.43.5",
+    "codemirror": "^6.0.2",
+    "marked": "18.0.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}

@@ -1,3 +1,5 @@
+import { mountCodeEditor } from '../codemirror/code-editor-instance.js';
+
 export const renderCodeEditor = ({ block, index, onChange }) => {
     const editor = document.createElement('div');
     editor.className = 'block-properties block-properties--code';
@@ -18,28 +20,27 @@ export const renderCodeEditor = ({ block, index, onChange }) => {
     language.value = block.data.language ?? '';
     languageLabel.append(languageText, language);
 
-    const codeLabel = document.createElement('label');
-    codeLabel.className = 'property-field';
-    codeLabel.htmlFor = `code-block-${index}`;
+    const codeField = document.createElement('div');
+    codeField.className = 'property-field';
 
     const codeText = document.createElement('span');
     codeText.className = 'property-field__label';
     codeText.textContent = 'Code';
 
-    const code = document.createElement('textarea');
-    code.className = 'property-field__textarea property-field__textarea--code';
-    code.id = codeLabel.htmlFor;
-    code.rows = 10;
-    code.placeholder = 'Write or paste code…';
-    code.value = block.data.code ?? '';
-    code.dataset.propertiesFirstField = '';
-    codeLabel.append(codeText, code);
+    codeField.appendChild(codeText);
+    const codeEditor = mountCodeEditor({
+        block,
+        index,
+        parent: codeField,
+        editable: true,
+        onChange: (value) => onChange({ code: value }),
+    });
 
     language.addEventListener('input', () => {
         onChange({ language: language.value });
+        codeEditor.controller.setLanguage(language.value);
     });
-    code.addEventListener('input', () => onChange({ code: code.value }));
 
-    editor.append(languageLabel, codeLabel);
+    editor.append(languageLabel, codeField);
     return editor;
 };
