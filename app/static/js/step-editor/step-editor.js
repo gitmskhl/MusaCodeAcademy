@@ -1,8 +1,10 @@
 import { createBlock, getBlockTypes } from './block-types.js';
 import { renderBlockList } from './block-list-renderer.js';
+import { registerImageSource } from './image-sources.js';
 import {
     addBlock,
     getBlocks,
+    loadStepContent,
     moveBlock,
     removeBlock,
     setLayout,
@@ -86,7 +88,7 @@ const setSaveStatus = (message, { error = false } = {}) => {
     elements.saveStatus.textContent = message;
 };
 
-const getSaveErrorMessage = async (response) => {
+const getResponseErrorMessage = async (response, fallback) => {
     try {
         const data = await response.json();
         if (Array.isArray(data.detail)) {
@@ -103,7 +105,86 @@ const getSaveErrorMessage = async (response) => {
     } catch {
         // The response has no JSON error body.
     }
-    return `Failed to save step (${response.status}).`;
+    return `${fallback} (${response.status}).`;
+};
+
+const setEditorLoading = (loading) => {
+    elements.saveButton.disabled = loading;
+    elements.addBlockButton.disabled = loading;
+    elements.layoutOptions.forEach((option) => {
+        option.disabled = loading;
+    });
+};
+
+const getContentBlocks = (content) => {
+    if (content.layout === 'vertical') {
+        return content.blocks;
+    }
+    return [...content.left, ...content.right];
+};
+
+const loadImageSources = async (content, token) => {
+    const fileIds = [
+        ...new Set(
+            getContentBlocks(content)
+                .filter((block) => block.type === 'image')
+                .map((block) => block.data.file_id)
+        ),
+    ];
+    if (fileIds.length === 0) {
+        return;
+    }
+
+    const params = new URLSearchParams();
+    fileIds.forEach((fileId) => params.append('ids', String(fileId)));
+    const response = await fetch(`/api/files?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+        throw new Error(
+            await getResponseErrorMessage(response, 'Failed to load images')
+        );
+    }
+
+    const files = await response.json();
+    files.forEach((file) => registerImageSource(file.id, file.url));
+};
+
+const loadStep = async () => {
+    const stepId = Number(elements.root.dataset.stepId);
+    if (!Number.isInteger(stepId) || stepId <= 0) {
+        throw new Error('Invalid step ID.');
+    }
+
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+        throw new Error('Sign in again to load the step.');
+    }
+
+    const response = await fetch(
+        `/api/steps/${encodeURIComponent(stepId)}/admin`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!response.ok) {
+        throw new Error(
+            await getResponseErrorMessage(response, 'Failed to load step')
+        );
+    }
+
+    const loadedStep = await response.json();
+    let imageError = null;
+    try {
+        await loadImageSources(loadedStep.content, token);
+    } catch (error) {
+        imageError = error;
+    }
+
+    loadStepContent(loadedStep.content);
+    if (imageError) {
+        setSaveStatus(imageError.message, { error: true });
+    } else {
+        setSaveStatus('');
+    }
 };
 
 const saveStep = async () => {
@@ -137,7 +218,9 @@ const saveStep = async () => {
             }
         );
         if (!response.ok) {
-            throw new Error(await getSaveErrorMessage(response));
+            throw new Error(
+                await getResponseErrorMessage(response, 'Failed to save step')
+            );
         }
 
         if (JSON.stringify(step) === savedSnapshot) {
@@ -499,15 +582,28 @@ const bindEvents = () => {
     bindDragAndDrop();
 };
 
-const init = () => {
+const init = async () => {
     if (!elements.root) {
         return;
     }
 
     renderBlockMenu();
     subscribeToStep(renderEditor);
-    renderEditor();
     bindEvents();
+    setEditorLoading(true);
+    setSaveStatus('Loading step...');
+
+    try {
+        await loadStep();
+        setEditorLoading(false);
+    } catch (error) {
+        setSaveStatus(
+            error instanceof Error && error.message
+                ? error.message
+                : 'Failed to load step.',
+            { error: true }
+        );
+    }
 };
 
 init();

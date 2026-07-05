@@ -48,6 +48,11 @@ export const subscribeToStep = (listener) => {
     return () => listeners.delete(listener);
 };
 
+export const loadStepContent = (content) => {
+    step.content = structuredClone(content);
+    notify({ type: 'step-loaded' });
+};
+
 export const setLayout = (layout) => {
     if (layout === step.content.layout) {
         return;
