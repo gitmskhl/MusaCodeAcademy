@@ -7,7 +7,7 @@ class TextBlockData(BaseModel):
 
 class ImageBlockData(BaseModel):
     file_id: int = Field(gt=0)
-    width: int = Field(ge=10, le=100, default=100)
+    width: float = Field(ge=20, le=100, default=100.0)
     caption: str | None = None
 
 
