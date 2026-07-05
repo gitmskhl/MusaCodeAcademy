@@ -11,6 +11,11 @@ class ImageBlockData(BaseModel):
     caption: str | None = None
 
 
+class CodeBlockData(BaseModel):
+    language: Literal["python"]
+    code: str = Field(min_length=1)
+
+
 class TextBlock(BaseModel):
     type: Literal["text"]
     data: TextBlockData
@@ -21,7 +26,12 @@ class ImageBlock(BaseModel):
     data: ImageBlockData
 
 
+class CodeBlock(BaseModel):
+    type: Literal["code"]
+    data: CodeBlockData
+
+
 StepBlock = Annotated[
-    Union[TextBlock, ImageBlock],
+    Union[TextBlock, ImageBlock, CodeBlock],
     Field(discriminator="type")
 ]

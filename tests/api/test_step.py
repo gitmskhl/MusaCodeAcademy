@@ -45,6 +45,20 @@ TWO_COLUMNS_CONTENT = {
     ],
 }
 
+CODE_CONTENT = {
+    "version": 1,
+    "layout": "vertical",
+    "blocks": [
+        {
+            "type": "code",
+            "data": {
+                "language": "python",
+                "code": "print('Hello, world!')",
+            },
+        },
+    ],
+}
+
 
 async def create_lesson(db, *, section_id: int) -> Lesson:
     lesson = Lesson(
@@ -410,6 +424,31 @@ async def test_update_step_admin_updates_content(
 
 
 @pytest.mark.asyncio
+async def test_update_step_admin_updates_content_with_code_block(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    step = await create_step_for_course(
+        db,
+        section_factory,
+        is_published=False,
+    )
+
+    response = await client.patch(
+        f"/api/steps/{step.id}/admin",
+        headers=admin_headers,
+        json={"content": CODE_CONTENT},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["content"] == CODE_CONTENT
+    await db.refresh(step)
+    assert step.content == CODE_CONTENT
+
+
+@pytest.mark.asyncio
 async def test_update_step_admin_not_found(client, admin_headers):
     response = await client.patch(
         "/api/steps/999999/admin",
@@ -526,6 +565,45 @@ async def test_update_step_admin_requires_authentication(
                     {
                         "type": "image",
                         "data": {"file_id": 1, "width": 101},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "code",
+                        "data": {"code": "print('missing language')"},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "code",
+                        "data": {
+                            "language": "javascript",
+                            "code": "console.log('unsupported')",
+                        },
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "code",
+                        "data": {"language": "python", "code": ""},
                     }
                 ],
             }

@@ -2,6 +2,7 @@ import { createBlock, getBlockTypes } from './block-types.js';
 import { renderBlockList } from './block-list-renderer.js';
 import {
     addBlock,
+    getBlocks,
     moveBlock,
     removeBlock,
     setLayout,
@@ -32,11 +33,11 @@ dropPlaceholder.setAttribute('aria-hidden', 'true');
 
 const renderLayout = () => {
     elements.layoutOptions.forEach((option) => {
-        option.checked = option.value === step.layout;
+        option.checked = option.value === step.content.layout;
     });
     elements.blockList.classList.toggle(
         'block-list--two-columns',
-        step.layout === 'two_columns'
+        step.content.layout === 'two_columns'
     );
 };
 
@@ -52,7 +53,7 @@ const handleBlockChange = (index, values) => {
 };
 
 const renderBlocks = () => {
-    renderBlockList(elements.blockList, step.content.blocks, {
+    renderBlockList(elements.blockList, getBlocks(), {
         selectedIndex: selectedBlockIndex,
         editingIndex: editingBlockIndex,
         onChange: handleBlockChange,
@@ -115,7 +116,7 @@ const openBlockMenu = () => {
 };
 
 const activateBlock = (index, { focusEditor = false } = {}) => {
-    const block = step.content.blocks[index];
+    const block = getBlocks()[index];
     if (!block) {
         return;
     }
@@ -144,7 +145,7 @@ const deactivateBlock = () => {
 };
 
 const deleteBlock = (index) => {
-    if (!step.content.blocks[index]) {
+    if (!getBlocks()[index]) {
         return;
     }
 
@@ -161,7 +162,7 @@ const deleteBlock = (index) => {
 };
 
 const addNewBlock = (type) => {
-    selectedBlockIndex = step.content.blocks.length;
+    selectedBlockIndex = getBlocks().length;
     editingBlockIndex = type === 'text' ? selectedBlockIndex : null;
     focusEditorAfterRender = true;
     addBlock(createBlock(type));
@@ -285,7 +286,7 @@ const bindDragAndDrop = () => {
         if (fromIndex < toIndex) {
             toIndex -= 1;
         }
-        toIndex = Math.max(0, Math.min(step.content.blocks.length - 1, toIndex));
+        toIndex = Math.max(0, Math.min(getBlocks().length - 1, toIndex));
 
         selectedBlockIndex = remapIndexAfterMove(
             selectedBlockIndex,
