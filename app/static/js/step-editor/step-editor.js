@@ -11,9 +11,13 @@ import {
     updateBlockData,
 } from './step-state.js';
 
+const TOKEN_KEY = 'musa_code_academy_token';
+
 const elements = {
     root: document.querySelector('[data-step-editor]'),
     backButton: document.querySelector('[data-back-button]'),
+    saveButton: document.querySelector('[data-save-button]'),
+    saveStatus: document.querySelector('[data-save-status]'),
     layoutOptions: [...document.querySelectorAll('[data-layout-option]')],
     blockList: document.querySelector('[data-block-list]'),
     addBlockButton: document.querySelector('[data-add-block-button]'),
@@ -25,6 +29,7 @@ let editingBlockIndex = null;
 let focusEditorAfterRender = false;
 let draggedBlockIndex = null;
 let dropInsertionIndex = null;
+let saveStatusTimer = null;
 
 const dropPlaceholder = document.createElement('div');
 dropPlaceholder.className = 'block-drop-placeholder';
@@ -72,6 +77,90 @@ const renderEditor = (_currentStep = step, change = { type: 'initial-render' }) 
     // lose focus and the caret, so only structural changes repaint the document.
     if (change.type !== 'block-data-updated') {
         renderBlocks();
+    }
+};
+
+const setSaveStatus = (message, { error = false } = {}) => {
+    window.clearTimeout(saveStatusTimer);
+    elements.saveStatus.classList.toggle('is-error', error);
+    elements.saveStatus.textContent = message;
+};
+
+const getSaveErrorMessage = async (response) => {
+    try {
+        const data = await response.json();
+        if (Array.isArray(data.detail)) {
+            return data.detail
+                .map((item) => {
+                    const field = item.loc?.at(-1);
+                    return field ? `${field}: ${item.msg}` : item.msg;
+                })
+                .join(' ');
+        }
+        if (typeof data.detail === 'string') {
+            return data.detail;
+        }
+    } catch {
+        // The response has no JSON error body.
+    }
+    return `Failed to save step (${response.status}).`;
+};
+
+const saveStep = async () => {
+    const stepId = Number(elements.root.dataset.stepId);
+    if (!Number.isInteger(stepId) || stepId <= 0) {
+        setSaveStatus('Invalid step ID.', { error: true });
+        return;
+    }
+
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+        setSaveStatus('Sign in again to save the step.', { error: true });
+        return;
+    }
+
+    const savedSnapshot = JSON.stringify(step);
+    elements.saveButton.disabled = true;
+    elements.saveButton.textContent = 'Saving…';
+    setSaveStatus('');
+
+    try {
+        const response = await fetch(
+            `/api/steps/${encodeURIComponent(stepId)}/admin`,
+            {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: savedSnapshot,
+            }
+        );
+        if (!response.ok) {
+            throw new Error(await getSaveErrorMessage(response));
+        }
+
+        if (JSON.stringify(step) === savedSnapshot) {
+            elements.saveButton.textContent = 'Saved';
+            setSaveStatus('Changes saved.');
+            saveStatusTimer = window.setTimeout(() => {
+                elements.saveButton.textContent = 'Save';
+                elements.saveStatus.textContent = '';
+            }, 1800);
+        } else {
+            elements.saveButton.textContent = 'Save';
+            setSaveStatus('Saved. There are newer unsaved changes.');
+        }
+    } catch (error) {
+        elements.saveButton.textContent = 'Save';
+        setSaveStatus(
+            error instanceof Error && error.message
+                ? error.message
+                : 'Failed to save step.',
+            { error: true }
+        );
+    } finally {
+        elements.saveButton.disabled = false;
     }
 };
 
@@ -315,6 +404,8 @@ const bindDragAndDrop = () => {
 };
 
 const bindEvents = () => {
+    elements.saveButton.addEventListener('click', saveStep);
+
     elements.backButton.addEventListener('click', (event) => {
         if (window.history.length > 1) {
             event.preventDefault();

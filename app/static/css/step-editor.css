@@ -96,6 +96,16 @@ input:focus-visible + .layout-option__visual {
     gap: 12px;
 }
 
+.step-save-status {
+    margin: 0;
+    color: #39734d;
+    font-size: 12px;
+}
+
+.step-save-status.is-error {
+    color: var(--danger);
+}
+
 .editor-toolbar__eyebrow {
     margin: 0 0 2px;
     color: var(--muted);
