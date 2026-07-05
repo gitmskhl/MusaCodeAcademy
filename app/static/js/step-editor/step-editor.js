@@ -15,6 +15,47 @@ import {
 
 const TOKEN_KEY = 'musa_code_academy_token';
 
+const getToken = () => localStorage.getItem(TOKEN_KEY);
+
+const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+
+const redirectHome = () => {
+    window.location.href = '/';
+};
+
+const checkAdminAccess = async () => {
+    const token = getToken();
+    if (!token) {
+        redirectHome();
+        return false;
+    }
+
+    const response = await fetch('/api/users/me', {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (response.status === 401) {
+        clearToken();
+        redirectHome();
+        return false;
+    }
+
+    if (!response.ok) {
+        redirectHome();
+        return false;
+    }
+
+    const user = await response.json();
+    if (user.role !== 'admin') {
+        redirectHome();
+        return false;
+    }
+
+    return true;
+};
+
 const elements = {
     root: document.querySelector('[data-step-editor]'),
     backButton: document.querySelector('[data-back-button]'),
@@ -156,7 +197,7 @@ const loadStep = async () => {
         throw new Error('Invalid step ID.');
     }
 
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = getToken();
     if (!token) {
         throw new Error('Sign in again to load the step.');
     }
@@ -194,7 +235,7 @@ const saveStep = async () => {
         return;
     }
 
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = getToken();
     if (!token) {
         setSaveStatus('Sign in again to save the step.', { error: true });
         return;
@@ -584,6 +625,16 @@ const bindEvents = () => {
 
 const init = async () => {
     if (!elements.root) {
+        return;
+    }
+
+    try {
+        const hasAccess = await checkAdminAccess();
+        if (!hasAccess) {
+            return;
+        }
+    } catch {
+        redirectHome();
         return;
     }
 
