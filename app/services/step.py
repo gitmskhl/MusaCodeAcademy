@@ -3,7 +3,14 @@ from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Step, Lesson, Course, Section
-from app.schemas.steps.step import StepCreate, StepUpdate, StepOrderUpdateList
+from app.schemas.steps.step import (
+    StepCreate,
+    StepNavigation,
+    StepUpdate,
+    StepOrderUpdateList,
+    StepViewer,
+    StepPublic,
+)
 
 async def create_step(lesson_id: int, stepInfo: StepCreate, db: AsyncSession) -> Step:
     lesson = await db.get(Lesson, lesson_id)
@@ -172,3 +179,60 @@ async def update_steps_order(order_list: StepOrderUpdateList, db: AsyncSession) 
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to update step orders due to integrity error"
         )
+
+
+async def get_step_viewer(
+    step_id: int,
+    course_slug: str,
+    db: AsyncSession,
+) -> StepViewer:
+    result = await db.execute(
+        select(Step)
+        .join(Lesson, Step.lesson_id == Lesson.id)
+        .join(Section, Lesson.section_id == Section.id)
+        .join(Course, Section.course_id == Course.id)
+        .where(
+            Step.id == step_id,
+            Course.slug == course_slug,
+            Course.is_published.is_(True),
+        )
+    )
+    step = result.scalar_one_or_none()
+
+    if not step:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Step not found",
+        )
+
+    result = await db.execute(
+        select(Step.id)
+        .where(Step.lesson_id == step.lesson_id)
+        .order_by(Step.order, Step.id)
+    )
+    step_ids = list(result.scalars().all())
+
+    try:
+        index = step_ids.index(step.id)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Step not found",
+        )
+
+    previous_step_id = step_ids[index - 1] if index > 0 else None
+    next_step_id = (
+        step_ids[index + 1]
+        if index + 1 < len(step_ids)
+        else None
+    )
+
+    return StepViewer(
+        step=StepPublic.model_validate(step),
+        navigation=StepNavigation(
+            position=index + 1,
+            total=len(step_ids),
+            previous_step_id=previous_step_id,
+            next_step_id=next_step_id,
+        ),
+    )

@@ -107,14 +107,23 @@ const loadStep = async () => {
         throw new Error('invalid-step-id');
     }
 
+    const courseSlug = elements.root?.dataset.courseSlug?.trim();
+    if (!courseSlug) {
+        throw new Error('invalid-course-slug');
+    }
+
+    const params = new URLSearchParams({
+        course_slug: courseSlug,
+    });
     const response = await fetch(
-        `/api/steps/${encodeURIComponent(stepId)}`
+        `/api/steps/${encodeURIComponent(stepId)}/viewer?${params}`
     );
     if (!response.ok) {
         throw new Error('step-request-failed');
     }
 
-    const step = await response.json();
+    const viewer = await response.json();
+    const { step, navigation } = viewer;
     try {
         await loadImageSources(step.content);
     } catch {
@@ -122,6 +131,10 @@ const loadStep = async () => {
     }
 
     elements.title.textContent = step.title;
+    elements.progress.textContent = format(messages.progress, {
+        current: navigation.position,
+        total: navigation.total,
+    });
     document.title = format(messages.stepDocumentTitle, {
         title: step.title,
     });

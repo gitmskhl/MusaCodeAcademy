@@ -21,6 +21,18 @@ class StepAdmin(StepPublic):
     pass
 
 
+class StepNavigation(BaseModel):
+    position: int
+    total: int
+    previous_step_id: int | None
+    next_step_id: int | None
+
+
+class StepViewer(BaseModel):
+    step: StepPublic
+    navigation: StepNavigation
+    
+
 class StepUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     content: StepContent | None = None

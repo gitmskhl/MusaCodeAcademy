@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.schemas.steps.step import StepPublic, StepAdmin, StepUpdate, StepOrderUpdateList
+from app.schemas.steps.step import StepPublic, StepAdmin, StepUpdate, StepOrderUpdateList, StepViewer
 from app.services import step as service_step
 from app.api.dependencies import DBSession, OnlyAdmin
 
@@ -14,6 +14,19 @@ async def get_step(step_id: int, db: DBSession):
 @router.get('/{step_id}/admin', response_model=StepAdmin)
 async def get_step_admin(step_id: int, admin: OnlyAdmin, db: DBSession):
     return await service_step.get_step(step_id=step_id, db=db, check_course_published=False)
+
+
+@router.get('/{step_id}/viewer', response_model=StepViewer)
+async def get_step_viewer(
+    course_slug: str,
+    step_id: int,
+    db: DBSession,
+):
+    return await service_step.get_step_viewer(
+        step_id=step_id,
+        course_slug=course_slug,
+        db=db,
+    )
 
 
 @router.delete('/{step_id}/admin', status_code=status.HTTP_204_NO_CONTENT)
