@@ -148,6 +148,10 @@ body.is-step-drawer-open .step-drawer {
 }
 
 .step-drawer__item {
+    margin: 0;
+}
+
+.step-drawer__link {
     display: grid;
     grid-template-columns: 22px 1fr;
     align-items: center;
@@ -157,6 +161,13 @@ body.is-step-drawer-open .step-drawer {
     color: var(--viewer-muted);
     font-size: 14px;
     font-weight: 600;
+    text-decoration: none;
+    transition: color 140ms ease, background-color 140ms ease;
+}
+
+.step-drawer__link:hover {
+    color: var(--viewer-text);
+    background: #f3f3f2;
 }
 
 .step-drawer__status {
@@ -164,18 +175,29 @@ body.is-step-drawer-open .step-drawer {
     font-weight: 800;
 }
 
-.step-drawer__item--completed {
-    color: #397653;
-}
-
-.step-drawer__item--current {
+.step-drawer__link[aria-current="step"] {
     color: var(--viewer-primary);
     background: rgba(49, 87, 213, 0.1);
     font-weight: 750;
 }
 
-.step-drawer__item--upcoming .step-drawer__status {
+.step-drawer__link:not([aria-current="step"]) .step-drawer__status {
     color: #a3a6ad;
+}
+
+.step-drawer__message {
+    margin: 24px 8px 0;
+    color: var(--viewer-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.step-drawer__message--error {
+    color: #a23a32;
+}
+
+.step-drawer__message[hidden] {
+    display: none;
 }
 
 .step-viewer {

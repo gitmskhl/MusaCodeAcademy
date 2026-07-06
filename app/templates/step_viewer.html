@@ -34,45 +34,18 @@
     >
         <header class="step-drawer__header">
             <p class="step-drawer__eyebrow">Урок</p>
-            <h2 class="step-drawer__title" id="step-drawer-title">Основы Python</h2>
+            <h2
+                class="step-drawer__title"
+                id="step-drawer-title"
+                data-step-drawer-title
+            >Загрузка…</h2>
         </header>
 
         <nav aria-label="Шаги урока">
-            <ol class="step-drawer__list">
-                <li class="step-drawer__item step-drawer__item--completed">
-                    <span class="step-drawer__status" aria-hidden="true">✓</span>
-                    <span>Введение</span>
-                    <span class="visually-hidden">Пройдено</span>
-                </li>
-                <li class="step-drawer__item step-drawer__item--completed">
-                    <span class="step-drawer__status" aria-hidden="true">✓</span>
-                    <span>Что такое Python</span>
-                    <span class="visually-hidden">Пройдено</span>
-                </li>
-                <li
-                    class="step-drawer__item step-drawer__item--current"
-                    aria-current="step"
-                >
-                    <span class="step-drawer__status" aria-hidden="true">●</span>
-                    <span>Переменные</span>
-                    <span class="visually-hidden">Текущий шаг</span>
-                </li>
-                <li class="step-drawer__item step-drawer__item--upcoming">
-                    <span class="step-drawer__status" aria-hidden="true">○</span>
-                    <span>Ввод данных</span>
-                    <span class="visually-hidden">Предстоящий шаг</span>
-                </li>
-                <li class="step-drawer__item step-drawer__item--upcoming">
-                    <span class="step-drawer__status" aria-hidden="true">○</span>
-                    <span>Практика</span>
-                    <span class="visually-hidden">Предстоящий шаг</span>
-                </li>
-                <li class="step-drawer__item step-drawer__item--upcoming">
-                    <span class="step-drawer__status" aria-hidden="true">○</span>
-                    <span>Итоги</span>
-                    <span class="visually-hidden">Предстоящий шаг</span>
-                </li>
-            </ol>
+            <ol class="step-drawer__list" data-step-drawer-list></ol>
+            <p class="step-drawer__message" data-step-drawer-message>
+                Загружаем шаги…
+            </p>
         </nav>
     </aside>
 

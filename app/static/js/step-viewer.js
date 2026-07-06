@@ -47,6 +47,9 @@ const elements = {
     drawer: document.querySelector('[data-step-drawer]'),
     drawerToggle: document.querySelector('[data-step-drawer-toggle]'),
     drawerBackdrop: document.querySelector('[data-step-drawer-backdrop]'),
+    drawerTitle: document.querySelector('[data-step-drawer-title]'),
+    drawerList: document.querySelector('[data-step-drawer-list]'),
+    drawerMessage: document.querySelector('[data-step-drawer-message]'),
 };
 
 const setDrawerOpen = (isOpen) => {
@@ -88,6 +91,100 @@ const initDrawer = () => {
             elements.drawerToggle.focus();
         }
     });
+};
+
+const showDrawerMessage = (message, { error = false } = {}) => {
+    elements.drawerList.replaceChildren();
+    elements.drawerMessage.textContent = message;
+    elements.drawerMessage.hidden = false;
+    elements.drawerMessage.classList.toggle(
+        'step-drawer__message--error',
+        error
+    );
+};
+
+const getStepUrl = (stepId) => {
+    const courseSlug = elements.root.dataset.courseSlug.trim();
+    return `/${encodeURIComponent(courseSlug)}/steps/${encodeURIComponent(stepId)}`;
+};
+
+const renderDrawerSteps = (steps, currentStepId) => {
+    elements.drawerList.replaceChildren();
+    elements.drawerMessage.hidden = true;
+    elements.drawerMessage.classList.remove('step-drawer__message--error');
+
+    if (steps.length === 0) {
+        showDrawerMessage('В этом уроке пока нет шагов.');
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    steps.forEach((step) => {
+        const isCurrent = step.id === currentStepId;
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        const status = document.createElement('span');
+        const title = document.createElement('span');
+
+        item.className = 'step-drawer__item';
+        link.className = 'step-drawer__link';
+        link.href = getStepUrl(step.id);
+        link.dataset.drawerStepId = String(step.id);
+        if (isCurrent) {
+            link.setAttribute('aria-current', 'step');
+        }
+
+        status.className = 'step-drawer__status';
+        status.setAttribute('aria-hidden', 'true');
+        status.textContent = isCurrent ? '●' : '○';
+        title.textContent = step.title;
+
+        link.append(status, title);
+        item.append(link);
+        fragment.append(item);
+    });
+    elements.drawerList.append(fragment);
+};
+
+const loadDrawer = async (lessonId, currentStepId) => {
+    try {
+        const [lessonResponse, stepsResponse] = await Promise.all([
+            fetch(`/api/lessons/${encodeURIComponent(lessonId)}`),
+            fetch(`/api/lessons/${encodeURIComponent(lessonId)}/steps`),
+        ]);
+        if (!lessonResponse.ok || !stepsResponse.ok) {
+            throw new Error('drawer-request-failed');
+        }
+
+        const [lesson, steps] = await Promise.all([
+            lessonResponse.json(),
+            stepsResponse.json(),
+        ]);
+        elements.drawerTitle.textContent = lesson.title;
+        renderDrawerSteps(Array.isArray(steps) ? steps : [], currentStepId);
+    } catch {
+        elements.drawerTitle.textContent = 'Урок';
+        showDrawerMessage('Не удалось загрузить шаги урока.', { error: true });
+    }
+};
+
+const handleDrawerNavigation = (event) => {
+    const link = event.target.closest('[data-drawer-step-id]');
+    if (!link) {
+        return;
+    }
+
+    event.preventDefault();
+    elements.drawerList
+        .querySelectorAll('[aria-current="step"]')
+        .forEach((currentLink) => {
+            currentLink.removeAttribute('aria-current');
+            currentLink.querySelector('.step-drawer__status').textContent = '○';
+        });
+    link.setAttribute('aria-current', 'step');
+    link.querySelector('.step-drawer__status').textContent = '●';
+    setDrawerOpen(false);
+    window.location.assign(link.href);
 };
 
 const localizePage = () => {
@@ -185,6 +282,7 @@ const loadStep = async () => {
     renderStep(elements.content, step.content, {
         renderEmpty: () => createStatus(messages.contentEmpty),
     });
+    await loadDrawer(step.lesson_id, step.id);
 };
 
 const init = async () => {
@@ -193,10 +291,12 @@ const init = async () => {
     }
 
     initDrawer();
+    elements.drawerList.addEventListener('click', handleDrawerNavigation);
     localizePage();
     try {
         await loadStep();
     } catch {
+        showDrawerMessage('Не удалось загрузить шаги урока.', { error: true });
         elements.content.replaceChildren(
             createStatus(messages.contentLoadError, { error: true })
         );
