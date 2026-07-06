@@ -60,6 +60,8 @@ async def get_lessons(section_id: int, db: DBSession):
     return await service_lesson.get_lessons(section_id=section_id, db=db, check_course_published=True)
 
 
+@router.get('{section_id}/lessons-list', response_model=)
+
 @router.get('/{section_id}/admin/lessons', response_model=list[LessonAdmin])
 async def get_lessons_admin(section_id: int, admin: OnlyAdmin, db: DBSession):
     return await service_lesson.get_lessons(section_id=section_id, db=db, check_course_published=False)

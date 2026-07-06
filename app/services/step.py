@@ -236,3 +236,32 @@ async def get_step_viewer(
             next_step_id=next_step_id,
         ),
     )
+
+
+async def get_first_lesson_step_id(
+    lesson_id: int,
+    course_slug: str,
+    db: AsyncSession,
+) -> int:
+    result = await db.execute(
+        select(Step.id)
+        .join(Lesson, Step.lesson_id == Lesson.id)
+        .join(Section, Lesson.section_id == Section.id)
+        .join(Course, Section.course_id == Course.id)
+        .where(
+            Lesson.id == lesson_id,
+            Course.slug == course_slug,
+            Course.is_published.is_(True),
+        )
+        .order_by(Step.order, Step.id)
+        .limit(1)
+    )
+    step_id = result.scalar_one_or_none()
+
+    if step_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lesson step not found",
+        )
+
+    return step_id

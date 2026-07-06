@@ -542,6 +542,62 @@ async def test_get_step_viewer_hides_step_from_draft_course(
 
 
 @pytest.mark.asyncio
+async def test_get_first_lesson_step_id_returns_first_ordered_step(
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="first-lesson-step",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    await create_existing_step(db, lesson_id=lesson.id, order=8)
+    first = await create_existing_step(db, lesson_id=lesson.id, order=2)
+
+    step_id = await service_step.get_first_lesson_step_id(
+        lesson_id=lesson.id,
+        course_slug=course.slug,
+        db=db,
+    )
+
+    assert step_id == first.id
+
+
+@pytest.mark.asyncio
+async def test_get_first_lesson_step_id_rejects_empty_lesson(
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="empty-lesson",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_first_lesson_step_id(
+            lesson_id=lesson.id,
+            course_slug=course.slug,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Lesson step not found"
+
+
+@pytest.mark.asyncio
 async def test_delete_step_success(section_factory, db):
     section = await section_factory(
         course_id=None,

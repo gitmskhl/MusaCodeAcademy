@@ -283,6 +283,65 @@ async def test_get_step_viewer_hides_step_from_draft_course(
     assert response.json() == {"detail": "Step not found"}
 
 
+# GET /{course_slug}/lessons/{lesson_id}/steps
+
+
+@pytest.mark.asyncio
+async def test_first_lesson_step_page_redirects_to_first_step(
+    client,
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="lesson-start",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    await create_step(db, lesson_id=lesson.id, order=10)
+    first = await create_step(db, lesson_id=lesson.id, order=1)
+
+    response = await client.get(
+        f"/{course.slug}/lessons/{lesson.id}/steps",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert response.headers["location"] == f"/{course.slug}/steps/{first.id}"
+
+
+@pytest.mark.asyncio
+async def test_first_lesson_step_page_returns_not_found_for_empty_lesson(
+    client,
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="empty-lesson-start",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+
+    response = await client.get(
+        f"/{course.slug}/lessons/{lesson.id}/steps",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Lesson step not found"}
+
+
 # GET /api/steps/{step_id}/admin
 
 
