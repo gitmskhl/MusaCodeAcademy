@@ -1,0 +1,255 @@
+.step-renderer {
+    display: grid;
+    gap: 4px;
+}
+
+.step-renderer--two-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    column-gap: 22px;
+}
+
+.rendered-block__placeholder {
+    margin: 0;
+    color: #9a9da4;
+    font-size: 15px;
+    font-style: italic;
+    line-height: 1.65;
+}
+
+.rendered-text {
+    color: #292a2e;
+    font-size: 16px;
+    line-height: 1.72;
+    overflow-wrap: anywhere;
+}
+
+.rendered-text > :first-child {
+    margin-top: 0;
+}
+
+.rendered-text > :last-child {
+    margin-bottom: 0;
+}
+
+.rendered-text p,
+.rendered-text ul,
+.rendered-text ol,
+.rendered-text blockquote,
+.rendered-text pre,
+.rendered-text table,
+.rendered-text hr {
+    margin: 0 0 0.9em;
+}
+
+.rendered-text h1,
+.rendered-text h2,
+.rendered-text h3,
+.rendered-text h4,
+.rendered-text h5,
+.rendered-text h6 {
+    margin: 1.15em 0 0.45em;
+    color: #202126;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+}
+
+.rendered-text h1 {
+    font-size: 2em;
+}
+
+.rendered-text h2 {
+    font-size: 1.55em;
+}
+
+.rendered-text h3 {
+    font-size: 1.25em;
+}
+
+.rendered-text ul,
+.rendered-text ol {
+    padding-left: 1.6em;
+}
+
+.rendered-text blockquote {
+    padding: 2px 0 2px 16px;
+    border-left: 3px solid #d6d3f4;
+    color: #5f626b;
+}
+
+.rendered-text code {
+    padding: 0.12em 0.35em;
+    border-radius: 4px;
+    background: #f0f0f2;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.88em;
+}
+
+.rendered-text pre {
+    overflow-x: auto;
+    padding: 15px 17px;
+    border-radius: 9px;
+    color: #e8ebf2;
+    background: #20242d;
+}
+
+.rendered-text pre code {
+    padding: 0;
+    color: inherit;
+    background: transparent;
+}
+
+.rendered-text a {
+    color: var(--primary, #3157d5);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+.rendered-text table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.rendered-text th,
+.rendered-text td {
+    padding: 7px 11px;
+    border: 1px solid #dfe0e4;
+    text-align: left;
+}
+
+.rendered-text th {
+    background: #f5f5f7;
+    font-weight: 700;
+}
+
+.rendered-text hr {
+    border: 0;
+    border-top: 1px solid #dfe0e4;
+}
+
+.rendered-text .task-list-item {
+    list-style: none;
+}
+
+.rendered-text .task-list-item input {
+    margin: 0 0.45em 0 -1.35em;
+}
+
+.rendered-image {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.rendered-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 620px;
+    border-radius: 9px;
+    object-fit: contain;
+}
+
+.rendered-image figcaption {
+    display: block;
+    width: 100%;
+    margin: 9px auto 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    color: var(--muted, #697386);
+    background: transparent;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.rendered-image__placeholder {
+    display: grid;
+    min-height: 220px;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    border: 1px dashed #d4d5da;
+    border-radius: 10px;
+    background: #fafafb;
+    text-align: center;
+}
+
+.rendered-image__placeholder span {
+    color: #989ba3;
+    font-size: 28px;
+    font-style: normal;
+}
+
+.rendered-code {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #fcfcfd;
+}
+
+.rendered-code__language {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    right: 10px;
+    padding: 3px 6px;
+    border: 1px solid #dedfe4;
+    border-radius: 5px;
+    color: #777b85;
+    background: rgba(252, 252, 253, 0.92);
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.code-editor {
+    overflow: hidden;
+    min-height: 240px;
+    border: 1px solid #d9dade;
+    border-radius: 9px;
+    background: #fcfcfd;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.code-editor:focus-within {
+    border-color: #8b84e8;
+    box-shadow: 0 0 0 3px rgba(99, 91, 219, 0.09);
+}
+
+.code-editor .cm-editor {
+    min-height: inherit;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+}
+
+.code-editor .cm-scroller {
+    overflow-y: hidden;
+    font-family: inherit;
+    line-height: 1.6;
+}
+
+.code-editor .cm-focused {
+    outline: 0;
+}
+
+.code-editor:not(:focus-within) .cm-activeLine,
+.code-editor:not(:focus-within) .cm-activeLineGutter {
+    background-color: transparent;
+}
+
+.code-editor--readonly .cm-matchingBracket {
+    background-color: rgba(50, 140, 130, 0.32);
+}
+
+@media (max-width: 720px) {
+    .step-renderer--two-columns {
+        grid-template-columns: 1fr;
+    }
+}

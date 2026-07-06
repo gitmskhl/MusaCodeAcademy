@@ -1,3 +1,5 @@
+import { getStepBlocks } from '../step-renderer/layout-renderers.js';
+
 export const step = {
     content: {
         version: 1,
@@ -13,24 +15,7 @@ const notify = (change) => {
 };
 
 export const getBlocks = () => {
-    if (step.content.layout === 'vertical') {
-        return step.content.blocks;
-    }
-
-    const blocks = [];
-    const rowCount = Math.max(
-        step.content.left.length,
-        step.content.right.length
-    );
-    for (let row = 0; row < rowCount; row += 1) {
-        if (step.content.left[row]) {
-            blocks.push(step.content.left[row]);
-        }
-        if (step.content.right[row]) {
-            blocks.push(step.content.right[row]);
-        }
-    }
-    return blocks;
+    return getStepBlocks(step.content);
 };
 
 const setBlocks = (blocks) => {

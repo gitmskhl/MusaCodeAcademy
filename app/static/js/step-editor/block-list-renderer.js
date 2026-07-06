@@ -1,17 +1,10 @@
-import { renderCodeBlock } from './block-renderers/code-renderer.js';
-import { renderImageBlock } from './block-renderers/image-renderer.js';
-import { renderTextBlock } from './block-renderers/text-renderer.js';
+import { renderBlock } from '../step-renderer/block-renderer.js';
+import { renderStep } from '../step-renderer/step-renderer.js';
 import { renderCodeEditor } from './block-editors/code-editor.js';
 import { renderImageEditor } from './block-editors/image-editor.js';
 import { renderTextEditor } from './block-editors/text-editor.js';
 import { renderUnavailableEditor } from './block-editors/unavailable-editor.js';
 import { getBlockType } from './block-types.js';
-
-const blockRenderers = new Map([
-    ['text', renderTextBlock],
-    ['image', renderImageBlock],
-    ['code', renderCodeBlock],
-]);
 
 const blockEditors = new Map([
     ['text', renderTextEditor],
@@ -44,13 +37,6 @@ const createDeleteButton = (blockLabel) => {
         </svg>
     `;
     return button;
-};
-
-const renderUnknownBlock = (block) => {
-    const fallback = document.createElement('p');
-    fallback.className = 'rendered-block__placeholder';
-    fallback.textContent = `Rendering is unavailable for “${block.type}” blocks.`;
-    return fallback;
 };
 
 const createDragHandle = (label) => {
@@ -122,8 +108,7 @@ const createBlockCard = ({
             onChange: (values) => onChange(index, values),
         }));
     } else {
-        const renderer = blockRenderers.get(block.type) ?? renderUnknownBlock;
-        content.appendChild(renderer(block, {
+        content.appendChild(renderBlock(block, {
             index,
             onChange: (values) => onChange(index, values),
         }));
@@ -135,29 +120,21 @@ const createBlockCard = ({
 
 export const renderBlockList = (
     container,
-    blocks,
+    content,
     {
         selectedIndex = null,
         editingIndex = null,
         onChange = () => {},
     } = {}
 ) => {
-    container.replaceChildren();
-
-    if (blocks.length === 0) {
-        container.appendChild(createEmptyState());
-        return;
-    }
-
-    const fragment = document.createDocumentFragment();
-    blocks.forEach((block, index) => {
-        fragment.appendChild(createBlockCard({
+    renderStep(container, content, {
+        renderEmpty: createEmptyState,
+        renderItem: (block, index) => createBlockCard({
             block,
             index,
             selectedIndex,
             editingIndex,
             onChange,
-        }));
+        }),
     });
-    container.appendChild(fragment);
 };

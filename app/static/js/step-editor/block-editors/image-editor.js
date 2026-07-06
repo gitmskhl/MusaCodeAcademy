@@ -1,12 +1,12 @@
 import {
     getImageWidth,
     renderImageBlock,
-} from '../block-renderers/image-renderer.js';
+} from '../../step-renderer/block-renderers/image-renderer.js';
 import {
     getImageSource,
     getUploadedImageUrl,
     registerImageSource,
-} from '../image-sources.js';
+} from '../../step-renderer/image-sources.js';
 
 const UPLOAD_ENDPOINT = '/api/files/images';
 const TOKEN_KEY = 'musa_code_academy_token';

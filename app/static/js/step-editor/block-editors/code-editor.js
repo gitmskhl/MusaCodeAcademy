@@ -1,4 +1,6 @@
-import { mountCodeEditor } from '../codemirror/code-editor-instance.js';
+import {
+    mountCodeEditor,
+} from '../../step-renderer/codemirror/code-editor-instance.js';
 
 export const renderCodeEditor = ({ block, index, onChange }) => {
     const editor = document.createElement('div');

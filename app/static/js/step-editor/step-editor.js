@@ -1,6 +1,7 @@
 import { createBlock, getBlockTypes } from './block-types.js';
 import { renderBlockList } from './block-list-renderer.js';
-import { registerImageSource } from './image-sources.js';
+import { getStepBlocks } from '../step-renderer/layout-renderers.js';
+import { registerImageSource } from '../step-renderer/image-sources.js';
 import {
     addBlock,
     getBlocks,
@@ -42,10 +43,6 @@ const renderLayout = () => {
     elements.layoutOptions.forEach((option) => {
         option.checked = option.value === step.content.layout;
     });
-    elements.blockList.classList.toggle(
-        'block-list--two-columns',
-        step.content.layout === 'two_columns'
-    );
 };
 
 const handleBlockChange = (index, values) => {
@@ -60,7 +57,7 @@ const handleBlockChange = (index, values) => {
 };
 
 const renderBlocks = () => {
-    renderBlockList(elements.blockList, getBlocks(), {
+    renderBlockList(elements.blockList, step.content, {
         selectedIndex: selectedBlockIndex,
         editingIndex: editingBlockIndex,
         onChange: handleBlockChange,
@@ -116,17 +113,10 @@ const setEditorLoading = (loading) => {
     });
 };
 
-const getContentBlocks = (content) => {
-    if (content.layout === 'vertical') {
-        return content.blocks;
-    }
-    return [...content.left, ...content.right];
-};
-
 const loadImageSources = async (content, token) => {
     const fileIds = [
         ...new Set(
-            getContentBlocks(content)
+            getStepBlocks(content)
                 .filter((block) => block.type === 'image')
                 .map((block) => block.data.file_id)
         ),
@@ -439,7 +429,7 @@ const bindDragAndDrop = () => {
         event.preventDefault();
         const cardRect = card.getBoundingClientRect();
         const after = elements.blockList.classList.contains(
-            'block-list--two-columns'
+            'step-renderer--two-columns'
         )
             ? event.clientX > cardRect.left + cardRect.width / 2
             : event.clientY > cardRect.top + cardRect.height / 2;
