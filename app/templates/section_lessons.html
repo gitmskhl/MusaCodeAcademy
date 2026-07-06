@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Уроки раздела</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/section-lessons.css') }}">
+    <script defer src="{{ url_for('static', path='js/section-lessons.js') }}"></script>
+</head>
+<body>
+    <main
+        class="lesson-page"
+        data-lesson-page
+        data-section-id="{{ section_id | default('') }}"
+        data-course-slug="{{ course_slug | default('') }}"
+    >
+        <div class="lesson-page__loading" data-page-loading role="status">
+            Загружаем уроки…
+        </div>
+
+        <div class="lesson-page__error" data-page-error role="alert" hidden>
+            <h1>Не удалось загрузить раздел</h1>
+            <p data-error-message>Попробуйте обновить страницу.</p>
+            <button type="button" data-retry>Попробовать снова</button>
+        </div>
+
+        <div class="lesson-page__content" data-page-content hidden>
+            <a class="lesson-page__back" href="/dashboard" data-back-link>
+                <span aria-hidden="true">←</span>
+                Назад к разделам
+            </a>
+
+            <header class="section-hero">
+                <div class="section-hero__info">
+                    <p class="section-hero__eyebrow">Раздел курса</p>
+                    <h1 data-section-title></h1>
+                    <p class="section-hero__description" data-section-description></p>
+                </div>
+
+                <aside class="progress-card" aria-label="Прогресс по разделу">
+                    <div class="progress-card__top">
+                        <span>Ваш прогресс</span>
+                        <strong data-progress-percent>0%</strong>
+                    </div>
+                    <div
+                        class="progress-card__track"
+                        role="progressbar"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                        data-progress-track
+                    >
+                        <span data-progress-bar></span>
+                    </div>
+                    <p data-progress-label>0 из 0 уроков пройдено</p>
+                </aside>
+            </header>
+
+            <section class="lessons" aria-labelledby="lesson-list-title">
+                <div class="lessons__heading">
+                    <div>
+                        <p class="lessons__eyebrow">Программа раздела</p>
+                        <h2 id="lesson-list-title">Уроки</h2>
+                    </div>
+                    <span class="lessons__count" data-lesson-count></span>
+                </div>
+
+                <div class="lesson-list" data-lesson-list></div>
+
+                <div class="lesson-empty" data-empty-state hidden>
+                    <span class="lesson-empty__icon" aria-hidden="true">○</span>
+                    <p>В этом разделе пока нет уроков.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
