@@ -36,7 +36,7 @@ app.mount(
     name="uploads"
 )
 
-app.include_router(pagesRouter)
+
 
 app.include_router(
     authRouter,
@@ -79,3 +79,5 @@ app.include_router(
     prefix='/api/files',
     tags=['file']
 )
+
+app.include_router(pagesRouter)
