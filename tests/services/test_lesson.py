@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException, status
@@ -282,7 +282,9 @@ async def test_get_lesson_not_found(db):
 async def test_get_lesson_section_not_found():
     lesson = SimpleNamespace(section_id=123)
     db = AsyncMock()
-    db.get.side_effect = [lesson, None]
+    result = MagicMock()
+    result.one_or_none.return_value = (lesson, None, None)
+    db.execute.return_value = result
 
     with pytest.raises(HTTPException) as exc:
         await service_lesson.get_lesson(lesson_id=1, db=db)

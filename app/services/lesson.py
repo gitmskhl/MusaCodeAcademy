@@ -7,18 +7,21 @@ from app.models import Section, Lesson, Course
 
 
 async def create_lesson(section_id: int, lessonInfo: LessonCreate, db: AsyncSession):
-
-    section = await db.get(Section, section_id)
-    if not section:
+    parent_and_order = (
+        await db.execute(
+            select(Section.id, func.max(Lesson.order))
+            .outerjoin(Lesson, Lesson.section_id == Section.id)
+            .where(Section.id == section_id)
+            .group_by(Section.id)
+        )
+    ).one_or_none()
+    if parent_and_order is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Section not found"
         )
     
-    max_order = await db.scalar(
-        select(func.max(Lesson.order))
-            .where(Lesson.section_id == section_id)
-    )
+    _, max_order = parent_and_order
     order = 0 if max_order is None else max_order + 1
     new_lesson = Lesson(
         section_id=section_id,
@@ -30,7 +33,6 @@ async def create_lesson(section_id: int, lessonInfo: LessonCreate, db: AsyncSess
     
     try:
         await db.commit()
-        await db.refresh(new_lesson)
         return new_lesson
     except IntegrityError:
         await db.rollback()
@@ -41,7 +43,19 @@ async def create_lesson(section_id: int, lessonInfo: LessonCreate, db: AsyncSess
         
         
 async def get_lessons(section_id: int, db: AsyncSession, check_course_published: bool = True) -> list[Lesson]:
-    section = await db.get(Section, section_id)
+    if check_course_published:
+        row = (
+            await db.execute(
+                select(Section, Course.is_published)
+                .outerjoin(Course, Course.id == Section.course_id)
+                .where(Section.id == section_id)
+            )
+        ).one_or_none()
+        section, course_is_published = row if row else (None, None)
+    else:
+        section = await db.get(Section, section_id)
+        course_is_published = None
+
     if not section:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -49,8 +63,7 @@ async def get_lessons(section_id: int, db: AsyncSession, check_course_published:
         )
     
     if check_course_published:
-        course = await db.get(Course, section.course_id)
-        if not course or not course.is_published:
+        if not course_is_published:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Course not found"
@@ -66,7 +79,22 @@ async def get_lessons(section_id: int, db: AsyncSession, check_course_published:
 
 
 async def get_lesson(lesson_id: int, db: AsyncSession, check_course_published: bool = True) -> Lesson:
-    lesson = await db.get(Lesson, lesson_id)
+    if check_course_published:
+        row = (
+            await db.execute(
+                select(Lesson, Section.id, Course.is_published)
+                .outerjoin(Section, Section.id == Lesson.section_id)
+                .outerjoin(Course, Course.id == Section.course_id)
+                .where(Lesson.id == lesson_id)
+            )
+        ).one_or_none()
+        lesson, section_id, course_is_published = (
+            row if row else (None, None, None)
+        )
+    else:
+        lesson = await db.get(Lesson, lesson_id)
+        section_id = course_is_published = None
+
     if not lesson:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -74,14 +102,12 @@ async def get_lesson(lesson_id: int, db: AsyncSession, check_course_published: b
         )
     
     if check_course_published:
-        section = await db.get(Section, lesson.section_id)
-        if not section:
+        if section_id is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Section not found"
             )
-        course = await db.get(Course, section.course_id)
-        if not course or not course.is_published:
+        if not course_is_published:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Course not found"
@@ -122,7 +148,6 @@ async def update_lesson(lesson_id: int, lessonUpdate: LessonUpdate, db: AsyncSes
     
     try:
         await db.commit()
-        await db.refresh(lesson)
         return lesson
     except IntegrityError:
         await db.rollback()

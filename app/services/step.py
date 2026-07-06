@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 from app.models import Step, Lesson, Course, Section
 from app.schemas.steps.step import (
     StepCreate,
@@ -15,16 +16,20 @@ from app.schemas.steps.step import (
 )
 
 async def create_step(lesson_id: int, stepInfo: StepCreate, db: AsyncSession) -> Step:
-    lesson = await db.get(Lesson, lesson_id)
-    if not lesson:
+    parent_and_order = (
+        await db.execute(
+            select(Lesson.id, func.max(Step.order))
+            .outerjoin(Step, Step.lesson_id == Lesson.id)
+            .where(Lesson.id == lesson_id)
+            .group_by(Lesson.id)
+        )
+    ).one_or_none()
+    if parent_and_order is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Lesson not found"
         )
-    max_order = await db.scalar(
-        select(func.max(Step.order))
-            .where(Step.lesson_id == lesson_id)
-    )
+    _, max_order = parent_and_order
     order = 0 if max_order is None else max_order + 1
     new_step = Step(
         lesson_id=lesson_id,
@@ -36,7 +41,6 @@ async def create_step(lesson_id: int, stepInfo: StepCreate, db: AsyncSession) ->
     
     try:
         await db.commit()
-        await db.refresh(new_step)
         return new_step
     except IntegrityError:
         await db.rollback()
@@ -47,21 +51,34 @@ async def create_step(lesson_id: int, stepInfo: StepCreate, db: AsyncSession) ->
 
 
 async def get_steps(lesson_id: int, db: AsyncSession, check_course_published: bool = True) -> list[Step]:
-    lesson = await db.get(Lesson, lesson_id)
+    if check_course_published:
+        row = (
+            await db.execute(
+                select(Lesson, Section.id, Course.is_published)
+                .outerjoin(Section, Section.id == Lesson.section_id)
+                .outerjoin(Course, Course.id == Section.course_id)
+                .where(Lesson.id == lesson_id)
+            )
+        ).one_or_none()
+        lesson, section_id, course_is_published = (
+            row if row else (None, None, None)
+        )
+    else:
+        lesson = await db.get(Lesson, lesson_id)
+        section_id = course_is_published = None
+
     if not lesson:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Lesson not found"
         )
     if check_course_published:
-        section = await db.get(Section, lesson.section_id)
-        if not section:
+        if section_id is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Section not found"
             )
-        course = await db.get(Course, section.course_id)
-        if not course or not course.is_published:
+        if not course_is_published:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Course not found"
@@ -76,27 +93,45 @@ async def get_steps(lesson_id: int, db: AsyncSession, check_course_published: bo
 
 
 async def get_step(step_id: int, db: AsyncSession, check_course_published: bool = True) -> Step:
-    step = await db.get(Step, step_id)
+    if check_course_published:
+        row = (
+            await db.execute(
+                select(
+                    Step,
+                    Lesson.id,
+                    Section.id,
+                    Course.is_published,
+                )
+                .outerjoin(Lesson, Lesson.id == Step.lesson_id)
+                .outerjoin(Section, Section.id == Lesson.section_id)
+                .outerjoin(Course, Course.id == Section.course_id)
+                .where(Step.id == step_id)
+            )
+        ).one_or_none()
+        step, lesson_id, section_id, course_is_published = (
+            row if row else (None, None, None, None)
+        )
+    else:
+        step = await db.get(Step, step_id)
+        lesson_id = section_id = course_is_published = None
+
     if not step:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Step not found"
         )
     if check_course_published:
-        lesson = await db.get(Lesson, step.lesson_id)
-        if not lesson:
+        if lesson_id is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Lesson not found"
             )
-        section = await db.get(Section, lesson.section_id)
-        if not section:
+        if section_id is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Section not found"
             )
-        course = await db.get(Course, section.course_id)
-        if not course or not course.is_published:
+        if not course_is_published:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Course not found"
@@ -188,40 +223,40 @@ async def get_step_viewer(
     course_slug: str,
     db: AsyncSession,
 ) -> StepViewer:
+    selected_step = aliased(Step)
+    lesson_step = aliased(Step)
     result = await db.execute(
         select(
-            Step,
+            selected_step,
             Lesson.id,
             Lesson.section_id,
             Lesson.title,
+            lesson_step.id,
+            lesson_step.title,
         )
-        .join(Lesson, Step.lesson_id == Lesson.id)
+        .join(Lesson, selected_step.lesson_id == Lesson.id)
         .join(Section, Lesson.section_id == Section.id)
         .join(Course, Section.course_id == Course.id)
+        .join(lesson_step, lesson_step.lesson_id == Lesson.id)
         .where(
-            Step.id == step_id,
+            selected_step.id == step_id,
             Course.slug == course_slug,
             Course.is_published.is_(True),
         )
+        .order_by(lesson_step.order, lesson_step.id)
     )
-    row = result.one_or_none()
+    rows = result.all()
 
-    if not row:
+    if not rows:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Step not found",
         )
 
-    step, lesson_id, section_id, lesson_title = row
-
-    result = await db.execute(
-        select(Step.id, Step.title)
-        .where(Step.lesson_id == step.lesson_id)
-        .order_by(Step.order, Step.id)
-    )
+    step, lesson_id, section_id, lesson_title, _, _ = rows[0]
     lesson_steps = [
-        StepSummary(id=step_id, title=step_title)
-        for step_id, step_title in result.all()
+        StepSummary(id=lesson_step_id, title=lesson_step_title)
+        for _, _, _, _, lesson_step_id, lesson_step_title in rows
     ]
     step_ids = [lesson_step.id for lesson_step in lesson_steps]
 

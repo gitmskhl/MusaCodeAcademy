@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi import HTTPException, status
@@ -225,7 +225,9 @@ async def test_get_steps_lesson_not_found(db):
 async def test_get_steps_section_not_found():
     lesson = SimpleNamespace(section_id=123)
     db = AsyncMock()
-    db.get.side_effect = [lesson, None]
+    result = MagicMock()
+    result.one_or_none.return_value = (lesson, None, None)
+    db.execute.return_value = result
 
     with pytest.raises(HTTPException) as exc:
         await service_step.get_steps(lesson_id=1, db=db)
@@ -237,9 +239,10 @@ async def test_get_steps_section_not_found():
 @pytest.mark.asyncio
 async def test_get_steps_course_not_found():
     lesson = SimpleNamespace(section_id=123)
-    section = SimpleNamespace(course_id=456)
     db = AsyncMock()
-    db.get.side_effect = [lesson, section, None]
+    result = MagicMock()
+    result.one_or_none.return_value = (lesson, 123, None)
+    db.execute.return_value = result
 
     with pytest.raises(HTTPException) as exc:
         await service_step.get_steps(lesson_id=1, db=db)
@@ -359,7 +362,9 @@ async def test_get_step_not_found(db):
 async def test_get_step_lesson_not_found():
     step = SimpleNamespace(lesson_id=123)
     db = AsyncMock()
-    db.get.side_effect = [step, None]
+    result = MagicMock()
+    result.one_or_none.return_value = (step, None, None, None)
+    db.execute.return_value = result
 
     with pytest.raises(HTTPException) as exc:
         await service_step.get_step(step_id=1, db=db)
@@ -371,9 +376,10 @@ async def test_get_step_lesson_not_found():
 @pytest.mark.asyncio
 async def test_get_step_section_not_found():
     step = SimpleNamespace(lesson_id=123)
-    lesson = SimpleNamespace(section_id=456)
     db = AsyncMock()
-    db.get.side_effect = [step, lesson, None]
+    result = MagicMock()
+    result.one_or_none.return_value = (step, 123, None, None)
+    db.execute.return_value = result
 
     with pytest.raises(HTTPException) as exc:
         await service_step.get_step(step_id=1, db=db)
@@ -385,10 +391,10 @@ async def test_get_step_section_not_found():
 @pytest.mark.asyncio
 async def test_get_step_course_not_found():
     step = SimpleNamespace(lesson_id=123)
-    lesson = SimpleNamespace(section_id=456)
-    section = SimpleNamespace(course_id=789)
     db = AsyncMock()
-    db.get.side_effect = [step, lesson, section, None]
+    result = MagicMock()
+    result.one_or_none.return_value = (step, 123, 456, None)
+    db.execute.return_value = result
 
     with pytest.raises(HTTPException) as exc:
         await service_step.get_step(step_id=1, db=db)

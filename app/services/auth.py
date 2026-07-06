@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, UTC
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,14 +10,11 @@ from app.schemas.user import UserCreate
 from app.core.security import hash_password, verify_password
 
 async def email_exists(email: str, db: AsyncSession) -> bool:
-    result = await db.execute(
-        select(User).where(User.email == email.lower())
+    return bool(
+        await db.scalar(
+            select(exists().where(User.email == email.lower()))
+        )
     )
-    user = result.scalars().first()
-    
-    if not user:
-        return False
-    return True
 
 
 async def get_user_id(
@@ -69,7 +66,6 @@ async def register_user(user: UserCreate, db: AsyncSession) -> User:
     db.add(new_user)
     try:
         await db.commit()
-        await db.refresh(new_user)
         return new_user
     except IntegrityError:
         await db.rollback()

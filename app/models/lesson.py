@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -13,6 +13,9 @@ if TYPE_CHECKING:
 
 class Lesson(Base):
     __tablename__ = "lessons"
+    __table_args__ = (
+        Index("ix_lessons_section_id_order", "section_id", "order"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

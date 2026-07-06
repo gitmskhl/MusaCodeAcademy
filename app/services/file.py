@@ -23,7 +23,6 @@ class FileService:
         db.add(new_file)
         try:        
             await db.commit()
-            await db.refresh(new_file)
             return new_file
         except Exception:
             await db.rollback()

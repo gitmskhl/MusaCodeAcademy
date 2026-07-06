@@ -7,8 +7,10 @@ from app.models import Section, Course
 from app.schemas.section import SectionCreate, SectionUpdate, SectionOrderUpdateList
 
 async def get_course_sections(course_id: int, db: AsyncSession, check_published: bool) -> list[Section]:
-    course = await db.get(Course, course_id)
-    if not course or (check_published and not course.is_published):
+    is_published = await db.scalar(
+        select(Course.is_published).where(Course.id == course_id)
+    )
+    if is_published is None or (check_published and not is_published):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found"
@@ -26,17 +28,21 @@ async def create_course_section(
     sectionInfo: SectionCreate,
     db: DBSession
 ) -> Section:
-    course = await db.get(Course, course_id)
-    if not course:
+    parent_and_order = (
+        await db.execute(
+            select(Course.id, func.max(Section.order))
+            .outerjoin(Section, Section.course_id == Course.id)
+            .where(Course.id == course_id)
+            .group_by(Course.id)
+        )
+    ).one_or_none()
+    if parent_and_order is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found"
         )
     
-    max_order = await db.scalar(
-        select(func.max(Section.order))
-            .where(Section.course_id == course_id)
-    )
+    _, max_order = parent_and_order
     order = 0 if max_order is None else max_order + 1
     new_section = Section(
         course_id = course_id,
@@ -48,7 +54,6 @@ async def create_course_section(
     
     try:
         await db.commit()
-        await db.refresh(new_section)
         return new_section
     except IntegrityError:
         await db.rollback()
@@ -59,15 +64,26 @@ async def create_course_section(
         
 
 async def get_section(section_id: int, db: AsyncSession, check_course: bool) -> Section:
-    section = await db.get(Section, section_id)
+    if not check_course:
+        section = await db.get(Section, section_id)
+        course_is_published = None
+    else:
+        row = (
+            await db.execute(
+                select(Section, Course.is_published)
+                .outerjoin(Course, Course.id == Section.course_id)
+                .where(Section.id == section_id)
+            )
+        ).one_or_none()
+        section, course_is_published = row if row else (None, None)
+
     if not section:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Section not found"
         )
     if check_course:
-        course = await db.get(Course, section.course_id)
-        if not course or not course.is_published:
+        if not course_is_published:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Course not found"
@@ -107,7 +123,6 @@ async def update_section(section_id: int, sectionUpdate: SectionUpdate, db: Asyn
     
     try:
         await db.commit()
-        await db.refresh(section)
         return section
     except IntegrityError:
         await db.rollback()

@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, JSON, String, func
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, JSON, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -9,6 +9,9 @@ from app.models.base import Base
 
 class Step(Base):
     __tablename__ = "steps"
+    __table_args__ = (
+        Index("ix_steps_lesson_id_order", "lesson_id", "order"),
+    )
 
     id: Mapped[int] = mapped_column(
         Integer,

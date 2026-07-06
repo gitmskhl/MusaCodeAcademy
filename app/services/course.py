@@ -1,6 +1,6 @@
 from typing import Sequence
 from fastapi import status, HTTPException
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.exc import IntegrityError
 from app.models.course import Course
 from app.schemas.course import CourseCreate, CourseUpdate
@@ -8,12 +8,11 @@ from app.api.dependencies import DBSession
 
 
 async def course_exists_by_slug(slug: str, db: DBSession) -> bool:
-    result = await db.execute(
-        select(Course)
-            .where(Course.slug == slug.lower())
+    return bool(
+        await db.scalar(
+            select(exists().where(Course.slug == slug.lower()))
+        )
     )
-    course = result.scalars().first()
-    return True if course else False
 
 
 async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
@@ -41,7 +40,6 @@ async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
     
     try:
         await db.commit()
-        await db.refresh(new_course)
         return new_course
     except IntegrityError:
         await db.rollback()
@@ -108,7 +106,6 @@ async def update_course(course_id: int, updateInfo: CourseUpdate, db: DBSession)
     
     try:
         await db.commit()
-        await db.refresh(course)
         return course
     except IntegrityError:
         await db.rollback()
