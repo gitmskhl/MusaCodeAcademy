@@ -1,6 +1,6 @@
 from typing import Sequence
 from fastapi import status, HTTPException
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from app.models.course import Course
 from app.schemas.course import CourseCreate, CourseUpdate
@@ -10,17 +10,18 @@ from app.api.dependencies import DBSession
 async def course_exists_by_slug(slug: str, db: DBSession) -> bool:
     result = await db.execute(
         select(Course)
-            .where(func.lower(Course.slug) == slug.lower())
+            .where(Course.slug == slug.lower())
     )
     course = result.scalars().first()
     return True if course else False
 
 
 async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
-    
+    normalized_slug = courseInfo.slug.lower()
+
     result = await db.execute(
         select(Course)
-        .where(func.lower(Course.slug) == courseInfo.slug.lower())
+        .where(Course.slug == normalized_slug)
     )
     
     course = result.scalars().first()
@@ -32,7 +33,7 @@ async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
     
     new_course = Course(
         title=courseInfo.title,
-        slug=courseInfo.slug.lower(),
+        slug=normalized_slug,
         short_description=courseInfo.short_description,
         description=courseInfo.description
     )
