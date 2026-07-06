@@ -415,6 +415,133 @@ async def test_get_step_hides_step_from_draft_course(section_factory, db):
 
 
 @pytest.mark.asyncio
+async def test_get_step_viewer_returns_step_and_lesson_navigation(
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="python-viewer",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    other_lesson = await create_lesson(db, section_id=section.id)
+    first = await create_existing_step(db, lesson_id=lesson.id, order=2)
+    current = await create_existing_step(db, lesson_id=lesson.id, order=7)
+    last = await create_existing_step(db, lesson_id=lesson.id, order=12)
+    await create_existing_step(db, lesson_id=other_lesson.id, order=0)
+
+    viewer = await service_step.get_step_viewer(
+        step_id=current.id,
+        course_slug=course.slug,
+        db=db,
+    )
+
+    assert viewer.step.id == current.id
+    assert viewer.step.lesson_id == lesson.id
+    assert viewer.step.title == current.title
+    assert viewer.step.order == current.order
+    assert viewer.step.content.model_dump() == current.content
+    assert viewer.navigation.position == 2
+    assert viewer.navigation.total == 3
+    assert viewer.navigation.previous_step_id == first.id
+    assert viewer.navigation.next_step_id == last.id
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_handles_single_step_lesson(
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="single-step-course",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=9)
+
+    viewer = await service_step.get_step_viewer(
+        step_id=step.id,
+        course_slug=course.slug,
+        db=db,
+    )
+
+    assert viewer.navigation.position == 1
+    assert viewer.navigation.total == 1
+    assert viewer.navigation.previous_step_id is None
+    assert viewer.navigation.next_step_id is None
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_rejects_wrong_course_slug(
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="actual-course",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step_viewer(
+            step_id=step.id,
+            course_slug="another-course",
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Step not found"
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_hides_step_from_draft_course(
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="draft-course",
+        is_published=False,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_step.get_step_viewer(
+            step_id=step.id,
+            course_slug=course.slug,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Step not found"
+
+
+@pytest.mark.asyncio
 async def test_delete_step_success(section_factory, db):
     section = await section_factory(
         course_id=None,

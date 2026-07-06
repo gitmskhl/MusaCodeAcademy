@@ -172,6 +172,117 @@ async def test_get_step_rejects_invalid_id(client):
     assert response.json()["detail"][0]["loc"] == ["path", "step_id"]
 
 
+# GET /api/steps/{step_id}/viewer
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_success(
+    client,
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="python-viewer",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    first = await create_step(db, lesson_id=lesson.id, order=1)
+    current = await create_step(
+        db,
+        lesson_id=lesson.id,
+        title="Viewer step",
+        order=5,
+        content=TWO_COLUMNS_CONTENT,
+    )
+    last = await create_step(db, lesson_id=lesson.id, order=10)
+
+    response = await client.get(
+        f"/api/steps/{current.id}/viewer",
+        params={"course_slug": course.slug},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert set(data) == {"step", "navigation"}
+    assert_step_response(data["step"], current)
+    assert data["navigation"] == {
+        "position": 2,
+        "total": 3,
+        "previous_step_id": first.id,
+        "next_step_id": last.id,
+    }
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_requires_course_slug(client):
+    response = await client.get("/api/steps/1/viewer")
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"][0]["loc"] == ["query", "course_slug"]
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_rejects_wrong_course_slug(
+    client,
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="actual-course",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_step(db, lesson_id=lesson.id)
+
+    response = await client.get(
+        f"/api/steps/{step.id}/viewer",
+        params={"course_slug": "another-course"},
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Step not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_step_viewer_hides_step_from_draft_course(
+    client,
+    course_factory,
+    section_factory,
+    db,
+):
+    course = await course_factory(
+        slug="draft-course",
+        is_published=False,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_step(db, lesson_id=lesson.id)
+
+    response = await client.get(
+        f"/api/steps/{step.id}/viewer",
+        params={"course_slug": course.slug},
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Step not found"}
+
+
 # GET /api/steps/{step_id}/admin
 
 
