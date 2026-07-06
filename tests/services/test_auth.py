@@ -1,8 +1,11 @@
+from types import SimpleNamespace
+
 import pytest
 from fastapi import HTTPException, status
 from app.core.security import hash_password, verify_password
 from app.models.user import User
 from app.schemas.user import UserCreate
+from app.services import auth as service_auth
 from app.services.auth import email_exists, register_user, get_user_id
 
 
@@ -57,6 +60,33 @@ async def test_register_user_success(db):
     assert verify_password(password, user.password_hash)
     assert user.first_name == first_name
     assert user.last_name == last_name
+
+
+@pytest.mark.asyncio
+async def test_password_operations_are_offloaded(db, monkeypatch):
+    offloaded_functions = []
+
+    async def run_in_worker(func, *args):
+        offloaded_functions.append(func)
+        return func(*args)
+
+    monkeypatch.setattr(
+        service_auth,
+        "asyncio",
+        SimpleNamespace(to_thread=run_in_worker),
+    )
+    user_data = UserCreate(
+        email="worker@example.com",
+        password="12345678",
+        first_name="Alex",
+        last_name="Black",
+    )
+
+    user = await register_user(user_data, db)
+    user_id = await get_user_id(user_data.email, user_data.password, db)
+
+    assert user_id == user.id
+    assert offloaded_functions == [hash_password, verify_password]
     
         
 @pytest.mark.asyncio

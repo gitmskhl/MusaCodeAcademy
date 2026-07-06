@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, UTC
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -32,7 +33,15 @@ async def get_user_id(
     )
     user = result.scalars().first()
     
-    if not user or not verify_password(password, user.password_hash):
+    if not user:
+        return None
+
+    password_is_valid = await asyncio.to_thread(
+        verify_password,
+        password,
+        user.password_hash,
+    )
+    if not password_is_valid:
         return None
     
     if refresh_last_login_at:
@@ -49,9 +58,11 @@ async def register_user(user: UserCreate, db: AsyncSession) -> User:
             detail="User with this email already exists"
         )
         
+    password_hash = await asyncio.to_thread(hash_password, user.password)
+
     new_user = User(
         email=user.email.lower(),
-        password_hash=hash_password(user.password),
+        password_hash=password_hash,
         first_name=user.first_name,
         last_name=user.last_name
     )
