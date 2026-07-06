@@ -84,8 +84,9 @@ async def step_viewer_page(
     step_id: int,
 ):
     return templates.TemplateResponse(
+        request,
         "step_viewer.html",
-        {
+        context={
             "request": request,
             "course_slug": course_slug,
             "step_id": step_id,
