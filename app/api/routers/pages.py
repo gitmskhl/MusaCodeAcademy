@@ -77,7 +77,7 @@ async def admin_step_editor_page(request: Request, step_id: int):
     )
 
 
-@router.get("/{course_slug}/steps/{step_id}", response_class=HTMLResponse)
+@router.get("/{course_slug}/steps/{step_id}", response_class=HTMLResponse, include_in_schema=False)
 async def step_viewer_page(
     request: Request,
     course_slug: str,
