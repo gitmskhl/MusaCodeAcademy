@@ -75,3 +75,19 @@ async def admin_step_editor_page(request: Request, step_id: int):
         request,
         "step_editor.html", {"step_id": step_id}
     )
+
+
+@router.get("/{course_slug}/steps/{step_id}", response_class=HTMLResponse)
+async def step_viewer_page(
+    request: Request,
+    course_slug: str,
+    step_id: int,
+):
+    return templates.TemplateResponse(
+        "step_viewer.html",
+        {
+            "request": request,
+            "course_slug": course_slug,
+            "step_id": step_id,
+        },
+    )

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/step-renderer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/step-viewer.css') }}">
+    <script
+        type="module"
+        src="{{ url_for('static', path='js/step-viewer.js') }}"
+    ></script>
+</head>
+<body>
+    <main class="step-viewer">
+        <header class="step-viewer__header">
+            <a class="step-viewer__back-link" href="#" data-back-to-lesson></a>
+            <h1 class="step-viewer__title" data-step-title></h1>
+            <p class="step-viewer__progress" data-step-progress></p>
+        </header>
+
+        <section
+            class="step-viewer__content"
+            data-step-content
+            aria-live="polite"
+        >
+            <div class="step-viewer__placeholder" data-content-placeholder></div>
+        </section>
+
+        <nav class="step-viewer__navigation" data-step-navigation>
+            <button
+                class="step-viewer__navigation-button"
+                type="button"
+                data-previous-step
+            ></button>
+            <button
+                class="step-viewer__navigation-button step-viewer__navigation-button--primary"
+                type="button"
+                data-next-step
+            ></button>
+        </nav>
+    </main>
+</body>
+</html>
