@@ -154,27 +154,13 @@ const renderDrawerSteps = (steps, currentStepId) => {
     elements.drawerList.append(fragment);
 };
 
-const loadDrawer = async (lessonId, currentStepId) => {
-    try {
-        const [lessonResponse, stepsResponse] = await Promise.all([
-            fetch(`/api/lessons/${encodeURIComponent(lessonId)}`),
-            fetch(`/api/lessons/${encodeURIComponent(lessonId)}/steps`),
-        ]);
-        if (!lessonResponse.ok || !stepsResponse.ok) {
-            throw new Error('drawer-request-failed');
-        }
-
-        const [lesson, steps] = await Promise.all([
-            lessonResponse.json(),
-            stepsResponse.json(),
-        ]);
-        setLessonListLink(lesson.section_id);
-        elements.drawerTitle.textContent = lesson.title;
-        renderDrawerSteps(Array.isArray(steps) ? steps : [], currentStepId);
-    } catch {
-        elements.drawerTitle.textContent = 'Урок';
-        showDrawerMessage('Не удалось загрузить шаги урока.', { error: true });
-    }
+const renderDrawer = (lesson, currentStepId) => {
+    setLessonListLink(lesson.section_id);
+    elements.drawerTitle.textContent = lesson.title;
+    renderDrawerSteps(
+        Array.isArray(lesson.steps) ? lesson.steps : [],
+        currentStepId
+    );
 };
 
 const handleDrawerNavigation = (event) => {
@@ -273,7 +259,7 @@ const loadStep = async () => {
     }
 
     const viewer = await response.json();
-    const { step, navigation } = viewer;
+    const { step, navigation, lesson } = viewer;
     try {
         await loadImageSources(step.content);
     } catch {
@@ -291,7 +277,7 @@ const loadStep = async () => {
     renderStep(elements.content, step.content, {
         renderEmpty: () => createStatus(messages.contentEmpty),
     });
-    await loadDrawer(step.lesson_id, step.id);
+    renderDrawer(lesson, step.id);
 };
 
 const init = async () => {

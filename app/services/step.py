@@ -9,6 +9,8 @@ from app.schemas.steps.step import (
     StepUpdate,
     StepOrderUpdateList,
     StepViewer,
+    StepViewerLesson,
+    StepSummary,
     StepPublic,
 )
 
@@ -187,7 +189,12 @@ async def get_step_viewer(
     db: AsyncSession,
 ) -> StepViewer:
     result = await db.execute(
-        select(Step)
+        select(
+            Step,
+            Lesson.id,
+            Lesson.section_id,
+            Lesson.title,
+        )
         .join(Lesson, Step.lesson_id == Lesson.id)
         .join(Section, Lesson.section_id == Section.id)
         .join(Course, Section.course_id == Course.id)
@@ -197,20 +204,26 @@ async def get_step_viewer(
             Course.is_published.is_(True),
         )
     )
-    step = result.scalar_one_or_none()
+    row = result.one_or_none()
 
-    if not step:
+    if not row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Step not found",
         )
 
+    step, lesson_id, section_id, lesson_title = row
+
     result = await db.execute(
-        select(Step.id)
+        select(Step.id, Step.title)
         .where(Step.lesson_id == step.lesson_id)
         .order_by(Step.order, Step.id)
     )
-    step_ids = list(result.scalars().all())
+    lesson_steps = [
+        StepSummary(id=step_id, title=step_title)
+        for step_id, step_title in result.all()
+    ]
+    step_ids = [lesson_step.id for lesson_step in lesson_steps]
 
     try:
         index = step_ids.index(step.id)
@@ -234,6 +247,12 @@ async def get_step_viewer(
             total=len(step_ids),
             previous_step_id=previous_step_id,
             next_step_id=next_step_id,
+        ),
+        lesson=StepViewerLesson(
+            id=lesson_id,
+            section_id=section_id,
+            title=lesson_title,
+            steps=lesson_steps,
         ),
     )
 

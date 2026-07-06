@@ -451,6 +451,19 @@ async def test_get_step_viewer_returns_step_and_lesson_navigation(
     assert viewer.navigation.total == 3
     assert viewer.navigation.previous_step_id == first.id
     assert viewer.navigation.next_step_id == last.id
+    assert viewer.lesson.id == lesson.id
+    assert viewer.lesson.section_id == section.id
+    assert viewer.lesson.title == lesson.title
+    assert [step.id for step in viewer.lesson.steps] == [
+        first.id,
+        current.id,
+        last.id,
+    ]
+    assert [step.title for step in viewer.lesson.steps] == [
+        first.title,
+        current.title,
+        last.title,
+    ]
 
 
 @pytest.mark.asyncio

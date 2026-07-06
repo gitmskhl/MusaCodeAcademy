@@ -209,13 +209,23 @@ async def test_get_step_viewer_success(
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
-    assert set(data) == {"step", "navigation"}
+    assert set(data) == {"step", "navigation", "lesson"}
     assert_step_response(data["step"], current)
     assert data["navigation"] == {
         "position": 2,
         "total": 3,
         "previous_step_id": first.id,
         "next_step_id": last.id,
+    }
+    assert data["lesson"] == {
+        "id": lesson.id,
+        "section_id": section.id,
+        "title": lesson.title,
+        "steps": [
+            {"id": first.id, "title": first.title},
+            {"id": current.id, "title": current.title},
+            {"id": last.id, "title": last.title},
+        ],
     }
 
 

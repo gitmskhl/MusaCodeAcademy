@@ -28,9 +28,22 @@ class StepNavigation(BaseModel):
     next_step_id: int | None
 
 
+class StepSummary(BaseModel):
+    id: int
+    title: str
+
+
+class StepViewerLesson(BaseModel):
+    id: int
+    section_id: int
+    title: str
+    steps: list[StepSummary]
+
+
 class StepViewer(BaseModel):
     step: StepPublic
     navigation: StepNavigation
+    lesson: StepViewerLesson
     
 
 class StepUpdate(BaseModel):
