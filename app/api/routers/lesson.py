@@ -47,20 +47,6 @@ async def get_steps(lesson_id: int, _: CurrentUser, db: DBSession):
     return await service_step.get_steps(lesson_id=lesson_id, db=db, check_course_published=True)
 
 
-@router.get('/{lesson_id}/first-step', response_model=int)
-async def get_first_step(
-    lesson_id: int,
-    course_slug: str,
-    _: CurrentUser,
-    db: DBSession,
-):
-    return await service_step.get_first_lesson_step_id(
-        lesson_id=lesson_id,
-        course_slug=course_slug,
-        db=db,
-    )
-
-
 @router.get('/{lesson_id}/steps/admin', response_model=list[StepAdmin])
 async def get_steps_admin(lesson_id: int, admin: OnlyAdmin, db: DBSession):
     return await service_step.get_steps(lesson_id=lesson_id, db=db, check_course_published=False)

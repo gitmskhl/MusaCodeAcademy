@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
+
+from app.api.dependencies import DBSession
+from app.services import step as service_step
 
 router = APIRouter()
 
@@ -94,22 +97,22 @@ async def step_viewer_page(
 
 @router.get(
     "/{course_slug}/lessons/{lesson_id}/steps",
-    response_class=HTMLResponse,
+    response_class=RedirectResponse,
     include_in_schema=False,
 )
 async def first_lesson_step_page(
-    request: Request,
     course_slug: str,
     lesson_id: int,
+    db: DBSession,
 ):
-    return templates.TemplateResponse(
-        request,
-        "lesson_step_redirect.html",
-        context={
-            "request": request,
-            "course_slug": course_slug,
-            "lesson_id": lesson_id,
-        },
+    step_id = await service_step.get_first_lesson_step_id(
+        lesson_id=lesson_id,
+        course_slug=course_slug,
+        db=db,
+    )
+    return RedirectResponse(
+        url=f"/{course_slug}/steps/{step_id}",
+        status_code=307,
     )
 
 

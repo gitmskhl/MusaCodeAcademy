@@ -319,7 +319,7 @@ async def test_get_step_viewer_hides_step_from_draft_course(
 
 
 @pytest.mark.asyncio
-async def test_first_lesson_step_page_returns_loading_shell(
+async def test_first_lesson_step_page_redirects_to_first_step(
     client,
     course_factory,
     section_factory,
@@ -335,20 +335,20 @@ async def test_first_lesson_step_page_returns_loading_shell(
         order=0,
     )
     lesson = await create_lesson(db, section_id=section.id)
-    await create_step(db, lesson_id=lesson.id, order=1)
+    await create_step(db, lesson_id=lesson.id, order=10)
+    first = await create_step(db, lesson_id=lesson.id, order=1)
 
     response = await client.get(
         f"/{course.slug}/lessons/{lesson.id}/steps",
         follow_redirects=False,
     )
 
-    assert response.status_code == status.HTTP_200_OK
-    assert f'data-lesson-id="{lesson.id}"' in response.text
-    assert f'data-course-slug="{course.slug}"' in response.text
+    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+    assert response.headers["location"] == f"/{course.slug}/steps/{first.id}"
 
 
 @pytest.mark.asyncio
-async def test_first_lesson_step_page_does_not_expose_empty_lesson_state(
+async def test_first_lesson_step_page_returns_not_found_for_empty_lesson(
     client,
     course_factory,
     section_factory,
@@ -370,46 +370,8 @@ async def test_first_lesson_step_page_does_not_expose_empty_lesson_state(
         follow_redirects=False,
     )
 
-    assert response.status_code == status.HTTP_200_OK
-    assert f'data-lesson-id="{lesson.id}"' in response.text
-
-
-@pytest.mark.asyncio
-async def test_get_first_lesson_step_id_requires_authentication(client):
-    response = await client.get(
-        "/api/lessons/1/first-step",
-        params={"course_slug": "python"},
-    )
-
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-@pytest.mark.asyncio
-async def test_get_first_lesson_step_id_success(
-    client,
-    course_factory,
-    section_factory,
-    db,
-    auth_headers,
-):
-    course = await course_factory(slug="first-step-api", is_published=True)
-    section = await section_factory(
-        course_id=course.id,
-        is_published=True,
-        order=0,
-    )
-    lesson = await create_lesson(db, section_id=section.id)
-    await create_step(db, lesson_id=lesson.id, order=10)
-    first = await create_step(db, lesson_id=lesson.id, order=1)
-
-    response = await client.get(
-        f"/api/lessons/{lesson.id}/first-step",
-        params={"course_slug": course.slug},
-        headers=auth_headers,
-    )
-
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json() == first.id
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Lesson step not found"}
 
 
 # GET /api/steps/{step_id}/admin

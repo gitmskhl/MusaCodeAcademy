@@ -209,7 +209,6 @@ async def test_create_course_requires_all_fields(client, admin_headers):
         "/api/sections/1/lessons",
         "/api/lessons/1",
         "/api/lessons/1/steps",
-        "/api/lessons/1/first-step?course_slug=python",
         "/api/steps/1",
         "/api/steps/1/viewer?course_slug=python",
     ],
