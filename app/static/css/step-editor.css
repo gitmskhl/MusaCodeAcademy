@@ -1624,10 +1624,6 @@ body {
     font-size: 11px;
 }
 
-.block-card--code .code-editor {
-    min-height: 220px;
-}
-
 @media (max-width: 720px) {
     .block-card__content {
         padding-inline: 10px;

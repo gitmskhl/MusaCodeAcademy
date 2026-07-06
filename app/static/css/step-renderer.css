@@ -211,7 +211,6 @@
 
 .code-editor {
     overflow: hidden;
-    min-height: 240px;
     border: 1px solid #d9dade;
     border-radius: 9px;
     background: #fcfcfd;
@@ -224,13 +223,19 @@
 }
 
 .code-editor .cm-editor {
-    min-height: inherit;
+    height: auto;
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     font-size: 13px;
 }
 
+.code-editor .cm-content {
+    min-height: 3.2em;
+}
+
 .code-editor .cm-scroller {
-    overflow-y: hidden;
+    height: auto;
+    max-height: calc(36.8em + 24px);
+    overflow-y: auto;
     font-family: inherit;
     line-height: 1.6;
 }
