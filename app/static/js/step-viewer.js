@@ -44,6 +44,50 @@ const elements = {
     navigation: document.querySelector('[data-step-navigation]'),
     previousStep: document.querySelector('[data-previous-step]'),
     nextStep: document.querySelector('[data-next-step]'),
+    drawer: document.querySelector('[data-step-drawer]'),
+    drawerToggle: document.querySelector('[data-step-drawer-toggle]'),
+    drawerBackdrop: document.querySelector('[data-step-drawer-backdrop]'),
+};
+
+const setDrawerOpen = (isOpen) => {
+    document.body.classList.toggle('is-step-drawer-open', isOpen);
+    elements.drawerToggle.setAttribute('aria-expanded', String(isOpen));
+    elements.drawerToggle.setAttribute(
+        'aria-label',
+        isOpen ? 'Закрыть навигацию по шагам' : 'Открыть навигацию по шагам'
+    );
+    elements.drawer.setAttribute('aria-hidden', String(!isOpen));
+
+    if (isOpen) {
+        elements.drawer.setAttribute('tabindex', '-1');
+        elements.drawer.focus();
+    } else {
+        elements.drawer.removeAttribute('tabindex');
+    }
+};
+
+const initDrawer = () => {
+    if (!elements.drawer || !elements.drawerToggle || !elements.drawerBackdrop) {
+        return;
+    }
+
+    elements.drawerToggle.addEventListener('click', () => {
+        const isOpen = elements.drawerToggle.getAttribute('aria-expanded') === 'true';
+        setDrawerOpen(!isOpen);
+    });
+    elements.drawerBackdrop.addEventListener('click', () => {
+        setDrawerOpen(false);
+        elements.drawerToggle.focus();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (
+            event.key === 'Escape' &&
+            elements.drawerToggle.getAttribute('aria-expanded') === 'true'
+        ) {
+            setDrawerOpen(false);
+            elements.drawerToggle.focus();
+        }
+    });
 };
 
 const localizePage = () => {
@@ -148,6 +192,7 @@ const init = async () => {
         return;
     }
 
+    initDrawer();
     localizePage();
     try {
         await loadStep();
