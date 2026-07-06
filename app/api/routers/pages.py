@@ -114,3 +114,20 @@ async def first_lesson_step_page(
         url=f"/{course_slug}/steps/{step_id}",
         status_code=307,
     )
+
+
+@router.get('/{course_slug}/sections/{section_id}/lessons', response_class=HTMLResponse, include_in_schema=False)
+async def section_lessons_page(
+    request: Request,
+    course_slug: str,
+    section_id: int,
+):
+    return templates.TemplateResponse(
+        request,
+        "section_lessons.html",
+        context={
+            "request": request,
+            "course_slug": course_slug,
+            "section_id": section_id,
+        },
+    )
