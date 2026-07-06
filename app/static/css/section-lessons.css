@@ -132,7 +132,7 @@ a {
 
 .section-hero h1 {
     margin: 0;
-    font-size: clamp(30px, 4vw, 44px);
+    font-size: clamp(26px, 3vw, 36px);
     line-height: 1.12;
     letter-spacing: -0.035em;
 }
@@ -458,7 +458,7 @@ a {
     }
 
     .section-hero h1 {
-        font-size: 29px;
+        font-size: 26px;
     }
 
     .section-hero__description {

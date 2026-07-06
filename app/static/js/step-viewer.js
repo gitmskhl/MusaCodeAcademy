@@ -8,7 +8,7 @@ const locales = Object.freeze({
     ru: {
         documentTitle: 'Материал урока',
         stepDocumentTitle: '{title} — Материал урока',
-        backToLesson: '← К уроку',
+        backToLesson: '← К списку уроков',
         stepTitle: 'Название шага',
         progress: '{current} / {total}',
         contentLoading: 'Загружаем материал…',
@@ -108,6 +108,14 @@ const getStepUrl = (stepId) => {
     return `/${encodeURIComponent(courseSlug)}/steps/${encodeURIComponent(stepId)}`;
 };
 
+const setLessonListLink = (sectionId) => {
+    const courseSlug = elements.root.dataset.courseSlug.trim();
+    elements.backToLesson.href =
+        `/${encodeURIComponent(courseSlug)}/sections/` +
+        `${encodeURIComponent(sectionId)}/lessons`;
+    elements.backToLesson.removeAttribute('aria-disabled');
+};
+
 const renderDrawerSteps = (steps, currentStepId) => {
     elements.drawerList.replaceChildren();
     elements.drawerMessage.hidden = true;
@@ -160,6 +168,7 @@ const loadDrawer = async (lessonId, currentStepId) => {
             lessonResponse.json(),
             stepsResponse.json(),
         ]);
+        setLessonListLink(lesson.section_id);
         elements.drawerTitle.textContent = lesson.title;
         renderDrawerSteps(Array.isArray(steps) ? steps : [], currentStepId);
     } catch {
