@@ -406,6 +406,7 @@ async def test_get_steps_returns_public_steps_in_order(
     client,
     section_factory,
     db,
+    auth_headers,
 ):
     section = await section_factory(
         course_id=None,
@@ -433,7 +434,10 @@ async def test_get_steps_returns_public_steps_in_order(
     )
     await create_step(db, lesson_id=other_lesson.id, order=0)
 
-    response = await client.get(f"/api/lessons/{lesson.id}/steps")
+    response = await client.get(
+        f"/api/lessons/{lesson.id}/steps",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -443,7 +447,12 @@ async def test_get_steps_returns_public_steps_in_order(
 
 
 @pytest.mark.asyncio
-async def test_get_steps_returns_empty_list(client, section_factory, db):
+async def test_get_steps_returns_empty_list(
+    client,
+    section_factory,
+    db,
+    auth_headers,
+):
     section = await section_factory(
         course_id=None,
         is_published=True,
@@ -451,7 +460,10 @@ async def test_get_steps_returns_empty_list(client, section_factory, db):
     )
     lesson = await create_lesson(db, section_id=section.id)
 
-    response = await client.get(f"/api/lessons/{lesson.id}/steps")
+    response = await client.get(
+        f"/api/lessons/{lesson.id}/steps",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
@@ -462,6 +474,7 @@ async def test_get_steps_hides_draft_course(
     client,
     section_factory,
     db,
+    auth_headers,
 ):
     section = await section_factory(
         course_id=None,
@@ -471,23 +484,32 @@ async def test_get_steps_hides_draft_course(
     lesson = await create_lesson(db, section_id=section.id)
     await create_step(db, lesson_id=lesson.id)
 
-    response = await client.get(f"/api/lessons/{lesson.id}/steps")
+    response = await client.get(
+        f"/api/lessons/{lesson.id}/steps",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Course not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_steps_lesson_not_found(client):
-    response = await client.get("/api/lessons/999999/steps")
+async def test_get_steps_lesson_not_found(client, auth_headers):
+    response = await client.get(
+        "/api/lessons/999999/steps",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Lesson not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_steps_rejects_invalid_lesson_id(client):
-    response = await client.get("/api/lessons/not-an-id/steps")
+async def test_get_steps_rejects_invalid_lesson_id(client, auth_headers):
+    response = await client.get(
+        "/api/lessons/not-an-id/steps",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "lesson_id"]

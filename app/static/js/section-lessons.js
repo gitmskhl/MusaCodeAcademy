@@ -1,3 +1,5 @@
+import { authFetch, requireToken } from './course-auth.js';
+
 (function () {
     const STATUS = Object.freeze({
         completed: {
@@ -181,8 +183,8 @@
 
         try {
             const [sectionResponse, lessonsResponse] = await Promise.all([
-                fetch(`/api/sections/${encodeURIComponent(sectionId)}`),
-                fetch(`/api/sections/${encodeURIComponent(sectionId)}/lessons`),
+                authFetch(`/api/sections/${encodeURIComponent(sectionId)}`),
+                authFetch(`/api/sections/${encodeURIComponent(sectionId)}/lessons`),
             ]);
 
             if (!sectionResponse.ok || !lessonsResponse.ok) {
@@ -203,5 +205,12 @@
     };
 
     elements.retry?.addEventListener('click', loadPage);
-    document.addEventListener('DOMContentLoaded', loadPage);
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            requireToken();
+            loadPage();
+        } catch {
+            // requireToken already started the redirect to the login page.
+        }
+    });
 })();

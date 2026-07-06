@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Открываем урок…</title>
+    <script
+        type="module"
+        src="{{ url_for('static', path='js/lesson-step-redirect.js') }}"
+    ></script>
+</head>
+<body>
+    <main
+        data-lesson-step-redirect
+        data-lesson-id="{{ lesson_id }}"
+        data-course-slug="{{ course_slug }}"
+    >
+        <p>Открываем первый шаг урока…</p>
+        <p data-redirect-error hidden>
+            Не удалось открыть урок. Возможно, в нём пока нет шагов.
+        </p>
+    </main>
+</body>
+</html>

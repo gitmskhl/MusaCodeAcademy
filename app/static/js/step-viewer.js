@@ -1,8 +1,7 @@
 import { getStepBlocks } from './step-renderer/layout-renderers.js';
 import { registerImageSource } from './step-renderer/image-sources.js';
 import { renderStep } from './step-renderer/step-renderer.js';
-
-const TOKEN_KEY = 'musa_code_academy_token';
+import { authFetch, requireToken } from './course-auth.js';
 
 const locales = Object.freeze({
     ru: {
@@ -224,11 +223,7 @@ const loadImageSources = async (content) => {
     const params = new URLSearchParams();
     fileIds.forEach((fileId) => params.append('ids', String(fileId)));
 
-    const token = localStorage.getItem(TOKEN_KEY);
-    const headers = token
-        ? { Authorization: `Bearer ${token}` }
-        : {};
-    const response = await fetch(`/api/files?${params}`, { headers });
+    const response = await authFetch(`/api/files?${params}`);
     if (!response.ok) {
         return;
     }
@@ -251,7 +246,7 @@ const loadStep = async () => {
     const params = new URLSearchParams({
         course_slug: courseSlug,
     });
-    const response = await fetch(
+    const response = await authFetch(
         `/api/steps/${encodeURIComponent(stepId)}/viewer?${params}`
     );
     if (!response.ok) {
@@ -289,6 +284,7 @@ const init = async () => {
     elements.drawerList.addEventListener('click', handleDrawerNavigation);
     localizePage();
     try {
+        requireToken();
         await loadStep();
     } catch {
         showDrawerMessage('Не удалось загрузить шаги урока.', { error: true });

@@ -49,7 +49,7 @@ async def create_lesson(
 
 
 @pytest.mark.asyncio
-async def test_get_section_success(client, section_factory):
+async def test_get_section_success(client, section_factory, auth_headers):
     section = await section_factory(
         course_id=None,
         is_published=True,
@@ -58,7 +58,8 @@ async def test_get_section_success(client, section_factory):
         description="Simple section descr"
     )
     response = await client.get(
-        f"/api/sections/{section.id}"
+        f"/api/sections/{section.id}",
+        headers=auth_headers,
     )
     assert response.status_code == status.HTTP_200_OK
     sectionInfo = response.json()
@@ -71,7 +72,11 @@ async def test_get_section_success(client, section_factory):
     
 
 @pytest.mark.asyncio
-async def test_get_section_course_not_published_error_404(client, section_factory):
+async def test_get_section_course_not_published_error_404(
+    client,
+    section_factory,
+    auth_headers,
+):
     section = await section_factory(
         course_id=None,
         is_published=False,
@@ -80,7 +85,8 @@ async def test_get_section_course_not_published_error_404(client, section_factor
         description="Simple section descr"
     )
     response = await client.get(
-        f"/api/sections/{section.id}"
+        f"/api/sections/{section.id}",
+        headers=auth_headers,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {
@@ -89,7 +95,11 @@ async def test_get_section_course_not_published_error_404(client, section_factor
     
     
 @pytest.mark.asyncio
-async def test_get_section_section_not_found_error_404(client, section_factory):
+async def test_get_section_section_not_found_error_404(
+    client,
+    section_factory,
+    auth_headers,
+):
     section = await section_factory(
         course_id=None,
         is_published=False,
@@ -98,7 +108,8 @@ async def test_get_section_section_not_found_error_404(client, section_factory):
         description="Simple section descr"
     )
     response = await client.get(
-        f"/api/sections/{section.id + 1}"
+        f"/api/sections/{section.id + 1}",
+        headers=auth_headers,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {
@@ -107,8 +118,11 @@ async def test_get_section_section_not_found_error_404(client, section_factory):
 
 
 @pytest.mark.asyncio
-async def test_get_section_rejects_invalid_id(client):
-    response = await client.get("/api/sections/not-an-id")
+async def test_get_section_rejects_invalid_id(client, auth_headers):
+    response = await client.get(
+        "/api/sections/not-an-id",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "section_id"]
@@ -724,6 +738,7 @@ async def test_get_lessons_returns_public_lessons_in_order(
     client,
     section_factory,
     db,
+    auth_headers,
 ):
     section = await section_factory(
         course_id=None,
@@ -749,7 +764,10 @@ async def test_get_lessons_returns_public_lessons_in_order(
     )
     await create_lesson(db, section_id=other_section.id, order=0)
 
-    response = await client.get(f"/api/sections/{section.id}/lessons")
+    response = await client.get(
+        f"/api/sections/{section.id}/lessons",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -759,14 +777,21 @@ async def test_get_lessons_returns_public_lessons_in_order(
 
 
 @pytest.mark.asyncio
-async def test_get_lessons_returns_empty_list(client, section_factory):
+async def test_get_lessons_returns_empty_list(
+    client,
+    section_factory,
+    auth_headers,
+):
     section = await section_factory(
         course_id=None,
         is_published=True,
         order=0,
     )
 
-    response = await client.get(f"/api/sections/{section.id}/lessons")
+    response = await client.get(
+        f"/api/sections/{section.id}/lessons",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
@@ -777,6 +802,7 @@ async def test_get_lessons_hides_draft_course(
     client,
     section_factory,
     db,
+    auth_headers,
 ):
     section = await section_factory(
         course_id=None,
@@ -785,23 +811,32 @@ async def test_get_lessons_hides_draft_course(
     )
     await create_lesson(db, section_id=section.id)
 
-    response = await client.get(f"/api/sections/{section.id}/lessons")
+    response = await client.get(
+        f"/api/sections/{section.id}/lessons",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Course not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_lessons_section_not_found(client):
-    response = await client.get("/api/sections/999999/lessons")
+async def test_get_lessons_section_not_found(client, auth_headers):
+    response = await client.get(
+        "/api/sections/999999/lessons",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Section not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_lessons_rejects_invalid_section_id(client):
-    response = await client.get("/api/sections/not-an-id/lessons")
+async def test_get_lessons_rejects_invalid_section_id(client, auth_headers):
+    response = await client.get(
+        "/api/sections/not-an-id/lessons",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "section_id"]

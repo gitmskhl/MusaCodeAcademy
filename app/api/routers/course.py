@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, HTTPException
 from app.models.course import Course
 from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate, CourseAdmin
 from app.schemas.section import SectionPublic, SectionAdmin, SectionCreate
-from app.api.dependencies import OnlyAdmin, DBSession
+from app.api.dependencies import CurrentUser, OnlyAdmin, DBSession
 from app.services import course as service_course
 from app.services import section as service_section
 
@@ -26,7 +26,7 @@ async def get_course_private_info(course_id: int, admin: OnlyAdmin, db: DBSessio
 # ---------------------------------- /api/courses -----------------------------------------
 # GET /api/courses
 @router.get('', response_model=list[CoursePublic])
-async def get_courses(db: DBSession):
+async def get_courses(_: CurrentUser, db: DBSession):
     return await service_course.get_published_courses(db)
 
 
@@ -39,7 +39,7 @@ async def create_course(courseInfo: CourseCreate, admin: OnlyAdmin, db: DBSessio
 
 # GET /api/courses/{id} 
 @router.get('/{course_id}', response_model=CoursePublic)
-async def get_course_info(course_id: int, db: DBSession):
+async def get_course_info(course_id: int, _: CurrentUser, db: DBSession):
     return await service_course.get_published_course_info(course_id, db)
 
 
@@ -67,7 +67,7 @@ async def delete_course(
 # ---------------------------------- /api/courses/{id}/sections --------------------------------
 
 @router.get('/{course_id}/sections', response_model=list[SectionPublic])
-async def get_course_sections(course_id: int, db: DBSession):
+async def get_course_sections(course_id: int, _: CurrentUser, db: DBSession):
     return await service_section.get_course_sections(course_id=course_id, db=db, check_published=True)
     
 

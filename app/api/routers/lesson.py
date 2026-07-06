@@ -8,12 +8,12 @@ from app.schemas.lesson import (
 from app.schemas.steps.step import StepAdmin, StepCreate, StepPublic
 from app.services import lesson as service_lesson
 from app.services import step as service_step
-from app.api.dependencies import DBSession, OnlyAdmin
+from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin
 
 router = APIRouter()
 
 @router.get('/{lesson_id}', response_model=LessonPublic)
-async def get_lesson(lesson_id: int, db: DBSession):
+async def get_lesson(lesson_id: int, _: CurrentUser, db: DBSession):
     return await service_lesson.get_lesson(lesson_id=lesson_id, db=db, check_course_published=True)
 
 
@@ -43,8 +43,22 @@ async def create_step(lesson_id: int, stepInfo: StepCreate, admin: OnlyAdmin, db
 
 
 @router.get('/{lesson_id}/steps', response_model=list[StepPublic])
-async def get_steps(lesson_id: int, db: DBSession):
+async def get_steps(lesson_id: int, _: CurrentUser, db: DBSession):
     return await service_step.get_steps(lesson_id=lesson_id, db=db, check_course_published=True)
+
+
+@router.get('/{lesson_id}/first-step', response_model=int)
+async def get_first_step(
+    lesson_id: int,
+    course_slug: str,
+    _: CurrentUser,
+    db: DBSession,
+):
+    return await service_step.get_first_lesson_step_id(
+        lesson_id=lesson_id,
+        course_slug=course_slug,
+        db=db,
+    )
 
 
 @router.get('/{lesson_id}/steps/admin', response_model=list[StepAdmin])

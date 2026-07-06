@@ -31,7 +31,11 @@ form.addEventListener("submit", async (event) => {
         }
 
         localStorage.setItem("musa_code_academy_token", data.access_token);
-        window.location.href = '/dashboard'
+        const nextUrl = new URLSearchParams(window.location.search).get("next");
+        const destination = nextUrl?.startsWith("/") && !nextUrl.startsWith("//")
+            ? nextUrl
+            : "/dashboard";
+        window.location.href = destination;
     } catch (error) {
         showMessage(error.message, "error");
     } finally {

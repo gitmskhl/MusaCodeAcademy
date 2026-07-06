@@ -3,12 +3,12 @@ from app.schemas.section import SectionPublic, SectionAdmin, SectionUpdate, Sect
 from app.schemas.lesson import LessonAdmin, LessonCreate, LessonPublic
 from app.services import section as service_section
 from app.services import lesson as service_lesson
-from app.api.dependencies import DBSession, OnlyAdmin
+from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin
 
 router = APIRouter()
 
 @router.get('/{section_id}', response_model=SectionPublic)
-async def get_section(section_id: int, db: DBSession):
+async def get_section(section_id: int, _: CurrentUser, db: DBSession):
     return await service_section.get_section(
         section_id=section_id,
         db=db,
@@ -56,7 +56,7 @@ async def create_lesson(section_id: int, lessonCreate: LessonCreate, admin: Only
 
 
 @router.get('/{section_id}/lessons', response_model=list[LessonPublic])
-async def get_lessons(section_id: int, db: DBSession):
+async def get_lessons(section_id: int, _: CurrentUser, db: DBSession):
     return await service_lesson.get_lessons(section_id=section_id, db=db, check_course_published=True)
 
 

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status
 from app.schemas.steps.step import StepPublic, StepAdmin, StepUpdate, StepOrderUpdateList, StepViewer
 from app.services import step as service_step
-from app.api.dependencies import DBSession, OnlyAdmin
+from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin
 
 router = APIRouter()
 
 
 @router.get('/{step_id}', response_model=StepPublic)
-async def get_step(step_id: int, db: DBSession):
+async def get_step(step_id: int, _: CurrentUser, db: DBSession):
     return await service_step.get_step(step_id=step_id, db=db, check_course_published=True)
 
 
@@ -20,6 +20,7 @@ async def get_step_admin(step_id: int, admin: OnlyAdmin, db: DBSession):
 async def get_step_viewer(
     course_slug: str,
     step_id: int,
+    _: CurrentUser,
     db: DBSession,
 ):
     return await service_step.get_step_viewer(

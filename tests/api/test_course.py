@@ -199,8 +199,30 @@ async def test_create_course_requires_all_fields(client, admin_headers):
 
 
 @pytest.mark.asyncio
-async def test_get_courses_returns_empty_list(client):
-    response = await client.get("/api/courses")
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/api/courses",
+        "/api/courses/1",
+        "/api/courses/1/sections",
+        "/api/sections/1",
+        "/api/sections/1/lessons",
+        "/api/lessons/1",
+        "/api/lessons/1/steps",
+        "/api/lessons/1/first-step?course_slug=python",
+        "/api/steps/1",
+        "/api/steps/1/viewer?course_slug=python",
+    ],
+)
+async def test_course_content_requires_authentication(client, path):
+    response = await client.get(path)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_courses_returns_empty_list(client, auth_headers):
+    response = await client.get("/api/courses", headers=auth_headers)
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
@@ -210,6 +232,7 @@ async def test_get_courses_returns_empty_list(client):
 async def test_get_courses_returns_only_published_courses(
     client,
     course_factory,
+    auth_headers,
 ):
     published = await course_factory(
         slug="published",
@@ -222,7 +245,7 @@ async def test_get_courses_returns_only_published_courses(
         is_published=False,
     )
 
-    response = await client.get("/api/courses")
+    response = await client.get("/api/courses", headers=auth_headers)
 
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == 1
@@ -233,36 +256,48 @@ async def test_get_courses_returns_only_published_courses(
 
 
 @pytest.mark.asyncio
-async def test_get_published_course_success(client, course_factory):
+async def test_get_published_course_success(client, course_factory, auth_headers):
     course = await course_factory(slug="published", is_published=True)
 
-    response = await client.get(f"/api/courses/{course.id}")
+    response = await client.get(
+        f"/api/courses/{course.id}",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     assert_public_course(response.json(), course)
 
 
 @pytest.mark.asyncio
-async def test_get_course_rejects_draft(client, course_factory):
+async def test_get_course_rejects_draft(client, course_factory, auth_headers):
     course = await course_factory(slug="draft", is_published=False)
 
-    response = await client.get(f"/api/courses/{course.id}")
+    response = await client.get(
+        f"/api/courses/{course.id}",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {"detail": "Course is not published"}
 
 
 @pytest.mark.asyncio
-async def test_get_course_not_found(client):
-    response = await client.get("/api/courses/999999")
+async def test_get_course_not_found(client, auth_headers):
+    response = await client.get(
+        "/api/courses/999999",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Course not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_course_rejects_invalid_id(client):
-    response = await client.get("/api/courses/not-an-id")
+async def test_get_course_rejects_invalid_id(client, auth_headers):
+    response = await client.get(
+        "/api/courses/not-an-id",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "course_id"]
@@ -621,6 +656,7 @@ async def test_get_course_sections_returns_sections_in_order(
     client,
     course_factory,
     db,
+    auth_headers,
 ):
     course = await course_factory(slug="published", is_published=True)
     second = await create_section(
@@ -636,7 +672,10 @@ async def test_get_course_sections_returns_sections_in_order(
         order=0,
     )
 
-    response = await client.get(f"/api/courses/{course.id}/sections")
+    response = await client.get(
+        f"/api/courses/{course.id}/sections",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -649,28 +688,42 @@ async def test_get_course_sections_returns_sections_in_order(
 async def test_get_course_sections_returns_empty_list(
     client,
     course_factory,
+    auth_headers,
 ):
     course = await course_factory(slug="published", is_published=True)
 
-    response = await client.get(f"/api/courses/{course.id}/sections")
+    response = await client.get(
+        f"/api/courses/{course.id}/sections",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
 
 
 @pytest.mark.asyncio
-async def test_get_course_sections_hides_draft(client, course_factory):
+async def test_get_course_sections_hides_draft(
+    client,
+    course_factory,
+    auth_headers,
+):
     course = await course_factory(slug="draft", is_published=False)
 
-    response = await client.get(f"/api/courses/{course.id}/sections")
+    response = await client.get(
+        f"/api/courses/{course.id}/sections",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Course not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_course_sections_course_not_found(client):
-    response = await client.get("/api/courses/999999/sections")
+async def test_get_course_sections_course_not_found(client, auth_headers):
+    response = await client.get(
+        "/api/courses/999999/sections",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Course not found"}

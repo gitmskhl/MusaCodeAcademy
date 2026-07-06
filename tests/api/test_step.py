@@ -125,14 +125,17 @@ def delete_step_url(step_id: int | str) -> str:
 
 
 @pytest.mark.asyncio
-async def test_get_step_success(client, section_factory, db):
+async def test_get_step_success(client, section_factory, db, auth_headers):
     step = await create_step_for_course(
         db,
         section_factory,
         is_published=True,
     )
 
-    response = await client.get(f"/api/steps/{step.id}")
+    response = await client.get(
+        f"/api/steps/{step.id}",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_200_OK
     assert_step_response(response.json(), step)
@@ -143,6 +146,7 @@ async def test_get_step_hides_step_from_draft_course(
     client,
     section_factory,
     db,
+    auth_headers,
 ):
     step = await create_step_for_course(
         db,
@@ -150,23 +154,32 @@ async def test_get_step_hides_step_from_draft_course(
         is_published=False,
     )
 
-    response = await client.get(f"/api/steps/{step.id}")
+    response = await client.get(
+        f"/api/steps/{step.id}",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Course not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_step_not_found(client):
-    response = await client.get("/api/steps/999999")
+async def test_get_step_not_found(client, auth_headers):
+    response = await client.get(
+        "/api/steps/999999",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {"detail": "Step not found"}
 
 
 @pytest.mark.asyncio
-async def test_get_step_rejects_invalid_id(client):
-    response = await client.get("/api/steps/not-an-id")
+async def test_get_step_rejects_invalid_id(client, auth_headers):
+    response = await client.get(
+        "/api/steps/not-an-id",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "step_id"]
@@ -181,6 +194,7 @@ async def test_get_step_viewer_success(
     course_factory,
     section_factory,
     db,
+    auth_headers,
 ):
     course = await course_factory(
         slug="python-viewer",
@@ -205,6 +219,7 @@ async def test_get_step_viewer_success(
     response = await client.get(
         f"/api/steps/{current.id}/viewer",
         params={"course_slug": course.slug},
+        headers=auth_headers,
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -230,8 +245,11 @@ async def test_get_step_viewer_success(
 
 
 @pytest.mark.asyncio
-async def test_get_step_viewer_requires_course_slug(client):
-    response = await client.get("/api/steps/1/viewer")
+async def test_get_step_viewer_requires_course_slug(client, auth_headers):
+    response = await client.get(
+        "/api/steps/1/viewer",
+        headers=auth_headers,
+    )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["query", "course_slug"]
@@ -243,6 +261,7 @@ async def test_get_step_viewer_rejects_wrong_course_slug(
     course_factory,
     section_factory,
     db,
+    auth_headers,
 ):
     course = await course_factory(
         slug="actual-course",
@@ -259,6 +278,7 @@ async def test_get_step_viewer_rejects_wrong_course_slug(
     response = await client.get(
         f"/api/steps/{step.id}/viewer",
         params={"course_slug": "another-course"},
+        headers=auth_headers,
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -271,6 +291,7 @@ async def test_get_step_viewer_hides_step_from_draft_course(
     course_factory,
     section_factory,
     db,
+    auth_headers,
 ):
     course = await course_factory(
         slug="draft-course",
@@ -287,6 +308,7 @@ async def test_get_step_viewer_hides_step_from_draft_course(
     response = await client.get(
         f"/api/steps/{step.id}/viewer",
         params={"course_slug": course.slug},
+        headers=auth_headers,
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -297,7 +319,7 @@ async def test_get_step_viewer_hides_step_from_draft_course(
 
 
 @pytest.mark.asyncio
-async def test_first_lesson_step_page_redirects_to_first_step(
+async def test_first_lesson_step_page_returns_loading_shell(
     client,
     course_factory,
     section_factory,
@@ -313,20 +335,20 @@ async def test_first_lesson_step_page_redirects_to_first_step(
         order=0,
     )
     lesson = await create_lesson(db, section_id=section.id)
-    await create_step(db, lesson_id=lesson.id, order=10)
-    first = await create_step(db, lesson_id=lesson.id, order=1)
+    await create_step(db, lesson_id=lesson.id, order=1)
 
     response = await client.get(
         f"/{course.slug}/lessons/{lesson.id}/steps",
         follow_redirects=False,
     )
 
-    assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
-    assert response.headers["location"] == f"/{course.slug}/steps/{first.id}"
+    assert response.status_code == status.HTTP_200_OK
+    assert f'data-lesson-id="{lesson.id}"' in response.text
+    assert f'data-course-slug="{course.slug}"' in response.text
 
 
 @pytest.mark.asyncio
-async def test_first_lesson_step_page_returns_not_found_for_empty_lesson(
+async def test_first_lesson_step_page_does_not_expose_empty_lesson_state(
     client,
     course_factory,
     section_factory,
@@ -348,8 +370,46 @@ async def test_first_lesson_step_page_returns_not_found_for_empty_lesson(
         follow_redirects=False,
     )
 
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Lesson step not found"}
+    assert response.status_code == status.HTTP_200_OK
+    assert f'data-lesson-id="{lesson.id}"' in response.text
+
+
+@pytest.mark.asyncio
+async def test_get_first_lesson_step_id_requires_authentication(client):
+    response = await client.get(
+        "/api/lessons/1/first-step",
+        params={"course_slug": "python"},
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_get_first_lesson_step_id_success(
+    client,
+    course_factory,
+    section_factory,
+    db,
+    auth_headers,
+):
+    course = await course_factory(slug="first-step-api", is_published=True)
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    await create_step(db, lesson_id=lesson.id, order=10)
+    first = await create_step(db, lesson_id=lesson.id, order=1)
+
+    response = await client.get(
+        f"/api/lessons/{lesson.id}/first-step",
+        params={"course_slug": course.slug},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == first.id
 
 
 # GET /api/steps/{step_id}/admin
