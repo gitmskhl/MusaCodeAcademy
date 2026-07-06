@@ -100,12 +100,6 @@ async def update_section(section_id: int, sectionUpdate: SectionUpdate, db: Asyn
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Section not found"
         )
-    course = await db.get(Course, section.course_id)
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Course not found"
-        )
     
     update_data = sectionUpdate.model_dump(exclude_unset=True)
     for field, value in update_data.items():
