@@ -12,9 +12,19 @@
     ></script>
 </head>
 <body>
-    <main class="step-viewer">
+    <main
+        class="step-viewer"
+        data-step-viewer
+        data-step-id="{{ step_id }}"
+        data-course-slug="{{ course_slug }}"
+    >
         <header class="step-viewer__header">
-            <a class="step-viewer__back-link" href="#" data-back-to-lesson></a>
+            <a
+                class="step-viewer__back-link"
+                role="link"
+                aria-disabled="true"
+                data-back-to-lesson
+            ></a>
             <h1 class="step-viewer__title" data-step-title></h1>
             <p class="step-viewer__progress" data-step-progress></p>
         </header>
@@ -23,6 +33,7 @@
             class="step-viewer__content"
             data-step-content
             aria-live="polite"
+            aria-busy="true"
         >
             <div class="step-viewer__placeholder" data-content-placeholder></div>
         </section>
@@ -32,11 +43,13 @@
                 class="step-viewer__navigation-button"
                 type="button"
                 data-previous-step
+                disabled
             ></button>
             <button
                 class="step-viewer__navigation-button step-viewer__navigation-button--primary"
                 type="button"
                 data-next-step
+                disabled
             ></button>
         </nav>
     </main>

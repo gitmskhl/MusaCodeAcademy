@@ -9,3 +9,4 @@ data/*.py
 example/
 uploads/
 node_modules/
+.pytest_cache/

@@ -64,6 +64,13 @@ a:focus-visible {
     color: var(--viewer-primary);
 }
 
+.step-viewer__back-link[aria-disabled="true"] {
+    color: var(--viewer-muted);
+    cursor: default;
+    opacity: 0.62;
+    pointer-events: none;
+}
+
 .step-viewer__title {
     margin: 0;
     color: var(--viewer-text);
@@ -97,6 +104,10 @@ a:focus-visible {
     color: var(--viewer-muted);
     font-size: 15px;
     text-align: center;
+}
+
+.step-viewer__placeholder--error {
+    color: #a23a32;
 }
 
 .step-viewer__navigation {
@@ -134,6 +145,14 @@ a:focus-visible {
 .step-viewer__navigation-button--primary:hover {
     border-color: var(--viewer-primary-hover);
     background: var(--viewer-primary-hover);
+}
+
+.step-viewer__navigation-button:disabled {
+    border-color: var(--viewer-border);
+    color: var(--viewer-muted);
+    background: #f1f1f0;
+    cursor: default;
+    opacity: 0.62;
 }
 
 @media (max-width: 640px) {
