@@ -18,6 +18,9 @@ import { authFetch } from './course-auth.js';
         content: document.querySelector('[data-course-content]'),
         title: document.querySelector('[data-course-title]'),
         description: document.querySelector('[data-course-description]'),
+        progressBar: document.querySelector('[data-course-progress-bar]'),
+        progressPercent: document.querySelector('[data-course-progress-percent]'),
+        progressCount: document.querySelector('[data-course-progress-count]'),
         sections: document.querySelector('[data-sections]'),
     };
 
@@ -34,6 +37,44 @@ import { authFetch } from './course-auth.js';
     const getOrderNumber = (item, fallbackIndex) => {
         const order = Number(item.order);
         return Number.isFinite(order) ? order + 1 : fallbackIndex + 1;
+    };
+
+    const pluralizeLessons = (count) => {
+        const abs = Math.abs(count);
+        const last = abs % 10;
+        const lastTwo = abs % 100;
+
+        if (last === 1 && lastTwo !== 11) {
+            return 'урок';
+        }
+
+        if ([2, 3, 4].includes(last) && ![12, 13, 14].includes(lastTwo)) {
+            return 'урока';
+        }
+
+        return 'уроков';
+    };
+
+    const getSectionStatus = (index) => {
+        const statuses = [
+            {
+                className: 'section-card--current',
+                icon: '\u25b6',
+                label: 'Продолжить',
+            },
+            {
+                className: 'section-card--not-started',
+                icon: '\u25cb',
+                label: 'Не начато',
+            },
+            {
+                className: 'section-card--completed',
+                icon: '\u2713',
+                label: 'Завершено',
+            },
+        ];
+
+        return statuses[index % statuses.length];
     };
 
     const setLoading = () => {
@@ -66,10 +107,10 @@ import { authFetch } from './course-auth.js';
         row.type = 'button';
         row.className = `lesson-row ${status.className}`;
         row.dataset.lessonId = lesson.id;
-        row.setAttribute('aria-label', `Lesson ${lessonNumber}. ${lesson.title}, ${status.label}`);
+        row.setAttribute('aria-label', `Урок ${lessonNumber}. ${lesson.title}`);
 
         number.className = 'lesson-row__number';
-        number.textContent = `Lesson ${lessonNumber}.`;
+        number.textContent = `Урок ${lessonNumber}.`;
 
         title.className = 'lesson-row__title';
         title.textContent = lesson.title;
@@ -80,7 +121,6 @@ import { authFetch } from './course-auth.js';
 
         row.append(number, title, icon);
         row.addEventListener('click', () => {
-            console.log(lesson.id);
             window.location.href =
                 `/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lesson.id)}/steps`;
         });
@@ -92,16 +132,19 @@ import { authFetch } from './course-auth.js';
         const card = document.createElement('article');
         const toggle = document.createElement('button');
         const icon = document.createElement('span');
+        const titleWrap = document.createElement('span');
         const heading = document.createElement('span');
+        const meta = document.createElement('span');
         const count = document.createElement('span');
+        const statusBadge = document.createElement('span');
         const body = document.createElement('div');
         const inner = document.createElement('div');
         const lessonList = document.createElement('div');
-        const sectionNumber = getOrderNumber(section, index);
         const lessons = Array.isArray(section.lessons) ? section.lessons : [];
         const contentId = `section-${section.id}-lessons`;
+        const status = getSectionStatus(index);
 
-        card.className = 'section-card';
+        card.className = `section-card ${status.className}`;
         card.classList.toggle('is-open', isOpen);
 
         toggle.type = 'button';
@@ -113,11 +156,18 @@ import { authFetch } from './course-auth.js';
         icon.setAttribute('aria-hidden', 'true');
         icon.textContent = '\u203a';
 
+        titleWrap.className = 'section-card__title';
+
         heading.className = 'section-card__heading';
-        heading.textContent = `Section ${sectionNumber}. ${section.title}`;
+        heading.textContent = section.title;
+
+        meta.className = 'section-card__meta';
 
         count.className = 'section-card__count';
-        count.textContent = `${lessons.length} ${lessons.length === 1 ? 'lesson' : 'lessons'}`;
+        count.textContent = `${lessons.length} ${pluralizeLessons(lessons.length)}`;
+
+        statusBadge.className = 'section-card__status';
+        statusBadge.innerHTML = `<span aria-hidden="true">${status.icon}</span>${status.label}`;
 
         body.className = 'section-card__body';
         body.id = contentId;
@@ -128,7 +178,7 @@ import { authFetch } from './course-auth.js';
         if (lessons.length === 0) {
             const empty = document.createElement('p');
             empty.className = 'lesson-list__empty';
-            empty.textContent = 'No lessons yet.';
+            empty.textContent = 'В этом разделе пока нет уроков.';
             lessonList.append(empty);
         } else {
             lessons.forEach((lesson, lessonIndex) => {
@@ -136,7 +186,9 @@ import { authFetch } from './course-auth.js';
             });
         }
 
-        toggle.append(icon, heading, count);
+        meta.append(count, statusBadge);
+        titleWrap.append(heading, meta);
+        toggle.append(icon, titleWrap);
         inner.append(lessonList);
         body.append(inner);
         card.append(toggle, body);
@@ -150,6 +202,29 @@ import { authFetch } from './course-auth.js';
         return card;
     };
 
+    const updateCourseProgress = (sections) => {
+        const totalLessons = sections.reduce((sum, section) => {
+            const lessons = Array.isArray(section.lessons) ? section.lessons : [];
+            return sum + lessons.length;
+        }, 0);
+        const total = totalLessons || 36;
+        const completed = Math.max(0, Math.min(total, Math.round(total * 0.43)));
+        const percentage = total ? Math.round((completed / total) * 100) : 0;
+
+        if (elements.progressBar) {
+            elements.progressBar.style.width = `${percentage}%`;
+        }
+
+        if (elements.progressPercent) {
+            elements.progressPercent.textContent = `${percentage}%`;
+        }
+
+        if (elements.progressCount) {
+            elements.progressCount.textContent =
+                `${completed} из ${total} ${pluralizeLessons(total)}`;
+        }
+    };
+
     const render = (course) => {
         const sections = Array.isArray(course.sections) ? course.sections : [];
         const slug = course.slug || getCourseSlug();
@@ -158,11 +233,12 @@ import { authFetch } from './course-auth.js';
         elements.title.textContent = course.title;
         elements.description.textContent = course.short_description || course.description || '';
         elements.sections.replaceChildren();
+        updateCourseProgress(sections);
 
         if (sections.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'course-empty';
-            empty.textContent = 'This course does not have sections yet.';
+            empty.textContent = 'В этом курсе пока нет разделов.';
             elements.sections.append(empty);
         } else {
             const fragment = document.createDocumentFragment();

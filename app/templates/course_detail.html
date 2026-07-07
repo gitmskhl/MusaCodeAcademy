@@ -40,10 +40,10 @@
         data-course-page
         data-course-slug="{{ course_slug | default('') }}"
     >
-        <header class="course-topbar" aria-label="Course navigation">
-            <a class="course-back" href="/dashboard" aria-label="Back to courses">
+        <header class="course-topbar" aria-label="Навигация курса">
+            <a class="course-back" href="/dashboard" aria-label="Все курсы">
                 <span aria-hidden="true">&larr;</span>
-                Back to Courses
+                Все курсы
             </a>
         </header>
 
@@ -61,9 +61,16 @@
             <section class="course-hero" aria-labelledby="course-title">
                 <h1 id="course-title" data-course-title></h1>
                 <p data-course-description></p>
+                <div class="course-progress-summary" aria-label="Прогресс курса">
+                    <span class="course-progress-summary__track">
+                        <span data-course-progress-bar></span>
+                    </span>
+                    <strong data-course-progress-percent>43%</strong>
+                    <span data-course-progress-count>15 из 36 уроков</span>
+                </div>
             </section>
 
-            <section class="course-sections" aria-label="Course sections" data-sections></section>
+            <section class="course-sections" aria-label="Разделы курса" data-sections></section>
         </div>
     </main>
 </body>

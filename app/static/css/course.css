@@ -57,7 +57,7 @@ a {
 .course-page {
     width: min(100% - 48px, 980px);
     margin: 0 auto;
-    padding: 28px 0 72px;
+    padding: 22px 0 64px;
 }
 
 .course-topbar {
@@ -65,7 +65,7 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 }
 
 .course-back {
@@ -122,7 +122,7 @@ a {
 
 .course-hero {
     max-width: 720px;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
 }
 
 .course-hero h1 {
@@ -133,12 +133,43 @@ a {
     line-height: 1.15;
 }
 
-.course-hero p:last-child {
+.course-hero > p {
     max-width: 640px;
     margin: 8px 0 0;
     color: var(--muted);
     font-size: 15px;
     line-height: 1.55;
+}
+
+.course-progress-summary {
+    display: inline-grid;
+    grid-template-columns: minmax(120px, 176px) auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.course-progress-summary__track {
+    display: block;
+    overflow: hidden;
+    height: 8px;
+    border-radius: 999px;
+    background: #e1e6ed;
+}
+
+.course-progress-summary__track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+}
+
+.course-progress-summary strong {
+    color: var(--text);
+    font-size: 13px;
 }
 
 .course-state,
@@ -190,7 +221,7 @@ a {
 
 .course-sections {
     display: grid;
-    gap: 16px;
+    gap: 14px;
 }
 
 .section-card {
@@ -198,7 +229,7 @@ a {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
-    box-shadow: var(--shadow-soft);
+    box-shadow: 0 12px 32px rgba(31, 35, 40, 0.06);
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
@@ -206,16 +237,17 @@ a {
 .section-card:focus-within {
     border-color: var(--border-strong);
     box-shadow: var(--shadow);
+    transform: translateY(-1px);
 }
 
 .section-card__toggle {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
     align-items: center;
     width: 100%;
-    min-height: 74px;
-    padding: 21px 24px;
+    min-height: 82px;
+    padding: 22px 24px;
     color: var(--text);
     background: var(--surface);
     text-align: left;
@@ -225,8 +257,8 @@ a {
 .section-card__icon {
     display: inline-grid;
     place-items: center;
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
     border-radius: 8px;
     color: var(--muted-strong);
     background: var(--surface-soft);
@@ -237,18 +269,64 @@ a {
     transform: rotate(90deg);
 }
 
+.section-card__title {
+    display: grid;
+    gap: 9px;
+    min-width: 0;
+}
+
 .section-card__heading {
     min-width: 0;
-    font-size: 17px;
-    font-weight: 730;
+    font-size: 18px;
+    font-weight: 760;
     line-height: 1.35;
 }
 
+.section-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
 .section-card__count {
+    display: inline-flex;
+    align-items: center;
     color: var(--muted);
     font-size: 13px;
     font-weight: 650;
     white-space: nowrap;
+}
+
+.section-card__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 24px;
+    padding: 3px 9px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted-strong);
+    background: var(--surface-soft);
+    font-size: 12px;
+    font-weight: 720;
+    white-space: nowrap;
+}
+
+.section-card--completed .section-card__status {
+    border-color: rgba(47, 111, 86, 0.16);
+    color: var(--complete);
+    background: var(--complete-soft);
+}
+
+.section-card--current .section-card__status {
+    border-color: transparent;
+    color: #ffffff;
+    background: var(--current);
+}
+
+.section-card--current {
+    border-color: var(--border-strong);
 }
 
 .section-card__body {
@@ -268,7 +346,7 @@ a {
 .lesson-list {
     display: grid;
     gap: 8px;
-    padding: 0 16px 18px 58px;
+    padding: 0 18px 18px 68px;
 }
 
 .lesson-row {
@@ -397,12 +475,12 @@ a {
 @media (max-width: 760px) {
     .course-page {
         width: min(100% - 32px, 980px);
-        padding: 24px 0 52px;
+        padding: 20px 0 52px;
     }
 
     .course-topbar {
         align-items: flex-start;
-        margin-bottom: 22px;
+        margin-bottom: 14px;
     }
 
     .course-progress {
@@ -412,7 +490,7 @@ a {
     }
 
     .section-card__toggle {
-        padding: 19px 20px;
+        padding: 20px;
     }
 
     .lesson-list {
@@ -442,19 +520,20 @@ a {
     }
 
     .course-hero {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
 
-    .course-hero p:last-child {
+    .course-hero > p {
         font-size: 15px;
     }
 
-    .section-card__toggle {
-        grid-template-columns: auto minmax(0, 1fr);
+    .course-progress-summary {
+        grid-template-columns: 1fr auto;
+        width: 100%;
     }
 
-    .section-card__count {
-        grid-column: 2;
+    .course-progress-summary > span:last-child {
+        grid-column: 1 / -1;
     }
 
     .lesson-row {
