@@ -207,6 +207,57 @@ a {
     gap: 16px;
 }
 
+.dashboard-state {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--muted-strong);
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.dashboard-state p {
+    margin: 0;
+}
+
+.dashboard-state--error {
+    border-color: #e3b8b8;
+    color: #7a2f2f;
+    background: #fffafa;
+}
+
+.dashboard-state--empty {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+}
+
+.dashboard-state button,
+.dashboard-state a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 15px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    background: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.dashboard-state button:hover,
+.dashboard-state a:hover {
+    border-color: var(--border-strong);
+    background: var(--accent-soft);
+    transform: translateY(-1px);
+}
+
 .course-card {
     display: grid;
     gap: 18px;
@@ -291,7 +342,9 @@ a {
 }
 
 .primary-action:focus-visible,
-.course-card__button:focus-visible {
+.course-card__button:focus-visible,
+.dashboard-state button:focus-visible,
+.dashboard-state a:focus-visible {
     outline: 3px solid rgba(47, 58, 74, 0.18);
     outline-offset: 3px;
 }

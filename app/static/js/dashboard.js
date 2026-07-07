@@ -1,53 +1,185 @@
-const courses = [
-    {
-        title: 'Python для начинающих',
-        description: 'Основы синтаксиса, переменные, условия и первые небольшие программы.',
-        progress: 62,
-        action: 'Продолжить',
-        href: '/python-basics',
-    },
-    {
-        title: 'Основы HTML и CSS',
-        description: 'Структура страницы, семантическая разметка и аккуратная стилизация интерфейсов.',
-        progress: 34,
-        action: 'Продолжить',
-        href: '/html-css-basics',
-    },
-    {
-        title: 'JavaScript: первый шаг',
-        description: 'Типы данных, функции и работа с элементами страницы без лишней сложности.',
-        progress: 0,
-        action: 'Начать',
-        href: '/javascript-first-step',
-    },
-];
+import { authFetch } from './course-auth.js';
 
-const courseList = document.querySelector('[data-course-list]');
+const messages = Object.freeze({
+    loadingError: 'Не удалось загрузить ваши курсы.',
+    emptyDescription: 'Описание курса пока не добавлено.',
+    notStarted: 'Обучение еще не начато',
+    start: 'Начать',
+    continue: 'Продолжить',
+    progressLabel: 'Прогресс',
+});
+
+const elements = {
+    currentCourse: document.querySelector('[data-current-course]'),
+    currentCourseTitle: document.querySelector('[data-current-course-title]'),
+    currentCoursePercent: document.querySelector('[data-current-course-percent]'),
+    currentCourseProgress: document.querySelector('[data-current-course-progress]'),
+    currentCourseProgressBar: document.querySelector('[data-current-course-progress-bar]'),
+    currentCourseStatus: document.querySelector('[data-current-course-status]'),
+    currentCourseDescription: document.querySelector('[data-current-course-description]'),
+    currentCourseLink: document.querySelector('[data-current-course-link]'),
+    loading: document.querySelector('[data-dashboard-loading]'),
+    error: document.querySelector('[data-dashboard-error]'),
+    errorMessage: document.querySelector('[data-dashboard-error-message]'),
+    retry: document.querySelector('[data-dashboard-retry]'),
+    empty: document.querySelector('[data-dashboard-empty]'),
+    courseList: document.querySelector('[data-course-list]'),
+};
+
+const clampProgress = (value) => {
+    const progress = Number(value ?? 0);
+    if (!Number.isFinite(progress)) {
+        return 0;
+    }
+    return Math.max(0, Math.min(100, Math.round(progress)));
+};
+
+const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}`;
+
+const mapEnrollmentToCourse = (enrollment) => {
+    const course = enrollment.course ?? {};
+    const progress = clampProgress(enrollment.progress_percent);
+
+    return {
+        id: course.id,
+        title: course.title ?? 'Курс',
+        description: course.short_description || course.description || messages.emptyDescription,
+        progress,
+        action: progress > 0 ? messages.continue : messages.start,
+        href: course.slug ? getCourseUrl(course) : '#',
+    };
+};
+
+const setLoading = () => {
+    elements.loading.hidden = false;
+    elements.error.hidden = true;
+    elements.empty.hidden = true;
+    elements.currentCourse.hidden = true;
+    elements.courseList.replaceChildren();
+};
+
+const setError = (message) => {
+    elements.loading.hidden = true;
+    elements.empty.hidden = true;
+    elements.currentCourse.hidden = true;
+    elements.error.hidden = false;
+    elements.errorMessage.textContent = message;
+    elements.courseList.replaceChildren();
+};
+
+const setEmpty = () => {
+    elements.loading.hidden = true;
+    elements.error.hidden = true;
+    elements.empty.hidden = false;
+    elements.currentCourse.hidden = true;
+    elements.courseList.replaceChildren();
+};
+
+const setContent = () => {
+    elements.loading.hidden = true;
+    elements.error.hidden = true;
+    elements.empty.hidden = true;
+};
 
 const createCourseCard = (course) => {
     const article = document.createElement('article');
+    const header = document.createElement('div');
+    const title = document.createElement('h3');
+    const description = document.createElement('p');
+    const progress = document.createElement('div');
+    const meta = document.createElement('div');
+    const label = document.createElement('span');
+    const value = document.createElement('span');
+    const bar = document.createElement('span');
+    const barValue = document.createElement('span');
+    const link = document.createElement('a');
+
     article.className = 'course-card';
 
-    article.innerHTML = `
-        <div>
-            <h3>${course.title}</h3>
-            <p>${course.description}</p>
-        </div>
-        <div class="course-card__progress" aria-label="Прогресс курса ${course.progress} процентов">
-            <div class="course-card__meta">
-                <span>Прогресс</span>
-                <span>${course.progress}%</span>
-            </div>
-            <span class="course-card__bar">
-                <span class="course-card__value" style="width: ${course.progress}%;"></span>
-            </span>
-        </div>
-        <a class="course-card__button" href="${course.href}">${course.action}</a>
-    `;
+    title.textContent = course.title;
+    description.textContent = course.description;
+    header.append(title, description);
 
+    progress.className = 'course-card__progress';
+    progress.setAttribute(
+        'aria-label',
+        `Прогресс курса ${course.progress} процентов`
+    );
+
+    meta.className = 'course-card__meta';
+    label.textContent = messages.progressLabel;
+    value.textContent = `${course.progress}%`;
+    meta.append(label, value);
+
+    bar.className = 'course-card__bar';
+    barValue.className = 'course-card__value';
+    barValue.style.width = `${course.progress}%`;
+    bar.append(barValue);
+    progress.append(meta, bar);
+
+    link.className = 'course-card__button';
+    link.href = course.href;
+    link.textContent = course.action;
+
+    article.append(header, progress, link);
     return article;
 };
 
-courses.forEach((course) => {
-    courseList.append(createCourseCard(course));
-});
+const renderCurrentCourse = (course) => {
+    elements.currentCourseTitle.textContent = course.title;
+    elements.currentCoursePercent.textContent = `${course.progress}%`;
+    elements.currentCourseProgress.setAttribute(
+        'aria-label',
+        `Прогресс курса ${course.progress} процентов`
+    );
+    elements.currentCourseProgressBar.style.width = `${course.progress}%`;
+    elements.currentCourseStatus.textContent =
+        course.progress > 0 ? `${course.progress}% завершено` : messages.notStarted;
+    elements.currentCourseDescription.textContent = course.description;
+    elements.currentCourseLink.href = course.href;
+    elements.currentCourseLink.textContent = course.action === messages.start
+        ? 'Начать обучение'
+        : 'Продолжить обучение';
+    elements.currentCourse.hidden = false;
+};
+
+const renderCourses = (courses) => {
+    const fragment = document.createDocumentFragment();
+    courses.forEach((course) => {
+        fragment.append(createCourseCard(course));
+    });
+    elements.courseList.replaceChildren(fragment);
+    renderCurrentCourse(courses[0]);
+    setContent();
+};
+
+const loadDashboard = async () => {
+    setLoading();
+
+    try {
+        const response = await authFetch('/api/enrollments/me');
+        if (!response.ok) {
+            throw new Error('dashboard-load-failed');
+        }
+
+        const enrollments = await response.json();
+        const courses = Array.isArray(enrollments)
+            ? enrollments.map(mapEnrollmentToCourse).filter((course) => course.id)
+            : [];
+
+        if (courses.length === 0) {
+            setEmpty();
+            return;
+        }
+
+        renderCourses(courses);
+    } catch (error) {
+        if (error instanceof Error && error.message === 'authentication-required') {
+            return;
+        }
+        setError(messages.loadingError);
+    }
+};
+
+elements.retry?.addEventListener('click', loadDashboard);
+document.addEventListener('DOMContentLoaded', loadDashboard);

@@ -37,38 +37,38 @@
 
     <main class="dashboard">
         <section class="dashboard-greeting" aria-labelledby="dashboard-greeting-title">
-            <h1 id="dashboard-greeting-title">Добрый вечер, Муса! 👋</h1>
-            <p>Рады видеть вас снова.</p>
+            <h1 id="dashboard-greeting-title">Панель студента</h1>
+            <p>Ваши курсы и быстрый переход к обучению.</p>
         </section>
 
-        <section class="learning-hero" aria-labelledby="current-course-title">
+        <section class="learning-hero" aria-labelledby="current-course-title" data-current-course hidden>
             <div class="learning-hero__content">
                 <div class="current-course" aria-label="Текущий курс">
                     <div>
                         <p class="current-course__label">Текущий курс</p>
-                        <h2 id="current-course-title">Python для начинающих</h2>
+                        <h2 id="current-course-title" data-current-course-title></h2>
                     </div>
-                    <span class="current-course__percent">62%</span>
+                    <span class="current-course__percent" data-current-course-percent>0%</span>
                 </div>
 
-                <div class="progress" aria-label="Прогресс курса 62 процента">
+                <div class="progress" data-current-course-progress aria-label="Прогресс курса 0 процентов">
                     <span class="progress__bar">
-                        <span class="progress__value" style="width: 62%;"></span>
+                        <span class="progress__value" data-current-course-progress-bar style="width: 0%;"></span>
                     </span>
                 </div>
 
                 <dl class="lesson-summary">
                     <div>
-                        <dt>Текущий урок</dt>
-                        <dd>Условия и ветвления</dd>
+                        <dt>Статус</dt>
+                        <dd data-current-course-status></dd>
                     </div>
                     <div>
-                        <dt>Следующий шаг</dt>
-                        <dd>Практика: простая проверка возраста</dd>
+                        <dt>Курс</dt>
+                        <dd data-current-course-description></dd>
                     </div>
                 </dl>
 
-                <a class="primary-action" href="/python-basics">Продолжить обучение</a>
+                <a class="primary-action" href="#" data-current-course-link>Начать обучение</a>
             </div>
         </section>
 
@@ -76,9 +76,23 @@
             <div class="section-heading">
                 <h2 id="courses-title">Мои курсы</h2>
             </div>
+
+            <div class="dashboard-state" data-dashboard-loading role="status">
+                Загружаем ваши курсы...
+            </div>
+
+            <div class="dashboard-state dashboard-state--error" data-dashboard-error role="alert" hidden>
+                <p data-dashboard-error-message>Не удалось загрузить курсы.</p>
+                <button type="button" data-dashboard-retry>Повторить</button>
+            </div>
+
+            <div class="dashboard-state dashboard-state--empty" data-dashboard-empty hidden>
+                <p>У вас пока нет записей на курсы.</p>
+                <p>Откройте страницу нужного курса и запишитесь на него.</p>
+            </div>
+
             <div class="course-grid" data-course-list></div>
         </section>
     </main>
-
 </body>
 </html>
