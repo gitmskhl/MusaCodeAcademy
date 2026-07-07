@@ -4,25 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель студента | Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
     <script type="module" src="{{ url_for('static', path='js/dashboard.js') }}"></script>
 </head>
 <body>
-    <header class="site-header">
-        <div class="site-header__inner">
-            <a class="brand" href="/dashboard" aria-label="Musa Code Academy">
-                <span class="brand__mark" aria-hidden="true">M</span>
+    <header class="app-header">
+        <div class="app-header__inner">
+            <a class="app-header__brand" href="/dashboard" aria-label="Musa Code Academy">
+                <span class="app-header__mark" aria-hidden="true">M</span>
                 <span>Musa Code Academy</span>
             </a>
 
-            <nav class="main-nav" aria-label="Основная навигация">
-                <a class="main-nav__link is-active" href="/dashboard" aria-current="page">Главная</a>
-                <a class="main-nav__link" href="#courses-title">Курсы</a>
-            </nav>
-
-            <button class="profile-button" type="button" aria-label="Профиль студента">
-                <span class="profile-button__avatar" aria-hidden="true">АК</span>
-            </button>
+            <div class="app-header__profile" data-app-profile>
+                <button
+                    class="app-header__profile-button"
+                    type="button"
+                    aria-label="Открыть меню профиля"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    data-app-profile-button
+                >М</button>
+                <div class="app-header__menu" role="menu">
+                    <a class="app-header__menu-item" href="#" role="menuitem">Профиль</a>
+                    <a class="app-header__menu-item" href="#" role="menuitem">Настройки</a>
+                    <button class="app-header__menu-item" type="button" role="menuitem">Выйти</button>
+                </div>
+            </div>
         </div>
     </header>
 
