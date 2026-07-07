@@ -16,6 +16,34 @@ const elements = {
 
 const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}`;
 
+const fetchJson = async (url) => {
+    const response = await authFetch(url);
+    if (!response.ok) {
+        throw new Error(`courses-load-failed:${response.status}`);
+    }
+    return response.json();
+};
+
+const loadCourseList = async () => {
+    const urls = [
+        '/api/courses',
+        '/api/courses/',
+        '/api/courses/admin',
+    ];
+    let lastError;
+
+    for (const url of urls) {
+        try {
+            return await fetchJson(url);
+        } catch (error) {
+            lastError = error;
+            console.warn(`Could not load courses from ${url}.`, error);
+        }
+    }
+
+    throw lastError ?? new Error('courses-load-failed');
+};
+
 const setLoading = () => {
     elements.loading.hidden = false;
     elements.error.hidden = true;
@@ -76,14 +104,9 @@ const loadCourses = async () => {
     setLoading();
 
     try {
-        const response = await authFetch('/api/courses');
-        if (!response.ok) {
-            throw new Error('courses-load-failed');
-        }
-
-        const courses = await response.json();
+        const courses = await loadCourseList();
         const publishedCourses = Array.isArray(courses)
-            ? courses.filter((course) => course.id)
+            ? courses.filter((course) => course.id && course.is_published !== false)
             : [];
 
         if (publishedCourses.length === 0) {
@@ -96,6 +119,7 @@ const loadCourses = async () => {
         if (error instanceof Error && error.message === 'authentication-required') {
             return;
         }
+        console.warn('Could not load courses.', error);
         setError(messages.loadingError);
     }
 };
