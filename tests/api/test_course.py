@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
 
-from app.models import Section
+from app.models import Lesson, Section
 
 
 PUBLIC_COURSE_FIELDS = {
@@ -26,6 +26,21 @@ PUBLIC_SECTION_FIELDS = {
 ADMIN_SECTION_FIELDS = PUBLIC_SECTION_FIELDS | {
     "created_at",
     "updated_at",
+}
+COURSE_INFO_FIELDS = PUBLIC_COURSE_FIELDS | {
+    "sections",
+}
+SECTION_SHORT_INFO_FIELDS = {
+    "id",
+    "title",
+    "description",
+    "order",
+    "lessons",
+}
+LESSON_SHORT_INFO_FIELDS = {
+    "id",
+    "title",
+    "order",
 }
 
 
@@ -56,6 +71,26 @@ async def create_section(
     await db.commit()
     await db.refresh(section)
     return section
+
+
+async def create_lesson(
+    db,
+    *,
+    section_id,
+    title="Test lesson",
+    description="Detailed lesson description",
+    order=0,
+):
+    lesson = Lesson(
+        section_id=section_id,
+        title=title,
+        description=description,
+        order=order,
+    )
+    db.add(lesson)
+    await db.commit()
+    await db.refresh(lesson)
+    return lesson
 
 
 # POST /api/courses
@@ -203,6 +238,7 @@ async def test_create_course_requires_all_fields(client, admin_headers):
     "path",
     [
         "/api/courses",
+        "/api/courses/slug/python",
         "/api/courses/1",
         "/api/courses/1/sections",
         "/api/sections/1",
@@ -249,6 +285,126 @@ async def test_get_courses_returns_only_published_courses(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == 1
     assert_public_course(response.json()[0], published)
+
+
+# GET /api/courses/slug/{course_slug}
+
+
+@pytest.mark.asyncio
+async def test_get_course_page_returns_course_sections_and_lessons(
+    client,
+    course_factory,
+    db,
+    auth_headers,
+):
+    course = await course_factory(
+        slug="python-basics",
+        title="Python basics",
+        is_published=True,
+    )
+    second_section = await create_section(
+        db,
+        course_id=course.id,
+        title="Second section",
+        order=1,
+    )
+    first_section = await create_section(
+        db,
+        course_id=course.id,
+        title="First section",
+        order=0,
+    )
+    second_lesson = await create_lesson(
+        db,
+        section_id=first_section.id,
+        title="Second lesson",
+        order=1,
+    )
+    first_lesson = await create_lesson(
+        db,
+        section_id=first_section.id,
+        title="First lesson",
+        order=0,
+    )
+    await create_lesson(
+        db,
+        section_id=second_section.id,
+        title="Another lesson",
+        order=0,
+    )
+
+    response = await client.get(
+        "/api/courses/slug/PYTHON-BASICS",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert set(data) == COURSE_INFO_FIELDS
+    assert data["id"] == course.id
+    assert data["title"] == "Python basics"
+    assert data["slug"] == "python-basics"
+    assert [section["id"] for section in data["sections"]] == [
+        first_section.id,
+        second_section.id,
+    ]
+    assert all(set(section) == SECTION_SHORT_INFO_FIELDS for section in data["sections"])
+    assert [lesson["id"] for lesson in data["sections"][0]["lessons"]] == [
+        first_lesson.id,
+        second_lesson.id,
+    ]
+    assert all(
+        set(lesson) == LESSON_SHORT_INFO_FIELDS
+        for section in data["sections"]
+        for lesson in section["lessons"]
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_course_page_returns_empty_sections(
+    client,
+    course_factory,
+    auth_headers,
+):
+    course = await course_factory(slug="empty-course", is_published=True)
+
+    response = await client.get(
+        f"/api/courses/slug/{course.slug}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["id"] == course.id
+    assert data["sections"] == []
+
+
+@pytest.mark.asyncio
+async def test_get_course_page_hides_draft(
+    client,
+    course_factory,
+    auth_headers,
+):
+    await course_factory(slug="draft-course", is_published=False)
+
+    response = await client.get(
+        "/api/courses/slug/draft-course",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Course not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_course_page_not_found(client, auth_headers):
+    response = await client.get(
+        "/api/courses/slug/missing-course",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Course not found"}
 
 
 # GET /api/courses/{course_id}

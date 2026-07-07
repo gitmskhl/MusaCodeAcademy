@@ -42,3 +42,11 @@ class LessonOrderUpdate(BaseModel):
     
 class LessonOrderUpdateList(BaseModel):
     lessons: list[LessonOrderUpdate]
+
+
+class LessonShortInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    title: str
+    order: int

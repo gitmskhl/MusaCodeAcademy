@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException
 from app.models.course import Course
-from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate, CourseAdmin
+from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate, CourseAdmin, CourseInfo
 from app.schemas.section import SectionPublic, SectionAdmin, SectionCreate
 from app.api.dependencies import CurrentUser, OnlyAdmin, DBSession
 from app.services import course as service_course
@@ -34,6 +34,10 @@ async def get_courses(_: CurrentUser, db: DBSession):
 @router.post('', response_model=CoursePublic, status_code=status.HTTP_201_CREATED)
 async def create_course(courseInfo: CourseCreate, admin: OnlyAdmin, db: DBSession):
     return await service_course.create_course(courseInfo, db)
+
+@router.get('/slug/{course_slug}', response_model=CourseInfo)
+async def get_course_page(course_slug: str, _: CurrentUser, db: DBSession):
+    return await service_course.get_published_course_page(course_slug, db)
 
 # ---------------------------------- /api/courses/{id} -----------------------------------------
 

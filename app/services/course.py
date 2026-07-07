@@ -2,8 +2,10 @@ from typing import Sequence
 from fastapi import status, HTTPException
 from sqlalchemy import exists, select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 from app.models.course import Course
-from app.schemas.course import CourseCreate, CourseUpdate
+from app.models.section import Section
+from app.schemas.course import CourseCreate, CourseUpdate, CourseInfo
 from app.api.dependencies import DBSession
 
 
@@ -131,3 +133,24 @@ async def delete_course(course_id: int, db: DBSession):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the course"
         )
+
+
+async def get_published_course_page(course_slug: str, db: DBSession) -> CourseInfo:
+    result = await db.execute(
+        select(Course)
+        .options(
+            selectinload(Course.sections)
+            .selectinload(Section.lessons)
+        )
+        .where(
+            Course.slug == course_slug.lower(),
+            Course.is_published == True
+        )
+    )
+    course = result.scalars().first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    return CourseInfo.model_validate(course)

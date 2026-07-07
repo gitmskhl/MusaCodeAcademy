@@ -4,9 +4,50 @@ import pytest
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
+from app.models import Lesson, Section
 from app.models.course import Course
 from app.schemas.course import CourseCreate, CourseUpdate
 from app.services import course as service_course
+
+
+async def create_section(
+    db,
+    *,
+    course_id: int,
+    title: str = "Test section",
+    description: str | None = "Test section description",
+    order: int = 0,
+) -> Section:
+    section = Section(
+        course_id=course_id,
+        title=title,
+        description=description,
+        order=order,
+    )
+    db.add(section)
+    await db.commit()
+    await db.refresh(section)
+    return section
+
+
+async def create_lesson(
+    db,
+    *,
+    section_id: int,
+    title: str = "Test lesson",
+    description: str | None = "Test lesson description",
+    order: int = 0,
+) -> Lesson:
+    lesson = Lesson(
+        section_id=section_id,
+        title=title,
+        description=description,
+        order=order,
+    )
+    db.add(lesson)
+    await db.commit()
+    await db.refresh(lesson)
+    return lesson
 
 
 @pytest.mark.asyncio
@@ -165,6 +206,108 @@ async def test_get_published_course_info_rejects_draft(course_factory, db):
 
     assert exc.value.status_code == status.HTTP_403_FORBIDDEN
     assert exc.value.detail == "Course is not published"
+
+
+@pytest.mark.asyncio
+async def test_get_published_course_page_returns_course_sections_and_lessons(
+    course_factory,
+    db,
+):
+    course = await course_factory(
+        slug="python-basics",
+        title="Python basics",
+        is_published=True,
+    )
+    second_section = await create_section(
+        db,
+        course_id=course.id,
+        title="Second section",
+        order=1,
+    )
+    first_section = await create_section(
+        db,
+        course_id=course.id,
+        title="First section",
+        order=0,
+    )
+    second_lesson = await create_lesson(
+        db,
+        section_id=first_section.id,
+        title="Second lesson",
+        order=1,
+    )
+    first_lesson = await create_lesson(
+        db,
+        section_id=first_section.id,
+        title="First lesson",
+        order=0,
+    )
+    await create_lesson(
+        db,
+        section_id=second_section.id,
+        title="Another lesson",
+        order=0,
+    )
+
+    result = await service_course.get_published_course_page(
+        course_slug="PYTHON-BASICS",
+        db=db,
+    )
+
+    assert result.id == course.id
+    assert result.title == "Python basics"
+    assert result.slug == "python-basics"
+    assert [section.id for section in result.sections] == [
+        first_section.id,
+        second_section.id,
+    ]
+    assert [lesson.id for lesson in result.sections[0].lessons] == [
+        first_lesson.id,
+        second_lesson.id,
+    ]
+    assert result.sections[0].lessons[0].title == "First lesson"
+
+
+@pytest.mark.asyncio
+async def test_get_published_course_page_returns_empty_sections(
+    course_factory,
+    db,
+):
+    course = await course_factory(slug="empty-course", is_published=True)
+
+    result = await service_course.get_published_course_page(
+        course_slug=course.slug,
+        db=db,
+    )
+
+    assert result.id == course.id
+    assert result.sections == []
+
+
+@pytest.mark.asyncio
+async def test_get_published_course_page_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await service_course.get_published_course_page(
+            course_slug="missing-course",
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_get_published_course_page_hides_draft(course_factory, db):
+    await course_factory(slug="draft-course", is_published=False)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_course.get_published_course_page(
+            course_slug="draft-course",
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
-
+from .lesson import LessonShortInfo
 
 class SectionPublic(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -41,3 +41,13 @@ class SectionOrderUpdate(BaseModel):
     
 class SectionOrderUpdateList(BaseModel):
     sections: list[SectionOrderUpdate]
+
+
+class SectionShortInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    title: str
+    description: str | None
+    order: int
+    lessons: list[LessonShortInfo] = Field(default_factory=list)
