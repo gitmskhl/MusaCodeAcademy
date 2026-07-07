@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Все курсы | Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/courses.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
+    <script type="module" src="{{ url_for('static', path='js/courses.js') }}"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="app-header__inner">
+            <a class="app-header__brand" href="/dashboard" aria-label="Musa Code Academy">
+                <span class="app-header__mark" aria-hidden="true">M</span>
+                <span>Musa Code Academy</span>
+            </a>
+
+            <div class="app-header__profile" data-app-profile>
+                <button
+                    class="app-header__profile-button"
+                    type="button"
+                    aria-label="Открыть меню профиля"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    data-app-profile-button
+                >М</button>
+                <div class="app-header__menu" role="menu">
+                    <a class="app-header__menu-item" href="#" role="menuitem">Профиль</a>
+                    <a class="app-header__menu-item" href="#" role="menuitem">Настройки</a>
+                    <button class="app-header__menu-item" type="button" role="menuitem">Выйти</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="courses-page">
+        <header class="courses-header">
+            <a class="courses-back" href="/dashboard">
+                <span aria-hidden="true">&larr;</span>
+                Назад в кабинет
+            </a>
+            <div>
+                <h1>Все курсы</h1>
+                <p>Выберите направление и начните обучение в удобном темпе.</p>
+            </div>
+        </header>
+
+        <div class="courses-state" data-courses-loading role="status">
+            Загружаем курсы...
+        </div>
+
+        <div class="courses-state courses-state--error" data-courses-error role="alert" hidden>
+            <p data-courses-error-message>Не удалось загрузить курсы.</p>
+            <button type="button" data-courses-retry>Повторить</button>
+        </div>
+
+        <div class="courses-state courses-state--empty" data-courses-empty hidden>
+            Сейчас нет доступных курсов.
+        </div>
+
+        <section class="courses-grid" aria-label="Список курсов" data-courses-list></section>
+    </main>
+</body>
+</html>

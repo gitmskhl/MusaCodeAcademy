@@ -86,6 +86,14 @@ async def dashboard_page(request: Request):
     )
 
 
+@router.get("/courses", response_class=HTMLResponse, include_in_schema=False)
+async def courses_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "courses.html"
+    )
+
+
 @router.get("/{course_slug}", response_class=HTMLResponse, include_in_schema=False)
 async def course_page(
     request: Request,
