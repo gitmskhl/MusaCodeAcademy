@@ -309,7 +309,7 @@ a {
     position: relative;
     display: grid;
     grid-template-columns: 38px minmax(0, 1fr);
-    gap: 16px;
+    gap: 10px;
     padding: 0 0 26px;
     color: var(--muted);
     transition: transform 180ms ease;

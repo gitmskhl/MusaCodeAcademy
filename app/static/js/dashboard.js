@@ -1,4 +1,4 @@
-import { authFetch } from './course-auth.js';
+import { authFetch, requireCurrentUser } from './course-auth.js';
 
 const messages = Object.freeze({
     loadingError: 'Не удалось загрузить ваши курсы.',
@@ -10,6 +10,7 @@ const messages = Object.freeze({
 });
 
 const elements = {
+    greetingTitle: document.querySelector('[data-dashboard-greeting-title]'),
     currentCourse: document.querySelector('[data-current-course]'),
     currentCourseTitle: document.querySelector('[data-current-course-title]'),
     currentCoursePercent: document.querySelector('[data-current-course-percent]'),
@@ -24,6 +25,26 @@ const elements = {
     retry: document.querySelector('[data-dashboard-retry]'),
     empty: document.querySelector('[data-dashboard-empty]'),
     courseList: document.querySelector('[data-course-list]'),
+};
+
+const getUserDisplayName = (user) => {
+    const firstName = typeof user?.first_name === 'string' ? user.first_name.trim() : '';
+    const lastName = typeof user?.last_name === 'string' ? user.last_name.trim() : '';
+
+    return [firstName, lastName].filter(Boolean).join(' ');
+};
+
+const loadGreeting = async () => {
+    try {
+        const displayName = getUserDisplayName(await requireCurrentUser());
+        if (displayName && elements.greetingTitle) {
+            elements.greetingTitle.textContent = `Добро пожаловать, ${displayName}! 👋`;
+        }
+    } catch (error) {
+        if (error instanceof Error && error.message === 'authentication-required') {
+            return;
+        }
+    }
 };
 
 const clampProgress = (value) => {
@@ -182,4 +203,7 @@ const loadDashboard = async () => {
 };
 
 elements.retry?.addEventListener('click', loadDashboard);
-document.addEventListener('DOMContentLoaded', loadDashboard);
+document.addEventListener('DOMContentLoaded', () => {
+    loadGreeting();
+    loadDashboard();
+});
