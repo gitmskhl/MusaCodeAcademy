@@ -1,17 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <script type="module">
-        import { requireCurrentUser } from "{{ url_for('static', path='js/course-auth.js') }}";
-        requireCurrentUser().catch(() => {});
-    </script>
+    <title>Панель студента | Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/dashboard.js') }}"></script>
 </head>
 <body>
-    
-    <h1>Dashboard</h1>
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a class="brand" href="/dashboard" aria-label="Musa Code Academy">
+                <span class="brand__mark" aria-hidden="true">M</span>
+                <span>Musa Code Academy</span>
+            </a>
+
+            <nav class="main-nav" aria-label="Основная навигация">
+                <a class="main-nav__link is-active" href="/dashboard" aria-current="page">Главная</a>
+                <a class="main-nav__link" href="#courses-title">Курсы</a>
+            </nav>
+
+            <button class="profile-button" type="button" aria-label="Профиль студента">
+                <span class="profile-button__avatar" aria-hidden="true">АК</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard">
+        <section class="learning-hero" aria-labelledby="dashboard-title">
+            <div class="learning-hero__content">
+                <p class="learning-hero__eyebrow">Добро пожаловать!</p>
+                <h1 id="dashboard-title">Продолжайте обучение с того места, где остановились</h1>
+
+                <div class="current-course" aria-label="Текущий курс">
+                    <div>
+                        <p class="current-course__label">Текущий курс</p>
+                        <h2>Python для начинающих</h2>
+                    </div>
+                    <span class="current-course__percent">62%</span>
+                </div>
+
+                <div class="progress" aria-label="Прогресс курса 62 процента">
+                    <span class="progress__bar">
+                        <span class="progress__value" style="width: 62%;"></span>
+                    </span>
+                </div>
+
+                <dl class="lesson-summary">
+                    <div>
+                        <dt>Текущий урок</dt>
+                        <dd>Условия и ветвления</dd>
+                    </div>
+                    <div>
+                        <dt>Следующий шаг</dt>
+                        <dd>Практика: простая проверка возраста</dd>
+                    </div>
+                </dl>
+
+                <a class="primary-action" href="/python-basics">Продолжить обучение</a>
+            </div>
+        </section>
+
+        <section class="dashboard-section" aria-labelledby="courses-title">
+            <div class="section-heading">
+                <h2 id="courses-title">Мои курсы</h2>
+            </div>
+            <div class="course-grid" data-course-list></div>
+        </section>
+
+        <section class="dashboard-section dashboard-section--compact" aria-labelledby="activity-title">
+            <div class="section-heading">
+                <h2 id="activity-title">Недавняя активность</h2>
+            </div>
+            <ul class="activity-list" data-activity-list></ul>
+        </section>
+    </main>
 
 </body>
 </html>
