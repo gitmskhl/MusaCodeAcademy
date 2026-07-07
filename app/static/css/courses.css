@@ -189,6 +189,10 @@ a {
     text-align: center;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 .courses-back:focus-visible,
 .courses-card__link:focus-visible,
 .courses-state button:focus-visible {
