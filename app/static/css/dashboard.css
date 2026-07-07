@@ -234,6 +234,106 @@ a {
     justify-items: start;
 }
 
+.empty-state__browse {
+    justify-self: center;
+    margin-top: 4px;
+}
+
+.journey {
+    width: min(100%, 620px);
+    margin: 30px auto 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+}
+
+.journey h3 {
+    margin: 0 0 20px;
+    color: var(--muted-strong);
+    font-size: 17px;
+    font-weight: 740;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.journey__steps {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.journey__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 16px;
+    padding: 0 0 26px;
+    color: var(--muted);
+    transition: transform 180ms ease;
+}
+
+.journey__step:last-child {
+    padding-bottom: 0;
+}
+
+.journey__step::after {
+    content: "";
+    position: absolute;
+    top: 38px;
+    bottom: 0;
+    left: 18px;
+    width: 1px;
+    background: var(--border);
+}
+
+.journey__step:last-child::after {
+    display: none;
+}
+
+.journey__step:hover {
+    transform: translateX(3px);
+}
+
+.journey__number {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    color: var(--accent);
+    background: var(--surface-muted);
+    font-size: 14px;
+    font-weight: 760;
+    line-height: 1;
+    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.journey__step:hover .journey__number {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    transform: scale(1.04);
+}
+
+.journey__step h4 {
+    margin: 1px 0 5px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 720;
+    line-height: 1.35;
+}
+
+.journey__step p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
 .dashboard-state button,
 .dashboard-state a {
     display: inline-flex;
