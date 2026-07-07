@@ -22,23 +22,7 @@ const courses = [
     },
 ];
 
-const activities = [
-    {
-        label: 'Завершен шаг',
-        title: 'Переменные',
-    },
-    {
-        label: 'Завершен урок',
-        title: 'Типы данных',
-    },
-    {
-        label: 'Начат курс',
-        title: 'Python',
-    },
-];
-
 const courseList = document.querySelector('[data-course-list]');
-const activityList = document.querySelector('[data-activity-list]');
 
 const createCourseCard = (course) => {
     const article = document.createElement('article');
@@ -64,24 +48,6 @@ const createCourseCard = (course) => {
     return article;
 };
 
-const createActivityItem = (activity) => {
-    const item = document.createElement('li');
-    item.className = 'activity-item';
-    item.innerHTML = `
-        <span class="activity-item__icon" aria-hidden="true">✓</span>
-        <span>
-            <p>${activity.label}</p>
-            <strong>"${activity.title}"</strong>
-        </span>
-    `;
-
-    return item;
-};
-
 courses.forEach((course) => {
     courseList.append(createCourseCard(course));
-});
-
-activities.forEach((activity) => {
-    activityList.append(createActivityItem(activity));
 });

@@ -27,15 +27,17 @@
     </header>
 
     <main class="dashboard">
-        <section class="learning-hero" aria-labelledby="dashboard-title">
-            <div class="learning-hero__content">
-                <p class="learning-hero__eyebrow">Добро пожаловать!</p>
-                <h1 id="dashboard-title">Продолжайте обучение с того места, где остановились</h1>
+        <section class="dashboard-greeting" aria-labelledby="dashboard-greeting-title">
+            <h1 id="dashboard-greeting-title">Добрый вечер, Муса! 👋</h1>
+            <p>Рады видеть вас снова.</p>
+        </section>
 
+        <section class="learning-hero" aria-labelledby="current-course-title">
+            <div class="learning-hero__content">
                 <div class="current-course" aria-label="Текущий курс">
                     <div>
                         <p class="current-course__label">Текущий курс</p>
-                        <h2>Python для начинающих</h2>
+                        <h2 id="current-course-title">Python для начинающих</h2>
                     </div>
                     <span class="current-course__percent">62%</span>
                 </div>
@@ -66,13 +68,6 @@
                 <h2 id="courses-title">Мои курсы</h2>
             </div>
             <div class="course-grid" data-course-list></div>
-        </section>
-
-        <section class="dashboard-section dashboard-section--compact" aria-labelledby="activity-title">
-            <div class="section-heading">
-                <h2 id="activity-title">Недавняя активность</h2>
-            </div>
-            <ul class="activity-list" data-activity-list></ul>
         </section>
     </main>
 

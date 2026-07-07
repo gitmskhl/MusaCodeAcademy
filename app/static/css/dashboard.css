@@ -154,8 +154,27 @@ a {
     padding: 46px 0 76px;
 }
 
+.dashboard-greeting {
+    margin-bottom: 22px;
+}
+
+.dashboard-greeting h1 {
+    margin: 0 0 6px;
+    color: var(--text);
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 760;
+    line-height: 1.18;
+}
+
+.dashboard-greeting p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
 .learning-hero {
-    margin-bottom: 46px;
+    margin-bottom: 42px;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
@@ -166,22 +185,6 @@ a {
     display: grid;
     gap: 24px;
     padding: clamp(28px, 5vw, 54px);
-}
-
-.learning-hero__eyebrow {
-    margin: 0;
-    color: var(--muted);
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.learning-hero h1 {
-    max-width: 760px;
-    margin: -8px 0 4px;
-    color: var(--text);
-    font-size: clamp(34px, 5vw, 56px);
-    font-weight: 780;
-    line-height: 1.04;
 }
 
 .current-course {
@@ -279,10 +282,6 @@ a {
 
 .dashboard-section {
     margin-top: 44px;
-}
-
-.dashboard-section--compact {
-    max-width: 760px;
 }
 
 .section-heading {
@@ -385,52 +384,6 @@ a {
     transform: translateY(-1px);
 }
 
-.activity-list {
-    display: grid;
-    gap: 10px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.activity-item {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 12px;
-    align-items: start;
-    padding: 16px 18px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    box-shadow: var(--shadow-soft);
-}
-
-.activity-item__icon {
-    display: inline-grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    color: var(--complete);
-    background: #eef7f2;
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.activity-item p {
-    margin: 1px 0 4px;
-    color: var(--muted-strong);
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.activity-item strong {
-    display: block;
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.4;
-}
-
 .brand:focus-visible,
 .main-nav__link:focus-visible,
 .profile-button:focus-visible,
@@ -503,10 +456,6 @@ a {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    .learning-hero h1 {
-        font-size: 32px;
     }
 
     .learning-hero__content,
