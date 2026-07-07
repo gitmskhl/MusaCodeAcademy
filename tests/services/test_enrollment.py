@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi import HTTPException, status
@@ -36,7 +36,7 @@ async def create_enrollment(
     enrollment = Enrollment(
         user_id=user_id,
         course_id=course_id,
-        created_at=created_at or datetime.utcnow(),
+        created_at=created_at or datetime.now(UTC),
     )
     db.add(enrollment)
     await db.commit()
@@ -121,7 +121,7 @@ async def test_get_user_enrollments_returns_only_user_courses(course_factory, db
     newer_course = await course_factory(slug="newer-course", is_published=True)
     other_course = await course_factory(slug="other-course", is_published=True)
 
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     older = await create_enrollment(
         db,
         user_id=user.id,

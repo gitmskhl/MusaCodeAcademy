@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -35,7 +35,7 @@ class Enrollment(Base):
         index=True,
     )
 
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
 
     user: Mapped["User"] = relationship(back_populates="enrollments")
     course: Mapped["Course"] = relationship(back_populates="enrollments")
