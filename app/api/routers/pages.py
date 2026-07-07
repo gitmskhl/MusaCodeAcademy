@@ -78,6 +78,14 @@ async def admin_step_editor_page(request: Request, step_id: int):
     )
 
 
+@router.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
+async def dashboard_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "dashboard.html"
+    )
+
+
 @router.get("/{course_slug}", response_class=HTMLResponse, include_in_schema=False)
 async def course_page(
     request: Request,
