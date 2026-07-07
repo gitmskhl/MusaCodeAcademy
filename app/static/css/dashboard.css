@@ -54,6 +54,15 @@ a {
     text-decoration: none;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
 .dashboard {
     width: min(100% - 48px, 1120px);
     margin: 0 auto;
@@ -61,11 +70,12 @@ a {
 }
 
 .dashboard-greeting {
-    margin-bottom: 22px;
+    margin-bottom: 42px;
+    text-align: center;
 }
 
 .dashboard-greeting h1 {
-    margin: 0 0 6px;
+    margin: 0 0 10px;
     color: var(--text);
     font-size: clamp(22px, 3vw, 30px);
     font-weight: 760;
@@ -75,7 +85,7 @@ a {
 .dashboard-greeting p {
     margin: 0;
     color: var(--muted);
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.5;
 }
 
@@ -187,7 +197,7 @@ a {
 }
 
 .dashboard-section {
-    margin-top: 44px;
+    margin-top: 52px;
 }
 
 .section-heading {
@@ -230,20 +240,52 @@ a {
 
 .dashboard-state--empty {
     display: grid;
-    gap: 14px;
-    justify-items: start;
+    gap: 22px;
+    justify-items: center;
+    padding: clamp(34px, 6vw, 58px) 24px;
+    text-align: center;
+}
+
+.empty-state__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 68px;
+    height: 68px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: var(--surface-muted);
+    box-shadow: 0 10px 24px rgba(31, 35, 40, 0.04);
+    font-size: 34px;
+    line-height: 1;
+}
+
+.empty-state__content {
+    display: grid;
+    gap: 8px;
+    max-width: 520px;
+}
+
+.empty-state__title {
+    color: var(--text);
+    font-size: 19px;
+    font-weight: 740;
+    line-height: 1.35;
+}
+
+.empty-state__text {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
 }
 
 .empty-state__browse {
     justify-self: center;
-    margin-top: 4px;
 }
 
 .journey {
     width: min(100%, 620px);
-    margin: 30px auto 0;
-    padding-top: 22px;
-    border-top: 1px solid var(--border);
+    margin: 42px auto 0;
 }
 
 .journey h3 {
@@ -356,6 +398,26 @@ a {
     border-color: var(--border-strong);
     background: var(--accent-soft);
     transform: translateY(-1px);
+}
+
+.dashboard-state--empty .empty-state__browse {
+    min-height: 50px;
+    gap: 9px;
+    padding: 0 22px;
+    border-color: var(--accent);
+    border-radius: 13px;
+    color: #ffffff;
+    background: var(--accent);
+    box-shadow: 0 12px 24px rgba(47, 58, 74, 0.18);
+    font-size: 15px;
+    font-weight: 760;
+}
+
+.dashboard-state--empty .empty-state__browse:hover {
+    border-color: var(--accent-hover);
+    background: var(--accent-hover);
+    box-shadow: 0 16px 32px rgba(47, 58, 74, 0.24);
+    transform: translateY(-3px);
 }
 
 .course-card {

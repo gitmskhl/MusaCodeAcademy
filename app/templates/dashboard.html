@@ -36,6 +36,11 @@
     </header>
 
     <main class="dashboard">
+        <section class="dashboard-greeting" aria-labelledby="dashboard-greeting-title">
+            <h1 id="dashboard-greeting-title">Добро пожаловать! 👋</h1>
+            <p>Рады видеть вас в Musa Code Academy.</p>
+        </section>
+
         <section class="learning-hero" aria-labelledby="current-course-title" data-current-course hidden>
             <div class="learning-hero__content">
                 <div class="current-course" aria-label="Текущий курс">
@@ -68,9 +73,7 @@
         </section>
 
         <section class="dashboard-section" aria-labelledby="courses-title">
-            <div class="section-heading">
-                <h2 id="courses-title">Мои курсы</h2>
-            </div>
+            <h2 class="visually-hidden" id="courses-title">Курсы</h2>
 
             <div class="dashboard-state" data-dashboard-loading role="status">
                 Загружаем ваши курсы...
@@ -82,9 +85,15 @@
             </div>
 
             <div class="dashboard-state dashboard-state--empty" data-dashboard-empty hidden>
-                <p>У вас пока нет записей на курсы.</p>
-                <p>Откройте страницу нужного курса и запишитесь на него.</p>
-                <a class="empty-state__browse" href="/dashboard">Выбрать курс</a>
+                <div class="empty-state__icon" aria-hidden="true">📚</div>
+                <div class="empty-state__content">
+                    <p class="empty-state__title">У вас пока нет активных курсов.</p>
+                    <p class="empty-state__text">Выберите первый курс и начните учиться уже сегодня.</p>
+                </div>
+                <a class="empty-state__browse" href="/dashboard">
+                    <span aria-hidden="true">📖</span>
+                    <span>Выбрать курс</span>
+                </a>
 
                 <section class="journey" aria-labelledby="journey-title">
                     <h3 id="journey-title">Ваш путь</h3>
@@ -93,28 +102,28 @@
                             <span class="journey__number" aria-hidden="true">1</span>
                             <div>
                                 <h4>Выберите курс</h4>
-                                <p>Посмотрите доступные курсы и запишитесь на тот, который вам интересен.</p>
+                                <p>Найдите курс, который вам интересен.</p>
                             </div>
                         </li>
                         <li class="journey__step">
                             <span class="journey__number" aria-hidden="true">2</span>
                             <div>
                                 <h4>Изучайте уроки</h4>
-                                <p>Двигайтесь шаг за шагом через теорию, примеры и практику.</p>
+                                <p>Двигайтесь шаг за шагом.</p>
                             </div>
                         </li>
                         <li class="journey__step">
                             <span class="journey__number" aria-hidden="true">3</span>
                             <div>
-                                <h4>Создайте проект для портфолио</h4>
-                                <p>Примените знания, создав собственный реальный проект.</p>
+                                <h4>Создайте проект</h4>
+                                <p>Закрепите знания на практике.</p>
                             </div>
                         </li>
                         <li class="journey__step">
                             <span class="journey__number" aria-hidden="true">4</span>
                             <div>
                                 <h4>Подготовьтесь к первым собеседованиям</h4>
-                                <p>Развивайте практические навыки и уверенность перед откликами на первую позицию разработчика.</p>
+                                <p>Создайте портфолио и будьте готовы к поиску первой работы.</p>
                             </div>
                         </li>
                     </ol>
