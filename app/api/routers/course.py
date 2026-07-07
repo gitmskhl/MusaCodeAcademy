@@ -1,5 +1,4 @@
-from fastapi import APIRouter, status, HTTPException
-from app.models.course import Course
+from fastapi import APIRouter, status
 from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate, CourseAdmin, CourseInfo
 from app.schemas.section import SectionPublic, SectionAdmin, SectionCreate
 from app.schemas.enrollment import EnrollmentPublic
@@ -38,8 +37,14 @@ async def create_course(courseInfo: CourseCreate, admin: OnlyAdmin, db: DBSessio
     return await service_course.create_course(courseInfo, db)
 
 @router.get('/slug/{course_slug}', response_model=CourseInfo)
-async def get_course_page(course_slug: str, _: CurrentUser, db: DBSession):
-    return await service_course.get_published_course_page(course_slug, db)
+async def get_course_page(course_slug: str, currentUser: CurrentUser, db: DBSession):
+    course = await service_course.get_published_course_page(course_slug, db)
+    course.is_enrolled = await service_enrollment.is_user_enrolled(
+        course_id=course.id,
+        user_id=currentUser.id,
+        db=db
+    )
+    return course
 
 # ---------------------------------- /api/courses/{id} -----------------------------------------
 

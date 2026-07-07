@@ -45,3 +45,14 @@ async def get_user_enrollments(user_id: int, db: AsyncSession) -> list[Enrollmen
         .order_by(Enrollment.created_at.desc())
     )
     return list(result.scalars().all())
+
+
+async def is_user_enrolled(course_id: int, user_id: int, db: AsyncSession) -> bool:
+    result = await db.execute(
+        select(Enrollment.id)
+        .where(and_(
+            Enrollment.course_id == course_id,
+            Enrollment.user_id == user_id
+        ))
+    )
+    return result.scalar_one_or_none() is not None

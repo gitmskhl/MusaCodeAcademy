@@ -28,6 +28,7 @@ ADMIN_SECTION_FIELDS = PUBLIC_SECTION_FIELDS | {
     "updated_at",
 }
 COURSE_INFO_FIELDS = PUBLIC_COURSE_FIELDS | {
+    "is_enrolled",
     "sections",
 }
 SECTION_SHORT_INFO_FIELDS = {
@@ -344,6 +345,7 @@ async def test_get_course_page_returns_course_sections_and_lessons(
     assert data["id"] == course.id
     assert data["title"] == "Python basics"
     assert data["slug"] == "python-basics"
+    assert data["is_enrolled"] is False
     assert [section["id"] for section in data["sections"]] == [
         first_section.id,
         second_section.id,
@@ -376,7 +378,30 @@ async def test_get_course_page_returns_empty_sections(
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["id"] == course.id
+    assert data["is_enrolled"] is False
     assert data["sections"] == []
+
+
+@pytest.mark.asyncio
+async def test_get_course_page_returns_is_enrolled_true_after_enrollment(
+    client,
+    course_factory,
+    auth_headers,
+):
+    course = await course_factory(slug="enrolled-course", is_published=True)
+    enroll_response = await client.post(
+        f"/api/courses/{course.id}/enroll",
+        headers=auth_headers,
+    )
+
+    response = await client.get(
+        f"/api/courses/slug/{course.slug}",
+        headers=auth_headers,
+    )
+
+    assert enroll_response.status_code == status.HTTP_201_CREATED
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["is_enrolled"] is True
 
 
 @pytest.mark.asyncio

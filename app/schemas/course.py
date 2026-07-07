@@ -55,5 +55,6 @@ class CourseInfo(BaseModel):
     
     short_description: str
     description: str
-    
+
+    is_enrolled: bool = False
     sections: list[SectionShortInfo] = Field(default_factory=list)
