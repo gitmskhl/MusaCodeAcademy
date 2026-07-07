@@ -286,6 +286,7 @@ a {
 .journey {
     width: min(100%, 620px);
     margin: 42px auto 0;
+    text-align: left;
 }
 
 .journey h3 {
