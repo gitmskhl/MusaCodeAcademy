@@ -1,150 +1,75 @@
-(function () {
-    const course = {
-        title: 'Python for Beginners',
-        description: 'Learn Python from scratch with theory, examples and practical exercises.',
-        progress: 42,
-        sections: [
-            {
-                id: 'section-introduction',
-                number: 1,
-                title: 'Introduction',
-                lessons: [
-                    {
-                        id: 'lesson-what-is-python',
-                        number: 1,
-                        title: 'What is Python',
-                        status: 'completed',
-                    },
-                    {
-                        id: 'lesson-installing-python',
-                        number: 2,
-                        title: 'Installing Python',
-                        status: 'current',
-                    },
-                    {
-                        id: 'lesson-first-program',
-                        number: 3,
-                        title: 'Your first Python program',
-                        status: 'locked',
-                    },
-                ],
-            },
-            {
-                id: 'section-core-syntax',
-                number: 2,
-                title: 'Core Syntax',
-                lessons: [
-                    {
-                        id: 'lesson-variables',
-                        number: 1,
-                        title: 'Variables and data types',
-                        status: 'locked',
-                    },
-                    {
-                        id: 'lesson-operators',
-                        number: 2,
-                        title: 'Operators and expressions',
-                        status: 'locked',
-                    },
-                    {
-                        id: 'lesson-conditions',
-                        number: 3,
-                        title: 'Conditional statements',
-                        status: 'locked',
-                    },
-                ],
-            },
-            {
-                id: 'section-practice',
-                number: 3,
-                title: 'Practice and Exercises',
-                lessons: [
-                    {
-                        id: 'lesson-loops',
-                        number: 1,
-                        title: 'Loops in practice',
-                        status: 'locked',
-                    },
-                    {
-                        id: 'lesson-functions',
-                        number: 2,
-                        title: 'Writing reusable functions',
-                        status: 'locked',
-                    },
-                    {
-                        id: 'lesson-mini-project',
-                        number: 3,
-                        title: 'Build a small command line project',
-                        status: 'locked',
-                    },
-                ],
-            },
-        ],
-    };
+import { authFetch } from './course-auth.js';
 
+(function () {
     const statusMap = {
-        completed: {
-            className: 'lesson-row--completed',
-            icon: '\u2713',
-            label: 'completed',
-        },
-        current: {
-            className: 'lesson-row--current',
-            icon: '\u25b6',
-            label: 'current lesson',
-        },
-        locked: {
-            className: 'lesson-row--locked',
-            icon: '\ud83d\udd12',
-            label: 'locked',
+        available: {
+            className: 'lesson-row--available',
+            icon: '\u203a',
+            label: 'available',
         },
     };
 
     const elements = {
+        root: document.querySelector('[data-course-page]'),
+        loading: document.querySelector('[data-course-loading]'),
+        error: document.querySelector('[data-course-error]'),
+        errorMessage: document.querySelector('[data-course-error-message]'),
+        retry: document.querySelector('[data-course-retry]'),
+        content: document.querySelector('[data-course-content]'),
         title: document.querySelector('[data-course-title]'),
         description: document.querySelector('[data-course-description]'),
-        progressMeter: document.querySelector('[data-progress-meter]'),
-        progressPercent: document.querySelector('[data-progress-percent]'),
         sections: document.querySelector('[data-sections]'),
     };
 
-    const createProgressSegments = (progress) => {
-        const segmentCount = 10;
-        const filledSegments = Math.round((progress / 100) * segmentCount);
-        const fragment = document.createDocumentFragment();
-
-        for (let index = 0; index < segmentCount; index += 1) {
-            const segment = document.createElement('span');
-            segment.className = 'course-progress__segment';
-
-            if (index < filledSegments) {
-                segment.classList.add('is-filled');
-            }
-
-            fragment.append(segment);
+    const getCourseSlug = () => {
+        const templateSlug = elements.root?.dataset.courseSlug?.trim();
+        if (templateSlug) {
+            return templateSlug;
         }
 
-        return fragment;
+        const [, slug] = window.location.pathname.match(/^\/([^/]+)\/?$/) || [];
+        return slug ? decodeURIComponent(slug) : '';
     };
 
-    const createLessonRow = (lesson) => {
-        const status = statusMap[lesson.status] || statusMap.locked;
+    const getOrderNumber = (item, fallbackIndex) => {
+        const order = Number(item.order);
+        return Number.isFinite(order) ? order + 1 : fallbackIndex + 1;
+    };
+
+    const setLoading = () => {
+        elements.loading.hidden = false;
+        elements.error.hidden = true;
+        elements.content.hidden = true;
+    };
+
+    const setError = (message) => {
+        elements.loading.hidden = true;
+        elements.content.hidden = true;
+        elements.error.hidden = false;
+        elements.errorMessage.textContent = message;
+    };
+
+    const setContent = () => {
+        elements.loading.hidden = true;
+        elements.error.hidden = true;
+        elements.content.hidden = false;
+    };
+
+    const createLessonRow = (lesson, index, courseSlug) => {
+        const status = statusMap.available;
         const row = document.createElement('button');
         const number = document.createElement('span');
         const title = document.createElement('span');
         const icon = document.createElement('span');
+        const lessonNumber = getOrderNumber(lesson, index);
 
         row.type = 'button';
         row.className = `lesson-row ${status.className}`;
         row.dataset.lessonId = lesson.id;
-        row.setAttribute('aria-label', `Lesson ${lesson.number}. ${lesson.title}, ${status.label}`);
-
-        if (lesson.status === 'locked') {
-            row.setAttribute('aria-disabled', 'true');
-        }
+        row.setAttribute('aria-label', `Lesson ${lessonNumber}. ${lesson.title}, ${status.label}`);
 
         number.className = 'lesson-row__number';
-        number.textContent = `Lesson ${lesson.number}.`;
+        number.textContent = `Lesson ${lessonNumber}.`;
 
         title.className = 'lesson-row__title';
         title.textContent = lesson.title;
@@ -156,12 +81,14 @@
         row.append(number, title, icon);
         row.addEventListener('click', () => {
             console.log(lesson.id);
+            window.location.href =
+                `/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lesson.id)}/steps`;
         });
 
         return row;
     };
 
-    const createSectionCard = (section, isOpen) => {
+    const createSectionCard = (section, index, isOpen, courseSlug) => {
         const card = document.createElement('article');
         const toggle = document.createElement('button');
         const icon = document.createElement('span');
@@ -170,7 +97,9 @@
         const body = document.createElement('div');
         const inner = document.createElement('div');
         const lessonList = document.createElement('div');
-        const contentId = `${section.id}-lessons`;
+        const sectionNumber = getOrderNumber(section, index);
+        const lessons = Array.isArray(section.lessons) ? section.lessons : [];
+        const contentId = `section-${section.id}-lessons`;
 
         card.className = 'section-card';
         card.classList.toggle('is-open', isOpen);
@@ -185,10 +114,10 @@
         icon.textContent = '\u203a';
 
         heading.className = 'section-card__heading';
-        heading.textContent = `Section ${section.number}. ${section.title}`;
+        heading.textContent = `Section ${sectionNumber}. ${section.title}`;
 
         count.className = 'section-card__count';
-        count.textContent = `${section.lessons.length} lessons`;
+        count.textContent = `${lessons.length} ${lessons.length === 1 ? 'lesson' : 'lessons'}`;
 
         body.className = 'section-card__body';
         body.id = contentId;
@@ -196,9 +125,16 @@
         inner.className = 'section-card__inner';
         lessonList.className = 'lesson-list';
 
-        section.lessons.forEach((lesson) => {
-            lessonList.append(createLessonRow(lesson));
-        });
+        if (lessons.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'lesson-list__empty';
+            empty.textContent = 'No lessons yet.';
+            lessonList.append(empty);
+        } else {
+            lessons.forEach((lesson, lessonIndex) => {
+                lessonList.append(createLessonRow(lesson, lessonIndex, courseSlug));
+            });
+        }
 
         toggle.append(icon, heading, count);
         inner.append(lessonList);
@@ -214,20 +150,56 @@
         return card;
     };
 
-    const render = () => {
+    const render = (course) => {
+        const sections = Array.isArray(course.sections) ? course.sections : [];
+        const slug = course.slug || getCourseSlug();
+
         document.title = course.title;
         elements.title.textContent = course.title;
-        elements.description.textContent = course.description;
-        elements.progressPercent.textContent = `${course.progress}%`;
-        elements.progressMeter.setAttribute('aria-valuenow', String(course.progress));
-        elements.progressMeter.replaceChildren(createProgressSegments(course.progress));
+        elements.description.textContent = course.short_description || course.description || '';
+        elements.sections.replaceChildren();
 
-        const fragment = document.createDocumentFragment();
-        course.sections.forEach((section, index) => {
-            fragment.append(createSectionCard(section, index === 0));
-        });
-        elements.sections.replaceChildren(fragment);
+        if (sections.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'course-empty';
+            empty.textContent = 'This course does not have sections yet.';
+            elements.sections.append(empty);
+        } else {
+            const fragment = document.createDocumentFragment();
+            sections.forEach((section, index) => {
+                fragment.append(createSectionCard(section, index, index === 0, slug));
+            });
+            elements.sections.append(fragment);
+        }
+
+        setContent();
     };
 
-    document.addEventListener('DOMContentLoaded', render);
+    const loadCourse = async () => {
+        const courseSlug = getCourseSlug();
+        if (!courseSlug) {
+            setError('Could not determine which course to open.');
+            return;
+        }
+
+        setLoading();
+
+        try {
+            const response = await authFetch(`/api/courses/slug/${encodeURIComponent(courseSlug)}`);
+            if (!response.ok) {
+                throw new Error('course-load-failed');
+            }
+
+            render(await response.json());
+        } catch (error) {
+            if (error instanceof Error && error.message === 'authentication-required') {
+                return;
+            }
+
+            setError('Could not load this course. It may be unavailable or unpublished.');
+        }
+    };
+
+    elements.retry?.addEventListener('click', loadCourse);
+    document.addEventListener('DOMContentLoaded', loadCourse);
 })();

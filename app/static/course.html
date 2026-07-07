@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python for Beginners</title>
+    <title>Course</title>
     <link rel="stylesheet" href="css/course.css">
-    <script defer src="js/course.js"></script>
+    <script type="module" src="js/course.js"></script>
 </head>
 <body>
-    <main class="course-page" data-course-page>
+    <main class="course-page" data-course-page data-course-slug="python-for-basics">
         <header class="course-topbar" aria-label="Course navigation">
             <a class="course-back" href="/dashboard" aria-label="Back to courses">
                 <span aria-hidden="true">&larr;</span>
                 Back to Courses
             </a>
-
-            <div class="course-progress" aria-label="Course progress">
-                <span class="course-progress__label">Course progress:</span>
-                <div
-                    class="course-progress__meter"
-                    role="progressbar"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    aria-valuenow="42"
-                    data-progress-meter
-                ></div>
-                <strong data-progress-percent>42%</strong>
-            </div>
         </header>
 
-        <section class="course-hero" aria-labelledby="course-title">
+        <div class="course-state" data-course-loading role="status">
+            Loading course...
+        </div>
+
+        <div class="course-state course-state--error" data-course-error role="alert" hidden>
+            <h1>Course unavailable</h1>
+            <p data-course-error-message>Could not load this course.</p>
+            <button type="button" data-course-retry>Try again</button>
+        </div>
+
+        <div data-course-content hidden>
+            <section class="course-hero" aria-labelledby="course-title">
             <p class="course-hero__eyebrow">Student course</p>
             <h1 id="course-title" data-course-title></h1>
             <p data-course-description></p>
-        </section>
+            </section>
 
-        <section class="course-sections" aria-label="Course sections" data-sections></section>
+            <section class="course-sections" aria-label="Course sections" data-sections></section>
+        </div>
     </main>
 </body>
 </html>
