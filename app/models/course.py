@@ -7,6 +7,8 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .section import Section
+    from .enrollment import Enrollment
+
 
 class Course(Base):
     __tablename__ = "courses"
@@ -38,3 +40,7 @@ class Course(Base):
         order_by="Section.order"
     )
 
+    enrollments: Mapped[list["Enrollment"]] = relationship(
+        back_populates="course",
+        cascade="all, delete-orphan",
+    )

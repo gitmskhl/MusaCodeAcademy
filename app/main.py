@@ -10,7 +10,8 @@ from app.api.routers import (
     sectionRouter,
     lessonRouter,
     stepRouter,
-    fileRouter
+    fileRouter,
+    enrollmentRouter
 )
 from app.core.database import engine
 from app.models import Base
@@ -78,6 +79,12 @@ app.include_router(
     fileRouter,
     prefix='/api/files',
     tags=['file']
+)
+
+app.include_router(
+    enrollmentRouter,
+    prefix='/api/enrollments',
+    tags=['enrollment']
 )
 
 app.include_router(pagesRouter)

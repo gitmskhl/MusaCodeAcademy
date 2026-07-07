@@ -1,10 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from sqlalchemy import Integer, String, DateTime, Enum as SQLEnum
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, UTC
 
 from .base import Base
 from app.enums import UserRole
 
+if TYPE_CHECKING:
+    from .enrollment import Enrollment
 
 class User(Base):
     __tablename__ = "users"
@@ -37,4 +41,9 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC)
+    )
+
+    enrollments: Mapped[list["Enrollment"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
     )

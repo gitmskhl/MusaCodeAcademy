@@ -2,9 +2,11 @@ from fastapi import APIRouter, status, HTTPException
 from app.models.course import Course
 from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate, CourseAdmin, CourseInfo
 from app.schemas.section import SectionPublic, SectionAdmin, SectionCreate
+from app.schemas.enrollment import EnrollmentPublic
 from app.api.dependencies import CurrentUser, OnlyAdmin, DBSession
 from app.services import course as service_course
 from app.services import section as service_section
+from app.services import enrollment as service_enrollment
 
 
 router = APIRouter()
@@ -67,6 +69,15 @@ async def delete_course(
 ):
     await service_course.delete_course(course_id, db)
     
+# ---------------------------------- /api/courses/{id}/enroll ----------------------------------
+
+@router.post('/{course_id}/enroll', response_model=EnrollmentPublic, status_code=status.HTTP_201_CREATED)
+async def enroll_course(
+    course_id: int,
+    currentUser: CurrentUser,
+    db: DBSession
+):
+    return await service_enrollment.enroll(course_id, currentUser.id, db)
 
 # ---------------------------------- /api/courses/{id}/sections --------------------------------
 
@@ -94,3 +105,4 @@ async def create_course_section(
 @router.get('/{course_id}/sections/admin', response_model=list[SectionAdmin])
 async def get_course_sections_admin(course_id: int, admin: OnlyAdmin, db: DBSession):
     return await service_section.get_course_sections(course_id=course_id, db=db, check_published=False)
+

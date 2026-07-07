@@ -5,3 +5,4 @@ from .section import Section
 from .lesson import Lesson
 from .step import Step
 from .file import File
+from .enrollment import Enrollment
