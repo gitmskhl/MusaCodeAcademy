@@ -27,6 +27,7 @@ import { authFetch, requireToken } from './course-auth.js';
         retry: document.querySelector('[data-retry]'),
         content: document.querySelector('[data-page-content]'),
         backLink: document.querySelector('[data-back-link]'),
+        sectionKicker: document.querySelector('[data-section-kicker]'),
         title: document.querySelector('[data-section-title]'),
         description: document.querySelector('[data-section-description]'),
         progressPercent: document.querySelector('[data-progress-percent]'),
@@ -69,6 +70,23 @@ import { authFetch, requireToken } from './course-auth.js';
             return `${count} урока`;
         }
         return `${count} уроков`;
+    };
+
+    const getSectionNumber = (section) => {
+        const order = Number(section.order);
+        return Number.isFinite(order) ? order + 1 : null;
+    };
+
+    const formatCourseTitle = (courseSlug) => {
+        if (courseSlug === 'python-basics') {
+            return 'Python для начинающих';
+        }
+
+        return courseSlug
+            .split('-')
+            .filter(Boolean)
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ') || 'Курс';
     };
 
     const createLessonCard = (lesson, index, courseSlug) => {
@@ -134,7 +152,7 @@ import { authFetch, requireToken } from './course-auth.js';
 
         elements.progressPercent.textContent = `${percentage}%`;
         elements.progressLabel.textContent =
-            `${completed} из ${lessons.length} уроков пройдено`;
+            `${completed} из ${lessons.length} уроков завершено`;
         elements.progressTrack.setAttribute('aria-valuenow', String(percentage));
         elements.progressBar.style.width = `${percentage}%`;
     };
@@ -147,11 +165,16 @@ import { authFetch, requireToken } from './course-auth.js';
         );
 
         document.title = `${section.title} — уроки`;
+        const sectionNumber = getSectionNumber(section);
+        elements.sectionKicker.textContent = sectionNumber
+            ? `Раздел ${sectionNumber}`
+            : 'Раздел';
         elements.title.textContent = section.title;
         elements.description.textContent =
             section.description || 'Изучите материалы раздела по порядку.';
         elements.lessonCount.textContent = pluralizeLessons(orderedLessons.length);
         elements.backLink.href = `/${encodeURIComponent(courseSlug)}`;
+        elements.backLink.lastChild.textContent = ` ${formatCourseTitle(courseSlug)}`;
         elements.lessonList.replaceChildren();
         elements.emptyState.hidden = orderedLessons.length !== 0;
 
