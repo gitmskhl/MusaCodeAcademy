@@ -27,6 +27,8 @@ const elements = {
     courseList: document.querySelector('[data-course-list]'),
 };
 
+const ENROLLED_COURSES_KEY = 'musa_code_academy_enrolled_courses';
+
 const getUserDisplayName = (user) => {
     const firstName = typeof user?.first_name === 'string' ? user.first_name.trim() : '';
     const lastName = typeof user?.last_name === 'string' ? user.last_name.trim() : '';
@@ -57,6 +59,51 @@ const clampProgress = (value) => {
 
 const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}/sections`;
 
+const getStoredEnrolledCourses = () => {
+    try {
+        const stored = JSON.parse(localStorage.getItem(ENROLLED_COURSES_KEY) || '[]');
+        return Array.isArray(stored) ? stored : [];
+    } catch {
+        return [];
+    }
+};
+
+const rememberEnrolledCourses = (courses) => {
+    const storableCourses = courses
+        .filter((course) => course.id)
+        .map((course) => ({
+            id: course.id,
+            slug: course.slug,
+            title: course.title,
+            short_description: course.short_description,
+            description: course.description,
+        }));
+
+    localStorage.setItem(ENROLLED_COURSES_KEY, JSON.stringify(storableCourses));
+};
+
+const mapStoredCourseToDashboardCourse = (course) => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title ?? '\u041a\u0443\u0440\u0441',
+    short_description: course.short_description,
+    description: course.short_description || course.description || messages.emptyDescription,
+    progress: 0,
+    action: messages.start,
+    href: course.slug ? getCourseUrl(course) : '#',
+});
+
+const mapCourseInfoToDashboardCourse = (course) => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title ?? '\u041a\u0443\u0440\u0441',
+    short_description: course.short_description,
+    description: course.short_description || course.description || messages.emptyDescription,
+    progress: 0,
+    action: messages.start,
+    href: course.slug ? getCourseUrl(course) : '#',
+});
+
 const mapEnrollmentToCourse = (enrollment) => {
     const course = enrollment.course ?? {};
     const progress = clampProgress(enrollment.progress_percent);
@@ -64,8 +111,10 @@ const mapEnrollmentToCourse = (enrollment) => {
 
     return {
         id: courseId,
+        slug: course.slug,
         title: course.title ?? 'Курс',
         description: course.short_description || course.description || messages.emptyDescription,
+        short_description: course.short_description,
         progress,
         action: progress > 0 ? messages.continue : messages.start,
         href: course.slug ? getCourseUrl(course) : '#',
@@ -175,6 +224,38 @@ const renderCourses = (courses) => {
     setContent();
 };
 
+const loadEnrolledCoursesFromCoursePages = async () => {
+    const coursesResponse = await authFetch('/api/courses');
+    if (!coursesResponse.ok) {
+        return [];
+    }
+
+    const publishedCourses = await coursesResponse.json();
+    if (!Array.isArray(publishedCourses) || publishedCourses.length === 0) {
+        return [];
+    }
+
+    const coursePages = await Promise.all(
+        publishedCourses
+            .filter((course) => course.slug)
+            .map(async (course) => {
+                try {
+                    const response = await authFetch(
+                        `/api/courses/slug/${encodeURIComponent(course.slug)}`
+                    );
+                    return response.ok ? response.json() : null;
+                } catch {
+                    return null;
+                }
+            })
+    );
+
+    return coursePages
+        .filter((course) => course?.is_enrolled)
+        .map(mapCourseInfoToDashboardCourse)
+        .filter((course) => course.id);
+};
+
 const loadDashboard = async () => {
     setLoading();
 
@@ -185,9 +266,23 @@ const loadDashboard = async () => {
         }
 
         const enrollments = await response.json();
-        const courses = Array.isArray(enrollments)
+        let courses = Array.isArray(enrollments)
             ? enrollments.map(mapEnrollmentToCourse).filter((course) => course.id)
             : [];
+
+        if (courses.length === 0) {
+            courses = await loadEnrolledCoursesFromCoursePages();
+        }
+
+        if (courses.length === 0) {
+            courses = getStoredEnrolledCourses()
+                .map(mapStoredCourseToDashboardCourse)
+                .filter((course) => course.id);
+        }
+
+        if (courses.length > 0) {
+            rememberEnrolledCourses(courses);
+        }
 
         if (courses.length === 0) {
             setEmpty();

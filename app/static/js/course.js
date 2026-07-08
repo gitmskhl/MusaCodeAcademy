@@ -19,6 +19,8 @@ const state = {
     isSubmittingEnrollment: false,
 };
 
+const ENROLLED_COURSES_KEY = 'musa_code_academy_enrolled_courses';
+
 const labels = Object.freeze({
     enroll: '\u0417\u0430\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f \u043d\u0430 \u043a\u0443\u0440\u0441',
     enrolling: '\u0417\u0430\u043f\u0438\u0441\u044b\u0432\u0430\u0435\u043c...',
@@ -41,6 +43,36 @@ const getCourseSectionsUrl = (course) =>
 
 const openCourseStart = (course) => {
     window.location.assign(getCourseSectionsUrl(course));
+};
+
+const getStoredEnrolledCourses = () => {
+    try {
+        const stored = JSON.parse(localStorage.getItem(ENROLLED_COURSES_KEY) || '[]');
+        return Array.isArray(stored) ? stored : [];
+    } catch {
+        return [];
+    }
+};
+
+const rememberEnrolledCourse = (course) => {
+    if (!course?.id) {
+        return;
+    }
+
+    const storedCourses = getStoredEnrolledCourses();
+    const courseSummary = {
+        id: course.id,
+        slug: course.slug,
+        title: course.title,
+        short_description: course.short_description,
+        description: course.description,
+    };
+    const nextCourses = [
+        courseSummary,
+        ...storedCourses.filter((storedCourse) => storedCourse.id !== course.id),
+    ];
+
+    localStorage.setItem(ENROLLED_COURSES_KEY, JSON.stringify(nextCourses));
 };
 
 const setEnrollmentButton = ({ busy = false, error = false } = {}) => {
@@ -224,6 +256,9 @@ const renderProgram = (sections) => {
 const renderCourse = (course) => {
     const stats = getCourseStats(course);
     state.course = course;
+    if (course.is_enrolled) {
+        rememberEnrolledCourse(course);
+    }
 
     document.title = `${course.title} | Musa Code Academy`;
     elements.title.textContent = course.title;
@@ -263,6 +298,7 @@ const enrollInCourse = async () => {
     }
 
     if (state.course.is_enrolled) {
+        rememberEnrolledCourse(state.course);
         openCourseStart(state.course);
         return;
     }
@@ -284,6 +320,7 @@ const enrollInCourse = async () => {
             ...state.course,
             is_enrolled: true,
         };
+        rememberEnrolledCourse(state.course);
         setEnrollmentButton();
         openCourseStart(state.course);
     } catch (error) {
