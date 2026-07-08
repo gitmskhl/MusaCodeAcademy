@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'musa_code_academy_token';
+const ENROLLED_COURSES_KEY = 'musa_code_academy_enrolled_courses';
 
 const currentUrl = () =>
     `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -6,6 +7,12 @@ const currentUrl = () =>
 export const redirectToLogin = () => {
     const params = new URLSearchParams({ next: currentUrl() });
     window.location.replace(`/login?${params.toString()}`);
+};
+
+export const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ENROLLED_COURSES_KEY);
+    window.location.replace('/login');
 };
 
 export const requireToken = () => {
