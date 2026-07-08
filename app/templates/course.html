@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course</title>
+    <title>Курс | Musa Code Academy</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/course.css') }}">
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
@@ -40,37 +40,56 @@
         data-course-page
         data-course-slug="{{ course_slug | default('') }}"
     >
-        <header class="course-topbar" aria-label="Навигация курса">
-            <a class="course-back" href="/courses" aria-label="Все курсы">
-                <span aria-hidden="true">&larr;</span>
-                Все курсы
-            </a>
-        </header>
+        <a class="course-back" href="/courses">
+            <span aria-hidden="true">&larr;</span>
+            Назад ко всем курсам
+        </a>
 
-        <div class="course-state" data-course-loading role="status">
-            Loading course...
-        </div>
+        <section class="course-hero" aria-labelledby="course-title">
+            <h1 id="course-title" data-course-title></h1>
+            <p data-course-description></p>
+        </section>
 
-        <div class="course-state course-state--error" data-course-error role="alert" hidden>
-            <h1>Course unavailable</h1>
-            <p data-course-error-message>Could not load this course.</p>
-            <button type="button" data-course-retry>Try again</button>
-        </div>
+        <div class="course-layout">
+            <div class="course-main">
+                <section class="course-card course-outcomes" aria-labelledby="course-outcomes-title">
+                    <h2 id="course-outcomes-title">Что вы изучите</h2>
+                    <ul class="course-outcomes__list" data-course-outcomes></ul>
+                </section>
 
-        <div data-course-content hidden>
-            <section class="course-hero" aria-labelledby="course-title">
-                <h1 id="course-title" data-course-title></h1>
-                <p data-course-description></p>
-                <div class="course-progress-summary" aria-label="Прогресс курса">
-                    <span class="course-progress-summary__track">
-                        <span data-course-progress-bar></span>
-                    </span>
-                    <strong data-course-progress-percent>43%</strong>
-                    <span data-course-progress-count>15 из 36 уроков</span>
+                <section class="course-card course-program" aria-labelledby="course-program-title">
+                    <h2 id="course-program-title">Программа курса</h2>
+                    <div class="course-accordion" data-course-program></div>
+                </section>
+            </div>
+
+            <aside class="course-sidebar" aria-label="Информация о курсе">
+                <div class="course-info-card">
+                    <dl class="course-facts">
+                        <div>
+                            <dt>Занятий:</dt>
+                            <dd data-course-lessons-count></dd>
+                        </div>
+                        <div>
+                            <dt>Разделов:</dt>
+                            <dd data-course-sections-count></dd>
+                        </div>
+                        <div>
+                            <dt>Уровень:</dt>
+                            <dd data-course-level></dd>
+                        </div>
+                        <div>
+                            <dt>Стоимость:</dt>
+                            <dd data-course-price></dd>
+                        </div>
+                    </dl>
+
+                    <button class="course-enroll-button" type="button">Записаться на курс</button>
+                    <p class="course-note">
+                        После записи станет доступно прохождение всех уроков и сохранение прогресса.
+                    </p>
                 </div>
-            </section>
-
-            <section class="course-sections" aria-label="Разделы курса" data-sections></section>
+            </aside>
         </div>
     </main>
 </body>
