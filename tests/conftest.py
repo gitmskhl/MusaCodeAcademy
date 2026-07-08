@@ -90,6 +90,9 @@ def course_data():
         "slug": "python-for-basics",
         "short_description": "A test course for testing",
         "description": "A test course to test the functionality of the service",
+        "level": "Beginner",
+        "price_label": "Free",
+        "outcomes": ["Variables", "Loops", "Functions"],
         "is_published": False
     }
    
@@ -153,7 +156,10 @@ async def course_factory(db):
         title="Python basics",
         is_published=False,
         short_description="A test course for testing",
-        description="A test course to test the functionality of the service"
+        description="A test course to test the functionality of the service",
+        level="Beginner",
+        price_label="Free",
+        outcomes=None,
     ):
         
         new_course = Course(
@@ -161,6 +167,9 @@ async def course_factory(db):
             title=title,
             short_description=short_description,
             description=description,
+            level=level,
+            price_label=price_label,
+            outcomes=outcomes if outcomes is not None else ["Variables", "Loops", "Functions"],
             is_published=is_published
         )
         

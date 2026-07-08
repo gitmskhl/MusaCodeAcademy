@@ -1,56 +1,4 @@
-const mockCourses = {
-    'python-for-basics': {
-        title: 'Python для начинающих',
-        description:
-            'Изучите Python с нуля. Научитесь писать программы, работать со строками, списками, функциями и создадите первые собственные проекты.',
-        lessonsCount: 32,
-        sectionsCount: 8,
-        level: 'Начинающий',
-        price: 'Бесплатно',
-        outcomes: [
-            'Переменные',
-            'Условия',
-            'Циклы',
-            'Функции',
-            'Списки',
-            'Словари',
-            'Файлы',
-            'Основы ООП',
-        ],
-        program: [
-            {
-                title: 'Введение',
-                lessons: ['Что такое Python', 'Первая программа', 'Переменные'],
-            },
-            {
-                title: 'Условия',
-                lessons: ['if', 'elif', 'Практика'],
-            },
-            {
-                title: 'Циклы',
-                lessons: ['while', 'for', 'Вложенные циклы', 'Практические задачи'],
-            },
-            {
-                title: 'Коллекции',
-                lessons: ['Списки', 'Словари', 'Кортежи', 'Методы коллекций'],
-            },
-            {
-                title: 'Функции',
-                lessons: ['Создание функций', 'Аргументы', 'Возвращаемые значения'],
-            },
-            {
-                title: 'Файлы и проекты',
-                lessons: ['Чтение файлов', 'Запись файлов', 'Первый мини-проект'],
-            },
-            {
-                title: 'Основы ООП',
-                lessons: ['Классы', 'Объекты', 'Методы', 'Финальная практика'],
-            },
-        ],
-    },
-};
-
-const fallbackCourse = mockCourses['python-for-basics'];
+import { authFetch } from './course-auth.js';
 
 const elements = {
     root: document.querySelector('[data-course-page]'),
@@ -63,6 +11,7 @@ const elements = {
     sectionsCount: document.querySelector('[data-course-sections-count]'),
     level: document.querySelector('[data-course-level]'),
     price: document.querySelector('[data-course-price]'),
+    enrollButton: document.querySelector('.course-enroll-button'),
 };
 
 const getCourseSlug = () => {
@@ -72,7 +21,50 @@ const getCourseSlug = () => {
     }
 
     const [, slug] = window.location.pathname.match(/^\/([^/]+)\/?$/) || [];
-    return slug ? decodeURIComponent(slug) : 'python-for-basics';
+    return slug ? decodeURIComponent(slug) : '';
+};
+
+const pluralizeRu = (count, one, few, many) => {
+    const abs = Math.abs(count);
+    const last = abs % 10;
+    const lastTwo = abs % 100;
+
+    if (last === 1 && lastTwo !== 11) {
+        return one;
+    }
+
+    if ([2, 3, 4].includes(last) && ![12, 13, 14].includes(lastTwo)) {
+        return few;
+    }
+
+    return many;
+};
+
+const countLessons = (sections) =>
+    sections.reduce((total, section) => {
+        const lessons = Array.isArray(section.lessons) ? section.lessons : [];
+        return total + lessons.length;
+    }, 0);
+
+const getCourseStats = (course) => {
+    const sections = Array.isArray(course.sections) ? course.sections : [];
+    const lessonsCount = Number.isFinite(Number(course.lessons_count))
+        ? Number(course.lessons_count)
+        : countLessons(sections);
+    const sectionsCount = Number.isFinite(Number(course.sections_count))
+        ? Number(course.sections_count)
+        : sections.length;
+
+    return {
+        lessonsCount,
+        sectionsCount,
+    };
+};
+
+const createMetaItem = (value) => {
+    const item = document.createElement('span');
+    item.textContent = value;
+    return item;
 };
 
 const createOutcomeItem = (outcome) => {
@@ -90,15 +82,9 @@ const createOutcomeItem = (outcome) => {
     return item;
 };
 
-const createMetaItem = (value) => {
-    const item = document.createElement('span');
-    item.textContent = value;
-    return item;
-};
-
 const createLessonItem = (lesson) => {
     const item = document.createElement('li');
-    item.textContent = lesson;
+    item.textContent = typeof lesson === 'string' ? lesson : lesson.title;
     return item;
 };
 
@@ -110,8 +96,9 @@ const createProgramSection = (section, index) => {
     const body = document.createElement('div');
     const inner = document.createElement('div');
     const list = document.createElement('ul');
-    const contentId = `course-program-section-${index + 1}`;
+    const contentId = `course-program-section-${section.id ?? index + 1}`;
     const isOpen = index === 0;
+    const lessons = Array.isArray(section.lessons) ? section.lessons : [];
 
     item.className = 'course-accordion__item';
     item.classList.toggle('is-open', isOpen);
@@ -134,9 +121,15 @@ const createProgramSection = (section, index) => {
     inner.className = 'course-accordion__inner';
     list.className = 'course-lessons';
 
-    section.lessons.forEach((lesson) => {
-        list.append(createLessonItem(lesson));
-    });
+    if (lessons.length === 0) {
+        const empty = document.createElement('li');
+        empty.textContent = 'Уроки скоро появятся';
+        list.append(empty);
+    } else {
+        lessons.forEach((lesson) => {
+            list.append(createLessonItem(lesson));
+        });
+    }
 
     button.append(icon, title);
     inner.append(list);
@@ -152,26 +145,103 @@ const createProgramSection = (section, index) => {
     return item;
 };
 
-const renderCourse = (course) => {
-    document.title = `${course.title} | Musa Code Academy`;
-    elements.title.textContent = course.title;
-    elements.description.textContent = course.description;
-    elements.lessonsCount.textContent = course.lessonsCount;
-    elements.sectionsCount.textContent = course.sectionsCount;
-    elements.level.textContent = course.level;
-    elements.price.textContent = course.price;
+const renderMeta = (course, stats) => {
+    const lessonWord = pluralizeRu(stats.lessonsCount, 'урок', 'урока', 'уроков');
+    const sectionWord = pluralizeRu(stats.sectionsCount, 'раздел', 'раздела', 'разделов');
 
     elements.meta.replaceChildren(
-        createMetaItem(`${course.lessonsCount} урока`),
-        createMetaItem(`${course.sectionsCount} разделов`),
+        createMetaItem(`${stats.lessonsCount} ${lessonWord}`),
+        createMetaItem(`${stats.sectionsCount} ${sectionWord}`),
         createMetaItem(course.level),
-        createMetaItem(course.price),
+        createMetaItem(course.price_label),
     );
-    elements.outcomes.replaceChildren(...course.outcomes.map(createOutcomeItem));
-    elements.program.replaceChildren(...course.program.map(createProgramSection));
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    const course = mockCourses[getCourseSlug()] || fallbackCourse;
-    renderCourse(course);
-});
+const renderOutcomes = (outcomes) => {
+    const items = Array.isArray(outcomes) ? outcomes : [];
+
+    if (items.length === 0) {
+        elements.outcomes.replaceChildren(
+            createOutcomeItem('Подробные результаты обучения скоро появятся'),
+        );
+        return;
+    }
+
+    elements.outcomes.replaceChildren(...items.map(createOutcomeItem));
+};
+
+const renderProgram = (sections) => {
+    const items = Array.isArray(sections) ? sections : [];
+
+    if (items.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'course-program__empty';
+        empty.textContent = 'Программа курса скоро появится.';
+        elements.program.replaceChildren(empty);
+        return;
+    }
+
+    elements.program.replaceChildren(...items.map(createProgramSection));
+};
+
+const renderCourse = (course) => {
+    const stats = getCourseStats(course);
+
+    document.title = `${course.title} | Musa Code Academy`;
+    elements.title.textContent = course.title;
+    elements.description.textContent = course.short_description || course.description || '';
+    elements.lessonsCount.textContent = stats.lessonsCount;
+    elements.sectionsCount.textContent = stats.sectionsCount;
+    elements.level.textContent = course.level;
+    elements.price.textContent = course.price_label;
+
+    if (elements.enrollButton) {
+        elements.enrollButton.textContent = course.is_enrolled
+            ? 'Продолжить курс'
+            : 'Записаться на курс';
+    }
+
+    renderMeta(course, stats);
+    renderOutcomes(course.outcomes);
+    renderProgram(course.sections);
+};
+
+const setError = (message) => {
+    elements.title.textContent = 'Курс недоступен';
+    elements.description.textContent = message;
+    elements.meta.replaceChildren();
+    elements.outcomes.replaceChildren();
+    elements.program.replaceChildren();
+    elements.lessonsCount.textContent = '0';
+    elements.sectionsCount.textContent = '0';
+    elements.level.textContent = '—';
+    elements.price.textContent = '—';
+};
+
+const loadCourse = async () => {
+    const courseSlug = getCourseSlug();
+    if (!courseSlug) {
+        setError('Не удалось определить, какой курс нужно открыть.');
+        return;
+    }
+
+    elements.title.textContent = 'Загрузка курса...';
+    elements.description.textContent = '';
+
+    try {
+        const response = await authFetch(`/api/courses/slug/${encodeURIComponent(courseSlug)}`);
+        if (!response.ok) {
+            throw new Error('course-load-failed');
+        }
+
+        renderCourse(await response.json());
+    } catch (error) {
+        if (error instanceof Error && error.message === 'authentication-required') {
+            return;
+        }
+
+        setError('Курс не найден или пока недоступен.');
+    }
+};
+
+document.addEventListener('DOMContentLoaded', loadCourse);

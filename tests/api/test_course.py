@@ -10,6 +10,9 @@ PUBLIC_COURSE_FIELDS = {
     "slug",
     "short_description",
     "description",
+    "level",
+    "price_label",
+    "outcomes",
 }
 ADMIN_COURSE_FIELDS = PUBLIC_COURSE_FIELDS | {
     "is_published",
@@ -29,6 +32,8 @@ ADMIN_SECTION_FIELDS = PUBLIC_SECTION_FIELDS | {
 }
 COURSE_INFO_FIELDS = PUBLIC_COURSE_FIELDS | {
     "is_enrolled",
+    "lessons_count",
+    "sections_count",
     "sections",
 }
 SECTION_SHORT_INFO_FIELDS = {
@@ -52,6 +57,9 @@ def assert_public_course(data, course):
     assert data["slug"] == course.slug
     assert data["short_description"] == course.short_description
     assert data["description"] == course.description
+    assert data["level"] == course.level
+    assert data["price_label"] == course.price_label
+    assert data["outcomes"] == course.outcomes
 
 
 async def create_section(
@@ -115,6 +123,9 @@ async def test_create_course_success(client, admin_headers, course_data):
     assert data["slug"] == course_data["slug"].lower()
     assert data["short_description"] == course_data["short_description"]
     assert data["description"] == course_data["description"]
+    assert data["level"] == course_data["level"]
+    assert data["price_label"] == course_data["price_label"]
+    assert data["outcomes"] == course_data["outcomes"]
 
 
 @pytest.mark.asyncio
@@ -193,6 +204,9 @@ async def test_create_course_taken_slug_case_insensitive(
         ("slug", "x"),
         ("short_description", "too short"),
         ("description", "too short"),
+        ("level", "x"),
+        ("price_label", "x"),
+        ("outcomes", ["x" * 121]),
     ],
 )
 async def test_create_course_validates_payload(
@@ -345,7 +359,12 @@ async def test_get_course_page_returns_course_sections_and_lessons(
     assert data["id"] == course.id
     assert data["title"] == "Python basics"
     assert data["slug"] == "python-basics"
+    assert data["level"] == course.level
+    assert data["price_label"] == course.price_label
+    assert data["outcomes"] == course.outcomes
     assert data["is_enrolled"] is False
+    assert data["lessons_count"] == 3
+    assert data["sections_count"] == 2
     assert [section["id"] for section in data["sections"]] == [
         first_section.id,
         second_section.id,
@@ -379,6 +398,8 @@ async def test_get_course_page_returns_empty_sections(
     data = response.json()
     assert data["id"] == course.id
     assert data["is_enrolled"] is False
+    assert data["lessons_count"] == 0
+    assert data["sections_count"] == 0
     assert data["sections"] == []
 
 
@@ -621,6 +642,9 @@ async def test_update_course_success(
         json={
             "title": "Advanced Python",
             "slug": "FASTAPI",
+            "level": "Advanced",
+            "price_label": "$49",
+            "outcomes": ["Async Python", "FastAPI APIs"],
             "is_published": True,
         },
         headers=admin_headers,
@@ -632,6 +656,9 @@ async def test_update_course_success(
     assert data["title"] == "Advanced Python"
     assert data["slug"] == "fastapi"
     assert data["description"] == original_description
+    assert data["level"] == "Advanced"
+    assert data["price_label"] == "$49"
+    assert data["outcomes"] == ["Async Python", "FastAPI APIs"]
 
     admin_response = await client.get(
         f"/api/courses/{course.id}/admin",
@@ -746,6 +773,9 @@ async def test_update_course_requires_authentication(client, course_factory):
         ("slug", "x"),
         ("short_description", "too short"),
         ("description", "too short"),
+        ("level", "x"),
+        ("price_label", "x"),
+        ("outcomes", ["x" * 121]),
     ],
 )
 async def test_update_course_validates_payload(

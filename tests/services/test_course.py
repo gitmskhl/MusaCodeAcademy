@@ -57,6 +57,9 @@ async def test_create_course_success(db):
         short_description="Python basics",
         description="A complete introductory Python programming course.",
         slug="Python",
+        level="Beginner",
+        price_label="Free",
+        outcomes=["Variables", "Loops"],
     )
 
     course = await service_course.create_course(courseInfo=course_info, db=db)
@@ -66,6 +69,9 @@ async def test_create_course_success(db):
     assert course.short_description == course_info.short_description
     assert course.description == course_info.description
     assert course.slug == course_info.slug.lower()
+    assert course.level == course_info.level
+    assert course.price_label == course_info.price_label
+    assert course.outcomes == course_info.outcomes
     assert course.is_published is False
 
 
@@ -257,6 +263,11 @@ async def test_get_published_course_page_returns_course_sections_and_lessons(
     assert result.id == course.id
     assert result.title == "Python basics"
     assert result.slug == "python-basics"
+    assert result.level == course.level
+    assert result.price_label == course.price_label
+    assert result.outcomes == course.outcomes
+    assert result.lessons_count == 3
+    assert result.sections_count == 2
     assert [section.id for section in result.sections] == [
         first_section.id,
         second_section.id,
@@ -281,6 +292,8 @@ async def test_get_published_course_page_returns_empty_sections(
     )
 
     assert result.id == course.id
+    assert result.lessons_count == 0
+    assert result.sections_count == 0
     assert result.sections == []
 
 
@@ -338,6 +351,9 @@ async def test_update_course_updates_only_provided_fields(course_factory, db):
     original_description = course.description
     update_info = CourseUpdate(
         title="Advanced Python",
+        level="Advanced",
+        price_label="$49",
+        outcomes=["Async Python", "FastAPI APIs"],
         is_published=True,
     )
 
@@ -351,6 +367,9 @@ async def test_update_course_updates_only_provided_fields(course_factory, db):
     assert updated_course.is_published is True
     assert updated_course.slug == "python"
     assert updated_course.description == original_description
+    assert updated_course.level == "Advanced"
+    assert updated_course.price_label == "$49"
+    assert updated_course.outcomes == ["Async Python", "FastAPI APIs"]
 
 
 @pytest.mark.asyncio

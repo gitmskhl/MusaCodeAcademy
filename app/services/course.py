@@ -36,7 +36,10 @@ async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
         title=courseInfo.title,
         slug=normalized_slug,
         short_description=courseInfo.short_description,
-        description=courseInfo.description
+        description=courseInfo.description,
+        level=courseInfo.level,
+        price_label=courseInfo.price_label,
+        outcomes=courseInfo.outcomes,
     )
     db.add(new_course)
     
@@ -135,6 +138,16 @@ async def delete_course(course_id: int, db: DBSession):
         )
 
 
+def build_course_info(course: Course) -> CourseInfo:
+    course_info = CourseInfo.model_validate(course)
+    sections = list(course_info.sections)
+
+    course_info.sections_count = len(sections)
+    course_info.lessons_count = sum(len(section.lessons) for section in sections)
+
+    return course_info
+
+
 async def get_published_course_page(course_slug: str, db: DBSession) -> CourseInfo:
     result = await db.execute(
         select(Course)
@@ -153,4 +166,4 @@ async def get_published_course_page(course_slug: str, db: DBSession) -> CourseIn
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found"
         )
-    return CourseInfo.model_validate(course)
+    return build_course_info(course)

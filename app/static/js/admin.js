@@ -553,6 +553,14 @@
 
     const getSubmitButton = (form) => form.querySelector('[data-course-submit]');
 
+    const parseOutcomesInput = (input) =>
+        input
+            ? input.value
+                .split('\n')
+                .map((item) => item.trim())
+                .filter(Boolean)
+            : [];
+
     const setFormMessage = (box, kind, text) => {
         if (!box) return;
 
@@ -614,17 +622,26 @@
         const title = form.querySelector('#course-title');
         const shortDescription = form.querySelector('#course-short-description');
         const description = form.querySelector('#course-description');
+        const level = form.querySelector('#course-level');
+        const priceLabel = form.querySelector('#course-price-label');
+        const outcomes = form.querySelector('#course-outcomes');
         const slug = form.querySelector('#course-slug');
 
         clearFieldError(form, 'title');
         clearFieldError(form, 'short_description');
         clearFieldError(form, 'description');
+        clearFieldError(form, 'level');
+        clearFieldError(form, 'price_label');
+        clearFieldError(form, 'outcomes');
         clearFieldError(form, 'slug');
 
         const values = {
             title: title ? title.value.trim() : '',
             short_description: shortDescription ? shortDescription.value.trim() : '',
             description: description ? description.value.trim() : '',
+            level: level ? level.value.trim() : '',
+            price_label: priceLabel ? priceLabel.value.trim() : '',
+            outcomes: parseOutcomesInput(outcomes),
             slug: slug ? slug.value.trim() : '',
         };
 
@@ -669,6 +686,30 @@
             firstInvalid = firstInvalid || slug;
         }
 
+        if (!values.level) {
+            setFieldError(form, 'level', 'Укажите уровень курса.');
+            firstInvalid = firstInvalid || level;
+        } else if (values.level.length < 2) {
+            setFieldError(form, 'level', 'Уровень должен содержать минимум 2 символа.');
+            firstInvalid = firstInvalid || level;
+        }
+
+        if (!values.price_label) {
+            setFieldError(form, 'price_label', 'Укажите стоимость курса.');
+            firstInvalid = firstInvalid || priceLabel;
+        } else if (values.price_label.length < 2) {
+            setFieldError(form, 'price_label', 'Стоимость должна содержать минимум 2 символа.');
+            firstInvalid = firstInvalid || priceLabel;
+        }
+
+        if (values.outcomes.length > 12) {
+            setFieldError(form, 'outcomes', 'Добавьте не больше 12 пунктов.');
+            firstInvalid = firstInvalid || outcomes;
+        } else if (values.outcomes.some((item) => item.length > 120)) {
+            setFieldError(form, 'outcomes', 'Каждый пункт должен быть не длиннее 120 символов.');
+            firstInvalid = firstInvalid || outcomes;
+        }
+
         return {
             valid: !firstInvalid,
             firstInvalid,
@@ -685,6 +726,9 @@
         const title = form.querySelector('#course-title');
         const shortDescription = form.querySelector('#course-short-description');
         const description = form.querySelector('#course-description');
+        const level = form.querySelector('#course-level');
+        const priceLabel = form.querySelector('#course-price-label');
+        const outcomes = form.querySelector('#course-outcomes');
         const slug = form.querySelector('#course-slug');
         const messageBox = getMessageBox(form);
         const progressBar = getProgressBar(form);
@@ -718,6 +762,27 @@
                 });
             }
 
+            if (level) {
+                level.addEventListener('input', () => {
+                    clearFieldError(form, 'level');
+                    clearFormMessage(messageBox);
+                });
+            }
+
+            if (priceLabel) {
+                priceLabel.addEventListener('input', () => {
+                    clearFieldError(form, 'price_label');
+                    clearFormMessage(messageBox);
+                });
+            }
+
+            if (outcomes) {
+                outcomes.addEventListener('input', () => {
+                    clearFieldError(form, 'outcomes');
+                    clearFormMessage(messageBox);
+                });
+            }
+
             slug.addEventListener('input', () => {
                 slugTouched = Boolean(slug.value.trim());
                 clearFieldError(form, 'slug');
@@ -725,7 +790,7 @@
             });
         }
 
-        ['title', 'short_description', 'description', 'slug'].forEach((fieldName) => {
+        ['title', 'short_description', 'description', 'level', 'price_label', 'outcomes', 'slug'].forEach((fieldName) => {
             const field = form.querySelector(`[name="${fieldName}"]`);
             if (!field) return;
 
@@ -765,6 +830,9 @@
                 slug: slug ? slug.value.trim() : '',
                 short_description: shortDescription ? shortDescription.value.trim() : '',
                 description: description ? description.value.trim() : '',
+                level: level ? level.value.trim() : '',
+                price_label: priceLabel ? priceLabel.value.trim() : '',
+                outcomes: parseOutcomesInput(outcomes),
             };
 
             isSubmitting = true;

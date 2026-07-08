@@ -72,6 +72,51 @@
                     </div>
 
                     <div class="field">
+                        <label for="course-level">Уровень</label>
+                        <input
+                            id="course-level"
+                            name="level"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Например: Начинающий"
+                            minlength="2"
+                            maxlength="80"
+                            value="Начинающий"
+                            required
+                        >
+                        <p class="field-error" data-error-for="level" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="course-price-label">Стоимость</label>
+                        <input
+                            id="course-price-label"
+                            name="price_label"
+                            type="text"
+                            autocomplete="off"
+                            placeholder="Например: Бесплатно"
+                            minlength="2"
+                            maxlength="120"
+                            value="Бесплатно"
+                            required
+                        >
+                        <p class="field-error" data-error-for="price_label" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="course-outcomes">Что вы изучите</label>
+                        <textarea
+                            id="course-outcomes"
+                            name="outcomes"
+                            rows="6"
+                            placeholder="Переменные&#10;Условия&#10;Циклы&#10;Функции"
+                            maxlength="1600"
+                        ></textarea>
+                        <p class="field-hint">Один пункт на строку. Эти пункты появятся на странице курса.</p>
+                        <p class="field-error" data-error-for="outcomes" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
                         <label for="course-slug">Slug</label>
                         <input
                             id="course-slug"

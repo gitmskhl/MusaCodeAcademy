@@ -17,6 +17,9 @@ COURSE_FIELDS = {
     "slug",
     "short_description",
     "description",
+    "level",
+    "price_label",
+    "outcomes",
 }
 ENROLLMENT_WITH_COURSE_FIELDS = ENROLLMENT_FIELDS | {"course"}
 
