@@ -55,14 +55,15 @@ const clampProgress = (value) => {
     return Math.max(0, Math.min(100, Math.round(progress)));
 };
 
-const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}`;
+const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}/sections`;
 
 const mapEnrollmentToCourse = (enrollment) => {
     const course = enrollment.course ?? {};
     const progress = clampProgress(enrollment.progress_percent);
+    const courseId = course.id ?? enrollment.course_id ?? enrollment.id;
 
     return {
-        id: course.id,
+        id: courseId,
         title: course.title ?? 'Курс',
         description: course.short_description || course.description || messages.emptyDescription,
         progress,

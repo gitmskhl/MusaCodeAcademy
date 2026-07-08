@@ -36,33 +36,11 @@ const getCourseSlug = () => {
     return slug ? decodeURIComponent(slug) : '';
 };
 
-const getFirstSectionUrl = (course) => {
-    const sections = Array.isArray(course?.sections) ? course.sections : [];
-    const firstSection = [...sections]
-        .filter((section) => Number.isFinite(Number(section.id)))
-        .sort((first, second) => {
-            const firstOrder = Number(first.order);
-            const secondOrder = Number(second.order);
-            return (
-                (Number.isFinite(firstOrder) ? firstOrder : 0) -
-                    (Number.isFinite(secondOrder) ? secondOrder : 0) ||
-                Number(first.id) - Number(second.id)
-            );
-        })[0];
-
-    if (!course?.slug || !firstSection) {
-        return '';
-    }
-
-    return (
-        `/${encodeURIComponent(course.slug)}/sections/` +
-        `${encodeURIComponent(firstSection.id)}/lessons`
-    );
-};
+const getCourseSectionsUrl = (course) =>
+    course?.slug ? `/${encodeURIComponent(course.slug)}/sections` : '/dashboard';
 
 const openCourseStart = (course) => {
-    const sectionUrl = getFirstSectionUrl(course);
-    window.location.assign(sectionUrl || '/dashboard');
+    window.location.assign(getCourseSectionsUrl(course));
 };
 
 const setEnrollmentButton = ({ busy = false, error = false } = {}) => {
