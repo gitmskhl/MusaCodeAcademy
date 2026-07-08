@@ -56,6 +56,7 @@ const elements = {
     root: document.querySelector('[data-course-page]'),
     title: document.querySelector('[data-course-title]'),
     description: document.querySelector('[data-course-description]'),
+    meta: document.querySelector('[data-course-meta]'),
     outcomes: document.querySelector('[data-course-outcomes]'),
     program: document.querySelector('[data-course-program]'),
     lessonsCount: document.querySelector('[data-course-lessons-count]'),
@@ -75,8 +76,23 @@ const getCourseSlug = () => {
 };
 
 const createOutcomeItem = (outcome) => {
-    const item = document.createElement('li');
-    item.textContent = outcome;
+    const item = document.createElement('div');
+    const check = document.createElement('span');
+    const text = document.createElement('span');
+
+    item.className = 'course-outcome';
+    check.className = 'course-outcome__check';
+    check.setAttribute('aria-hidden', 'true');
+    check.textContent = '\u2713';
+    text.textContent = outcome;
+    item.append(check, text);
+
+    return item;
+};
+
+const createMetaItem = (value) => {
+    const item = document.createElement('span');
+    item.textContent = value;
     return item;
 };
 
@@ -145,6 +161,12 @@ const renderCourse = (course) => {
     elements.level.textContent = course.level;
     elements.price.textContent = course.price;
 
+    elements.meta.replaceChildren(
+        createMetaItem(`${course.lessonsCount} урока`),
+        createMetaItem(`${course.sectionsCount} разделов`),
+        createMetaItem(course.level),
+        createMetaItem(course.price),
+    );
     elements.outcomes.replaceChildren(...course.outcomes.map(createOutcomeItem));
     elements.program.replaceChildren(...course.program.map(createProgramSection));
 };
