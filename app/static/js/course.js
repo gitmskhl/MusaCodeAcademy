@@ -14,6 +14,18 @@ const elements = {
     enrollButton: document.querySelector('.course-enroll-button'),
 };
 
+const state = {
+    course: null,
+    isSubmittingEnrollment: false,
+};
+
+const labels = Object.freeze({
+    enroll: '\u0417\u0430\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f \u043d\u0430 \u043a\u0443\u0440\u0441',
+    enrolling: '\u0417\u0430\u043f\u0438\u0441\u044b\u0432\u0430\u0435\u043c...',
+    continue: '\u041f\u0440\u043e\u0434\u043e\u043b\u0436\u0438\u0442\u044c \u043a\u0443\u0440\u0441',
+    enrollFailed: '\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u043f\u0438\u0441\u0430\u0442\u044c\u0441\u044f',
+});
+
 const getCourseSlug = () => {
     const templateSlug = elements.root?.dataset.courseSlug?.trim();
     if (templateSlug) {
@@ -22,6 +34,53 @@ const getCourseSlug = () => {
 
     const [, slug] = window.location.pathname.match(/^\/([^/]+)\/?$/) || [];
     return slug ? decodeURIComponent(slug) : '';
+};
+
+const getFirstSectionUrl = (course) => {
+    const sections = Array.isArray(course?.sections) ? course.sections : [];
+    const firstSection = [...sections]
+        .filter((section) => Number.isFinite(Number(section.id)))
+        .sort((first, second) => {
+            const firstOrder = Number(first.order);
+            const secondOrder = Number(second.order);
+            return (
+                (Number.isFinite(firstOrder) ? firstOrder : 0) -
+                    (Number.isFinite(secondOrder) ? secondOrder : 0) ||
+                Number(first.id) - Number(second.id)
+            );
+        })[0];
+
+    if (!course?.slug || !firstSection) {
+        return '';
+    }
+
+    return (
+        `/${encodeURIComponent(course.slug)}/sections/` +
+        `${encodeURIComponent(firstSection.id)}/lessons`
+    );
+};
+
+const openCourseStart = (course) => {
+    const sectionUrl = getFirstSectionUrl(course);
+    window.location.assign(sectionUrl || '/dashboard');
+};
+
+const setEnrollmentButton = ({ busy = false, error = false } = {}) => {
+    if (!elements.enrollButton) {
+        return;
+    }
+
+    const isEnrolled = Boolean(state.course?.is_enrolled);
+    elements.enrollButton.disabled = busy;
+    elements.enrollButton.setAttribute('aria-busy', String(busy));
+
+    if (busy) {
+        elements.enrollButton.textContent = labels.enrolling;
+    } else if (error) {
+        elements.enrollButton.textContent = labels.enrollFailed;
+    } else {
+        elements.enrollButton.textContent = isEnrolled ? labels.continue : labels.enroll;
+    }
 };
 
 const pluralizeRu = (count, one, few, many) => {
@@ -186,6 +245,7 @@ const renderProgram = (sections) => {
 
 const renderCourse = (course) => {
     const stats = getCourseStats(course);
+    state.course = course;
 
     document.title = `${course.title} | Musa Code Academy`;
     elements.title.textContent = course.title;
@@ -201,6 +261,7 @@ const renderCourse = (course) => {
             : 'Записаться на курс';
     }
 
+    setEnrollmentButton();
     renderMeta(course, stats);
     renderOutcomes(course.outcomes);
     renderProgram(course.sections);
@@ -216,6 +277,51 @@ const setError = (message) => {
     elements.sectionsCount.textContent = '0';
     elements.level.textContent = '—';
     elements.price.textContent = '—';
+};
+
+const enrollInCourse = async () => {
+    if (!state.course || state.isSubmittingEnrollment) {
+        return;
+    }
+
+    if (state.course.is_enrolled) {
+        openCourseStart(state.course);
+        return;
+    }
+
+    state.isSubmittingEnrollment = true;
+    setEnrollmentButton({ busy: true });
+
+    try {
+        const response = await authFetch(
+            `/api/courses/${encodeURIComponent(state.course.id)}/enroll`,
+            { method: 'POST' }
+        );
+
+        if (!response.ok && response.status !== 409) {
+            throw new Error('enrollment-failed');
+        }
+
+        state.course = {
+            ...state.course,
+            is_enrolled: true,
+        };
+        setEnrollmentButton();
+        openCourseStart(state.course);
+    } catch (error) {
+        if (error instanceof Error && error.message === 'authentication-required') {
+            return;
+        }
+
+        setEnrollmentButton({ error: true });
+        window.setTimeout(() => setEnrollmentButton(), 2400);
+    } finally {
+        state.isSubmittingEnrollment = false;
+        if (elements.enrollButton) {
+            elements.enrollButton.disabled = false;
+            elements.enrollButton.setAttribute('aria-busy', 'false');
+        }
+    }
 };
 
 const loadCourse = async () => {
@@ -244,4 +350,5 @@ const loadCourse = async () => {
     }
 };
 
+elements.enrollButton?.addEventListener('click', enrollInCourse);
 document.addEventListener('DOMContentLoaded', loadCourse);
