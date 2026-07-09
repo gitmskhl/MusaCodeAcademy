@@ -161,16 +161,24 @@ import { authFetch, requireToken } from './course-auth.js';
     };
 
     const updateProgress = (lessons) => {
-        const completed = lessons.filter(
-            (lesson) => lesson.status === 'completed'
-        ).length;
-        const percentage = lessons.length
-            ? Math.round((completed / lessons.length) * 100)
+        const completed = lessons.reduce(
+            (total, lesson) =>
+                total + (Number(lesson.progress?.completed_count) || 0),
+            0
+        );
+        const total = lessons.reduce(
+            (sum, lesson) => sum + (Number(lesson.progress?.total_count) || 0),
+            0
+        );
+        const percentage = total
+            ? Math.round((completed / total) * 100)
             : 0;
 
         elements.progressPercent.textContent = `${percentage}%`;
         elements.progressLabel.textContent =
             `${completed} из ${lessons.length} уроков завершено`;
+        elements.progressLabel.textContent =
+            `${completed} / ${total} шагов завершено`;
         elements.progressTrack.setAttribute('aria-valuenow', String(percentage));
         elements.progressBar.style.width = `${percentage}%`;
     };
