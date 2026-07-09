@@ -12,7 +12,8 @@ from app.api.routers import (
     stepRouter,
     fileRouter,
     enrollmentRouter,
-    progressRouter
+    progressRouter,
+    taskRouter
 )
 from app.core.database import engine
 from app.models import Base
@@ -92,6 +93,12 @@ app.include_router(
     progressRouter,
     prefix='/api/progress',
     tags=['progress']
+)
+
+app.include_router(
+    taskRouter,
+    prefix='/api/tasks',
+    tags=['tasks']
 )
 
 app.include_router(pagesRouter)

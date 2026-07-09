@@ -8,3 +8,4 @@ from .file import File
 from .enrollment import Enrollment
 from .step_progress import StepProgress
 from .course_activity import CourseActivity
+from .task import Task
