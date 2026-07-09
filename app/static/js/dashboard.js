@@ -25,6 +25,7 @@ const elements = {
     retry: document.querySelector('[data-dashboard-retry]'),
     empty: document.querySelector('[data-dashboard-empty]'),
     courseList: document.querySelector('[data-course-list]'),
+    catalog: document.querySelector('[data-dashboard-catalog]'),
 };
 
 const ENROLLED_COURSES_KEY = 'musa_code_academy_enrolled_courses';
@@ -126,6 +127,7 @@ const setLoading = () => {
     elements.error.hidden = true;
     elements.empty.hidden = true;
     elements.currentCourse.hidden = true;
+    elements.catalog.hidden = true;
     elements.courseList.replaceChildren();
 };
 
@@ -133,6 +135,7 @@ const setError = (message) => {
     elements.loading.hidden = true;
     elements.empty.hidden = true;
     elements.currentCourse.hidden = true;
+    elements.catalog.hidden = true;
     elements.error.hidden = false;
     elements.errorMessage.textContent = message;
     elements.courseList.replaceChildren();
@@ -143,6 +146,7 @@ const setEmpty = () => {
     elements.error.hidden = true;
     elements.empty.hidden = false;
     elements.currentCourse.hidden = true;
+    elements.catalog.hidden = true;
     elements.courseList.replaceChildren();
 };
 
@@ -150,6 +154,7 @@ const setContent = () => {
     elements.loading.hidden = true;
     elements.error.hidden = true;
     elements.empty.hidden = true;
+    elements.catalog.hidden = false;
 };
 
 const createCourseCard = (course) => {

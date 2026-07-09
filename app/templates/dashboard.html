@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
-    <script type="module" src="{{ url_for('static', path='js/dashboard.js') }}?v=3"></script>
+    <script type="module" src="{{ url_for('static', path='js/dashboard.js') }}?v=4"></script>
 </head>
 <body>
     <header class="app-header">
@@ -39,6 +39,11 @@
         <section class="dashboard-greeting" aria-labelledby="dashboard-greeting-title">
             <h1 id="dashboard-greeting-title" data-dashboard-greeting-title>Добро пожаловать! 👋</h1>
             <p>Рады видеть вас снова в Musa Code Academy.</p>
+            <div class="dashboard-greeting__actions">
+                <a class="course-card__button dashboard-greeting__browse" href="/courses" data-dashboard-catalog hidden>
+                    Все курсы
+                </a>
+            </div>
         </section>
 
         <section class="learning-hero" aria-labelledby="current-course-title" data-current-course hidden>

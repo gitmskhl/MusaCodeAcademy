@@ -93,6 +93,16 @@ a {
     line-height: 1.5;
 }
 
+.dashboard-greeting__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.dashboard-greeting__browse {
+    justify-self: center;
+}
+
 .learning-hero {
     margin-bottom: 42px;
     border: 1px solid var(--border);
