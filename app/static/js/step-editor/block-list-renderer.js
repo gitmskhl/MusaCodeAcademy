@@ -1,5 +1,6 @@
 import { renderBlock } from '../step-renderer/block-renderer.js';
 import { renderStep } from '../step-renderer/step-renderer.js';
+import { renderCalloutEditor } from './block-editors/callout-editor.js';
 import { renderCodeEditor } from './block-editors/code-editor.js';
 import { renderImageEditor } from './block-editors/image-editor.js';
 import { renderTextEditor } from './block-editors/text-editor.js';
@@ -10,6 +11,7 @@ const blockEditors = new Map([
     ['text', renderTextEditor],
     ['image', renderImageEditor],
     ['code', renderCodeEditor],
+    ['callout', renderCalloutEditor],
 ]);
 
 const createEmptyState = () => {
@@ -19,7 +21,7 @@ const createEmptyState = () => {
         <div>
             <span class="block-list__empty-icon" aria-hidden="true">+</span>
             <strong>Start your document</strong>
-            <p>Add a text, image, or code block below.</p>
+            <p>Add a text, image, code, or callout block below.</p>
         </div>
     `;
     return emptyState;

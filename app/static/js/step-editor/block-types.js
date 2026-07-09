@@ -37,6 +37,24 @@ const blockTypes = new Map([
             },
         },
     ],
+    [
+        'callout',
+        {
+            label: 'Callout',
+            description: 'Highlighted Markdown note',
+            icon: '!',
+            createData: () => ({
+                variant: 'info',
+                title: '',
+                content: '',
+            }),
+            summarize: (data) => {
+                const title = data.title?.trim();
+                const firstLine = data.content?.split(/\r?\n/, 1)[0].trim();
+                return title || firstLine || 'Empty callout';
+            },
+        },
+    ],
 ]);
 
 export const getBlockTypes = () =>

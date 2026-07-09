@@ -324,7 +324,7 @@ const activateBlock = (index, { focusEditor = false } = {}) => {
         return;
     }
 
-    const shouldEditText = block.type === 'text';
+    const shouldEditText = block.type === 'text' || block.type === 'callout';
     if (
         selectedBlockIndex === index &&
         editingBlockIndex === (shouldEditText ? index : null)
@@ -366,7 +366,8 @@ const deleteBlock = (index) => {
 
 const addNewBlock = (type) => {
     selectedBlockIndex = getBlocks().length;
-    editingBlockIndex = type === 'text' ? selectedBlockIndex : null;
+    editingBlockIndex =
+        type === 'text' || type === 'callout' ? selectedBlockIndex : null;
     focusEditorAfterRender = true;
     addBlock(createBlock(type));
     closeBlockMenu();
