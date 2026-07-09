@@ -21,6 +21,8 @@ const messages = Object.freeze({
     emptySections: '\u0420\u0430\u0437\u0434\u0435\u043b\u044b \u043a\u0443\u0440\u0441\u0430 \u0441\u043a\u043e\u0440\u043e \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f.',
     openSection: '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0440\u0430\u0437\u0434\u0435\u043b',
     section: '\u0420\u0430\u0437\u0434\u0435\u043b',
+    steps: '\u0448\u0430\u0433\u043e\u0432',
+    lessons: '\u0443\u0440\u043e\u043a\u043e\u0432',
 });
 
 const getCourseSlug = () => {
@@ -110,10 +112,18 @@ const createLessonPreview = (lessons) => {
 
 const createSectionCard = (section, index, courseSlug) => {
     const lessons = Array.isArray(section.lessons) ? section.lessons : [];
+    const progress = section.progress ?? {};
+    const percent = Number(progress.percent) || 0;
     const link = document.createElement('a');
     const meta = document.createElement('p');
     const title = document.createElement('h2');
     const description = document.createElement('p');
+    const progressWrap = document.createElement('div');
+    const progressHeader = document.createElement('div');
+    const progressTrack = document.createElement('span');
+    const progressBar = document.createElement('span');
+    const progressPercent = document.createElement('strong');
+    const progressCount = document.createElement('span');
     const footer = document.createElement('span');
 
     link.className = 'course-section-card';
@@ -129,10 +139,23 @@ const createSectionCard = (section, index, courseSlug) => {
     description.className = 'course-section-card__description';
     description.textContent = section.description || messages.emptyDescription;
 
+    progressWrap.className = 'course-section-card__progress';
+    progressHeader.className = 'course-section-card__progress-header';
+    progressPercent.textContent = `${percent}%`;
+    progressCount.textContent =
+        `${progress.completed_step_count ?? 0} / ` +
+        `${progress.total_step_count ?? 0} ${messages.steps}`;
+    progressTrack.className = 'course-section-card__progress-track';
+    progressTrack.setAttribute('aria-hidden', 'true');
+    progressBar.style.width = `${percent}%`;
+    progressTrack.append(progressBar);
+    progressHeader.append(progressPercent, progressCount);
+    progressWrap.append(progressHeader, progressTrack);
+
     footer.className = 'course-section-card__action';
     footer.textContent = messages.openSection;
 
-    link.append(meta, title, description);
+    link.append(meta, title, description, progressWrap);
 
     if (lessons.length > 0) {
         link.append(createLessonPreview(lessons));
@@ -143,11 +166,52 @@ const createSectionCard = (section, index, courseSlug) => {
 };
 
 const renderProgress = (sections) => {
-    const lessonsCount = countLessons(sections);
-    elements.progressPercent.textContent = '0%';
-    elements.progressBar.style.width = '0%';
-    elements.progressCount.textContent = getLessonCountLabel(lessonsCount);
+    const totalSteps = sections.reduce(
+        (total, section) => total + (Number(section.progress?.total_step_count) || 0),
+        0
+    );
+    const completedSteps = sections.reduce(
+        (total, section) =>
+            total + (Number(section.progress?.completed_step_count) || 0),
+        0
+    );
+    const percent = totalSteps
+        ? Math.round((completedSteps / totalSteps) * 100)
+        : 0;
+
+    elements.progressPercent.textContent = `${percent}%`;
+    elements.progressBar.style.width = `${percent}%`;
+    elements.progressCount.textContent =
+        `${completedSteps} / ${totalSteps} ${messages.steps}`;
 };
+
+const loadSectionsProgress = async (courseId) => {
+    const response = await authFetch(
+        `/api/progress/courses/${encodeURIComponent(courseId)}/sections`
+    );
+    if (!response.ok) {
+        return new Map();
+    }
+
+    const data = await response.json();
+    const sections = Array.isArray(data.sections) ? data.sections : [];
+    return new Map(sections.map((section) => [section.section_id, section]));
+};
+
+const mergeSectionsProgress = (sections, progressBySectionId) =>
+    sections.map((section) => ({
+        ...section,
+        progress: progressBySectionId.get(section.id) ?? {
+            section_id: section.id,
+            completed_step_count: 0,
+            total_step_count: 0,
+            completed_lesson_count: 0,
+            total_lesson_count: Array.isArray(section.lessons)
+                ? section.lessons.length
+                : 0,
+            percent: 0,
+        },
+    }));
 
 const renderSections = (course, sections) => {
     elements.sections.replaceChildren();
@@ -167,8 +231,11 @@ const renderSections = (course, sections) => {
     elements.sections.append(fragment);
 };
 
-const renderCourse = (course) => {
-    const sections = getOrderedSections(course);
+const renderCourse = (course, progressBySectionId = new Map()) => {
+    const sections = mergeSectionsProgress(
+        getOrderedSections(course),
+        progressBySectionId
+    );
 
     document.title = `${course.title} | Musa Code Academy`;
     elements.title.textContent = course.title;
@@ -193,7 +260,9 @@ const loadCourseSections = async () => {
             throw new Error('course-load-failed');
         }
 
-        renderCourse(await response.json());
+        const course = await response.json();
+        const progressBySectionId = await loadSectionsProgress(course.id);
+        renderCourse(course, progressBySectionId);
     } catch (error) {
         if (error instanceof Error && error.message === 'authentication-required') {
             return;
