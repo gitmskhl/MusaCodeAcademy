@@ -272,13 +272,16 @@ const renderCurrentCourse = (course) => {
     elements.currentCourse.hidden = false;
 };
 
+const getCurrentCourse = (courses) =>
+    courses.find((course) => (course.completedStepCount ?? 0) > 0) ?? courses[0];
+
 const renderCourses = (courses) => {
     const fragment = document.createDocumentFragment();
     courses.forEach((course) => {
         fragment.append(createCourseCard(course));
     });
     elements.courseList.replaceChildren(fragment);
-    renderCurrentCourse(courses[0]);
+    renderCurrentCourse(getCurrentCourse(courses));
     setContent();
 };
 
