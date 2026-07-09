@@ -18,6 +18,7 @@ class CodeBlockData(BaseModel):
 
 class CalloutData(BaseModel):
     variant: Literal["info", "tip", "important", "warning", "error"]
+    title: str | None
     content: str
 
 

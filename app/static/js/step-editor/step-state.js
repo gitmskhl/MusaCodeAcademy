@@ -14,6 +14,34 @@ const notify = (change) => {
     listeners.forEach((listener) => listener(step, change));
 };
 
+const normalizeBlock = (block) => {
+    if (block?.type !== 'callout') {
+        return block;
+    }
+
+    return {
+        ...block,
+        data: {
+            variant: block.data?.variant ?? 'info',
+            title: block.data?.title ?? '',
+            content: block.data?.content ?? '',
+        },
+    };
+};
+
+const normalizeContent = (content) => {
+    const normalized = structuredClone(content);
+
+    if (normalized.layout === 'two_columns') {
+        normalized.left = (normalized.left ?? []).map(normalizeBlock);
+        normalized.right = (normalized.right ?? []).map(normalizeBlock);
+        return normalized;
+    }
+
+    normalized.blocks = (normalized.blocks ?? []).map(normalizeBlock);
+    return normalized;
+};
+
 export const getBlocks = () => {
     return getStepBlocks(step.content);
 };
@@ -34,7 +62,7 @@ export const subscribeToStep = (listener) => {
 };
 
 export const loadStepContent = (content) => {
-    step.content = structuredClone(content);
+    step.content = normalizeContent(content);
     notify({ type: 'step-loaded' });
 };
 
