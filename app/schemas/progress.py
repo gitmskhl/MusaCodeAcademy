@@ -14,3 +14,11 @@ class StepProgressPublic(BaseModel):
 
 class StepProgressStatus(BaseModel):
     completed: bool
+
+
+class LessonProgress(BaseModel):
+    lesson_id: int
+    completed_step_ids: list[int]
+    completed_count: int
+    total_count: int
+    percent: int

@@ -52,11 +52,17 @@ async def create_lesson(db, *, section_id: int) -> Lesson:
     return lesson
 
 
-async def create_step(db, *, lesson_id: int) -> Step:
+async def create_step(
+    db,
+    *,
+    lesson_id: int,
+    title: str = "First step",
+    order: int = 0,
+) -> Step:
     step = Step(
         lesson_id=lesson_id,
-        title="First step",
-        order=0,
+        title=title,
+        order=order,
         content={"layout": "single", "blocks": []},
     )
     db.add(step)
@@ -78,20 +84,19 @@ async def create_step_target(
     )
     lesson = await create_lesson(db, section_id=section.id)
     step = await create_step(db, lesson_id=lesson.id)
-    return section.course_id, step
+    return section.course_id, lesson, step
 
 
 @pytest.mark.asyncio
 async def test_complete_step_success(
     client,
     auth_headers,
-    course_factory,
     section_factory,
     db,
     user_data,
 ):
     user = await get_user_by_email(db, user_data["email"])
-    course_id, step = await create_step_target(db, section_factory)
+    course_id, _, step = await create_step_target(db, section_factory)
     await create_enrollment(db, user_id=user.id, course_id=course_id)
 
     response = await client.post(
@@ -109,7 +114,7 @@ async def test_complete_step_success(
 
 @pytest.mark.asyncio
 async def test_complete_step_requires_authentication(client, section_factory, db):
-    _, step = await create_step_target(db, section_factory)
+    _, _, step = await create_step_target(db, section_factory)
 
     response = await client.post(f"/api/progress/steps/{step.id}")
 
@@ -124,7 +129,7 @@ async def test_complete_step_rejects_user_without_enrollment(
     section_factory,
     db,
 ):
-    _, step = await create_step_target(db, section_factory)
+    _, _, step = await create_step_target(db, section_factory)
 
     response = await client.post(
         f"/api/progress/steps/{step.id}",
@@ -144,7 +149,7 @@ async def test_complete_step_rejects_draft_course(
     user_data,
 ):
     user = await get_user_by_email(db, user_data["email"])
-    course_id, step = await create_step_target(
+    course_id, _, step = await create_step_target(
         db,
         section_factory,
         is_published=False,
@@ -169,7 +174,7 @@ async def test_get_step_progress_returns_completed_status(
     user_data,
 ):
     user = await get_user_by_email(db, user_data["email"])
-    course_id, step = await create_step_target(db, section_factory)
+    course_id, _, step = await create_step_target(db, section_factory)
     await create_enrollment(db, user_id=user.id, course_id=course_id)
     await client.post(f"/api/progress/steps/{step.id}", headers=auth_headers)
 
@@ -192,7 +197,7 @@ async def test_get_step_progress_is_scoped_to_current_user(
 ):
     current_user = await get_user_by_email(db, user_data["email"])
     other_user = await create_user(db)
-    course_id, step = await create_step_target(db, section_factory)
+    course_id, _, step = await create_step_target(db, section_factory)
     await create_enrollment(db, user_id=current_user.id, course_id=course_id)
     await create_enrollment(db, user_id=other_user.id, course_id=course_id)
     db.add(StepProgress(user_id=other_user.id, step_id=step.id))
@@ -216,7 +221,7 @@ async def test_uncomplete_step_deletes_progress(
     user_data,
 ):
     user = await get_user_by_email(db, user_data["email"])
-    course_id, step = await create_step_target(db, section_factory)
+    course_id, _, step = await create_step_target(db, section_factory)
     await create_enrollment(db, user_id=user.id, course_id=course_id)
     response = await client.post(
         f"/api/progress/steps/{step.id}",
@@ -235,9 +240,145 @@ async def test_uncomplete_step_deletes_progress(
 
 @pytest.mark.asyncio
 async def test_uncomplete_step_requires_authentication(client, section_factory, db):
-    _, step = await create_step_target(db, section_factory)
+    _, _, step = await create_step_target(db, section_factory)
 
     response = await client.delete(f"/api/progress/steps/{step.id}")
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {"detail": "Not authenticated"}
+
+
+@pytest.mark.asyncio
+async def test_get_lesson_progress_success(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+    user_data,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    course_id, lesson, first_step = await create_step_target(db, section_factory)
+    second_step = await create_step(
+        db,
+        lesson_id=lesson.id,
+        title="Second step",
+        order=1,
+    )
+    third_step = await create_step(
+        db,
+        lesson_id=lesson.id,
+        title="Third step",
+        order=2,
+    )
+    await create_enrollment(db, user_id=user.id, course_id=course_id)
+    await client.post(
+        f"/api/progress/steps/{third_step.id}",
+        headers=auth_headers,
+    )
+    await client.post(
+        f"/api/progress/steps/{first_step.id}",
+        headers=auth_headers,
+    )
+
+    response = await client.get(
+        f"/api/progress/lessons/{lesson.id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "lesson_id": lesson.id,
+        "completed_step_ids": [first_step.id, third_step.id],
+        "completed_count": 2,
+        "total_count": 3,
+        "percent": 67,
+    }
+    assert second_step.id not in response.json()["completed_step_ids"]
+
+
+@pytest.mark.asyncio
+async def test_get_lesson_progress_requires_authentication(
+    client,
+    section_factory,
+    db,
+):
+    _, lesson, _ = await create_step_target(db, section_factory)
+
+    response = await client.get(f"/api/progress/lessons/{lesson.id}")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+@pytest.mark.asyncio
+async def test_get_lesson_progress_rejects_user_without_enrollment(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+):
+    _, lesson, _ = await create_step_target(db, section_factory)
+
+    response = await client.get(
+        f"/api/progress/lessons/{lesson.id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {"detail": "Enrollment not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_lesson_progress_rejects_draft_course(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+    user_data,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    course_id, lesson, _ = await create_step_target(
+        db,
+        section_factory,
+        is_published=False,
+    )
+    await create_enrollment(db, user_id=user.id, course_id=course_id)
+
+    response = await client.get(
+        f"/api/progress/lessons/{lesson.id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Course not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_lesson_progress_ignores_other_users_progress(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+    user_data,
+):
+    current_user = await get_user_by_email(db, user_data["email"])
+    other_user = await create_user(db)
+    course_id, lesson, step = await create_step_target(db, section_factory)
+    await create_enrollment(db, user_id=current_user.id, course_id=course_id)
+    await create_enrollment(db, user_id=other_user.id, course_id=course_id)
+    db.add(StepProgress(user_id=other_user.id, step_id=step.id))
+    await db.commit()
+
+    response = await client.get(
+        f"/api/progress/lessons/{lesson.id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "lesson_id": lesson.id,
+        "completed_step_ids": [],
+        "completed_count": 0,
+        "total_count": 1,
+        "percent": 0,
+    }
