@@ -3,6 +3,10 @@ import { authFetch } from './course-auth.js';
 const messages = Object.freeze({
     loadingError: 'Не удалось загрузить курсы.',
     emptyDescription: 'Описание курса пока не добавлено.',
+    enrolled: 'Вы записаны',
+    openCourse: 'Подробнее',
+    continueCourse: 'Продолжить',
+    fallbackTitle: 'Курс',
 });
 
 const elements = {
@@ -16,6 +20,9 @@ const elements = {
 
 const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}`;
 
+const getCourseSectionsUrl = (course) =>
+    `/${encodeURIComponent(course.slug)}/sections`;
+
 const fetchJson = async (url) => {
     const response = await authFetch(url);
     if (!response.ok) {
@@ -24,24 +31,16 @@ const fetchJson = async (url) => {
     return response.json();
 };
 
-const loadCourseList = async () => {
-    const urls = [
-        '/api/courses',
-        '/api/courses/',
-        '/api/courses/admin',
-    ];
-    let lastError;
+const loadCourseList = () => fetchJson('/api/courses');
 
-    for (const url of urls) {
-        try {
-            return await fetchJson(url);
-        } catch (error) {
-            lastError = error;
-            console.warn(`Could not load courses from ${url}.`, error);
-        }
+const loadEnrollments = async () => {
+    try {
+        const enrollments = await fetchJson('/api/enrollments/me');
+        return Array.isArray(enrollments) ? enrollments : [];
+    } catch (error) {
+        console.warn('Could not load enrollments.', error);
+        return [];
     }
-
-    throw lastError ?? new Error('courses-load-failed');
 };
 
 const setLoading = () => {
@@ -72,22 +71,53 @@ const setContent = () => {
     elements.empty.hidden = true;
 };
 
+const createMeta = (course) => {
+    const meta = document.createElement('p');
+    const items = [course.level, course.price_label].filter(Boolean);
+
+    meta.className = 'courses-card__meta';
+    meta.textContent = items.join(' · ');
+    return meta;
+};
+
 const createCourseCard = (course) => {
+    const isEnrolled = Boolean(course.is_enrolled);
     const article = document.createElement('article');
+    const header = document.createElement('div');
     const title = document.createElement('h2');
+    const badge = document.createElement('span');
     const description = document.createElement('p');
     const link = document.createElement('a');
 
     article.className = 'courses-card';
-    title.textContent = course.title || 'Курс';
+    article.classList.toggle('courses-card--enrolled', isEnrolled);
+
+    header.className = 'courses-card__header';
+    title.textContent = course.title || messages.fallbackTitle;
+    header.append(title);
+
+    if (isEnrolled) {
+        badge.className = 'courses-card__badge';
+        badge.textContent = messages.enrolled;
+        header.append(badge);
+    }
+
+    description.className = 'courses-card__description';
     description.textContent =
         course.short_description || course.description || messages.emptyDescription;
 
     link.className = 'courses-card__link';
-    link.href = course.slug ? getCourseUrl(course) : '#';
-    link.textContent = 'Открыть курс';
+    link.classList.toggle('courses-card__link--primary', isEnrolled);
+    link.href = course.slug
+        ? isEnrolled
+            ? getCourseSectionsUrl(course)
+            : getCourseUrl(course)
+        : '#';
+    link.textContent = isEnrolled
+        ? messages.continueCourse
+        : messages.openCourse;
 
-    article.append(title, description, link);
+    article.append(header, description, createMeta(course), link);
     return article;
 };
 
@@ -104,9 +134,20 @@ const loadCourses = async () => {
     setLoading();
 
     try {
-        const courses = await loadCourseList();
+        const [courses, enrollments] = await Promise.all([
+            loadCourseList(),
+            loadEnrollments(),
+        ]);
+        const enrolledCourseIds = new Set(
+            enrollments.map((enrollment) => enrollment.course_id)
+        );
         const publishedCourses = Array.isArray(courses)
-            ? courses.filter((course) => course.id && course.is_published !== false)
+            ? courses
+                .filter((course) => course.id && course.is_published !== false)
+                .map((course) => ({
+                    ...course,
+                    is_enrolled: enrolledCourseIds.has(course.id),
+                }))
             : [];
 
         if (publishedCourses.length === 0) {
