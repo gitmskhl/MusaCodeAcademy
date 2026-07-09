@@ -2,7 +2,7 @@ from fastapi import status, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.task import TaskCreate
+from app.schemas.task import TaskCreate, TaskUpdate
 from app.models import Task, Step
 
 
@@ -23,6 +23,7 @@ async def create_task(taskInfo: TaskCreate, db: AsyncSession) -> Task:
             status_code=status.HTTP_409_CONFLICT,
             detail="Task already exists for this step"
         )
+
 
     new_task = Task(
         step_id=taskInfo.step_id,
@@ -91,4 +92,27 @@ async def delete_task(task_id: int, db: AsyncSession) -> None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Failed to delete task due to integrity error"
+        )
+
+
+async def update_task(task_id: int, taskUpdate: TaskUpdate, db: AsyncSession) -> Task:
+    task = await get_task(task_id=task_id, db=db)
+    step = await db.get(Step, task.step_id)
+    if not step:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Step not found"
+        )
+    for key, val in taskUpdate.model_dump(exclude_unset=True).items():
+        setattr(task, key, val)
+    
+    try:
+        await db.commit()
+        await db.refresh(task)
+        return task
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Task already exists for this step"
         )

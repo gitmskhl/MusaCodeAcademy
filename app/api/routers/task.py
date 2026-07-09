@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.schemas.task import TaskPublic, TaskCreate
+from app.schemas.task import TaskPublic, TaskCreate, TaskUpdate
 from app.api.dependencies import OnlyAdmin, DBSession
 from app.services import task as service_task
 
@@ -28,3 +28,17 @@ async def get_task_by_step_admin(step_id: int, _: OnlyAdmin, db: DBSession):
 @router.delete('/admin/{task_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(task_id: int, _: OnlyAdmin, db: DBSession):
     await service_task.delete_task(task_id=task_id, db=db)
+
+
+@router.patch('/admin/{task_id}', response_model=TaskPublic)
+async def update_task(
+    task_id: int,
+    taskUpdate: TaskUpdate,
+    _: OnlyAdmin,
+    db: DBSession,
+):
+    return await service_task.update_task(
+        task_id=task_id,
+        taskUpdate=taskUpdate,
+        db=db
+    )

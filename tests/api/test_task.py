@@ -75,6 +75,10 @@ def delete_task_url(task_id: int | str) -> str:
     return str(app.url_path_for("delete_task", task_id=task_id))
 
 
+def update_task_url(task_id: int | str) -> str:
+    return str(app.url_path_for("update_task", task_id=task_id))
+
+
 # GET /api/tasks/admin/{task_id}
 
 
@@ -336,6 +340,174 @@ async def test_delete_task_admin_rejects_invalid_id(client, admin_headers):
     response = await client.delete(
         delete_task_url("not-an-id"),
         headers=admin_headers,
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"][0]["loc"] == ["path", "task_id"]
+
+
+# PATCH /api/tasks/admin/{task_id}
+
+
+def test_update_task_admin_uses_expected_url():
+    assert update_task_url(1) == "/api/tasks/admin/1"
+
+
+@pytest.mark.asyncio
+async def test_update_task_admin_updates_only_title(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    response = await client.patch(
+        update_task_url(task.id),
+        headers=admin_headers,
+        json={"title": "Updated task"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert set(data) == TASK_FIELDS
+    assert data["id"] == task.id
+    assert data["step_id"] == task.step_id
+    assert data["title"] == "Updated task"
+    assert data["description"] == task.description
+    assert data["time_limit_ms"] == task.time_limit_ms
+    assert data["memory_limit_mb"] == task.memory_limit_mb
+    await db.refresh(task)
+    assert task.title == "Updated task"
+
+
+@pytest.mark.asyncio
+async def test_update_task_admin_updates_limits(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    response = await client.patch(
+        update_task_url(task.id),
+        headers=admin_headers,
+        json={
+            "description": "Solve this updated practice task",
+            "time_limit_ms": 2000,
+            "memory_limit_mb": 256,
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["title"] == task.title
+    assert data["description"] == "Solve this updated practice task"
+    assert data["time_limit_ms"] == 2000
+    assert data["memory_limit_mb"] == 256
+    await db.refresh(task)
+    assert task.description == "Solve this updated practice task"
+    assert task.time_limit_ms == 2000
+    assert task.memory_limit_mb == 256
+
+
+@pytest.mark.asyncio
+async def test_update_task_admin_not_found(client, admin_headers):
+    response = await client.patch(
+        update_task_url(999999),
+        headers=admin_headers,
+        json={"title": "Updated task"},
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Task not found"}
+
+
+@pytest.mark.asyncio
+async def test_update_task_admin_rejects_non_admin(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    original_title = task.title
+
+    response = await client.patch(
+        update_task_url(task.id),
+        headers=auth_headers,
+        json={"title": "Updated task"},
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {
+        "detail": "You do not have permission to perform this action"
+    }
+    await db.refresh(task)
+    assert task.title == original_title
+
+
+@pytest.mark.asyncio
+async def test_update_task_admin_requires_authentication(
+    client,
+    section_factory,
+    db,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    response = await client.patch(
+        update_task_url(task.id),
+        json={"title": "Updated task"},
+    )
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "payload, loc",
+    [
+        ({"title": ""}, ["body", "title"]),
+        ({"description": "too short"}, ["body", "description"]),
+        ({"time_limit_ms": 0}, ["body", "time_limit_ms"]),
+        ({"time_limit_ms": 30001}, ["body", "time_limit_ms"]),
+        ({"memory_limit_mb": 0}, ["body", "memory_limit_mb"]),
+        ({"memory_limit_mb": 1025}, ["body", "memory_limit_mb"]),
+    ],
+)
+async def test_update_task_admin_validates_payload(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+    payload,
+    loc,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    response = await client.patch(
+        update_task_url(task.id),
+        headers=admin_headers,
+        json=payload,
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    assert response.json()["detail"][0]["loc"] == loc
+
+
+@pytest.mark.asyncio
+async def test_update_task_admin_rejects_invalid_id(client, admin_headers):
+    response = await client.patch(
+        update_task_url("not-an-id"),
+        headers=admin_headers,
+        json={"title": "Updated task"},
     )
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
