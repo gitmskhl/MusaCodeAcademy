@@ -382,3 +382,190 @@ async def test_get_lesson_progress_ignores_other_users_progress(
         "total_count": 1,
         "percent": 0,
     }
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_success(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+    user_data,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    first_section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=first_section.course_id,
+        is_published=True,
+        order=1,
+    )
+    first_lesson = await create_lesson(db, section_id=first_section.id)
+    second_lesson = await create_lesson(db, section_id=first_section.id)
+    first_step = await create_step(
+        db,
+        lesson_id=first_lesson.id,
+        title="First lesson step 1",
+        order=0,
+    )
+    second_step = await create_step(
+        db,
+        lesson_id=first_lesson.id,
+        title="First lesson step 2",
+        order=1,
+    )
+    third_step = await create_step(
+        db,
+        lesson_id=second_lesson.id,
+        title="Second lesson step 1",
+        order=0,
+    )
+    await create_step(
+        db,
+        lesson_id=second_lesson.id,
+        title="Second lesson step 2",
+        order=1,
+    )
+    await create_enrollment(
+        db,
+        user_id=user.id,
+        course_id=first_section.course_id,
+    )
+    for step in [first_step, second_step, third_step]:
+        await client.post(
+            f"/api/progress/steps/{step.id}",
+            headers=auth_headers,
+        )
+
+    response = await client.get(
+        f"/api/progress/courses/{first_section.course_id}/sections",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "course_id": first_section.course_id,
+        "sections": [
+            {
+                "section_id": first_section.id,
+                "completed_step_count": 3,
+                "total_step_count": 4,
+                "completed_lesson_count": 1,
+                "total_lesson_count": 2,
+                "percent": 75,
+            },
+            {
+                "section_id": second_section.id,
+                "completed_step_count": 0,
+                "total_step_count": 0,
+                "completed_lesson_count": 0,
+                "total_lesson_count": 0,
+                "percent": 0,
+            },
+        ],
+    }
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_requires_authentication(
+    client,
+    course_factory,
+):
+    course = await course_factory(slug="published", is_published=True)
+
+    response = await client.get(f"/api/progress/courses/{course.id}/sections")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_rejects_user_without_enrollment(
+    client,
+    auth_headers,
+    course_factory,
+):
+    course = await course_factory(slug="published", is_published=True)
+
+    response = await client.get(
+        f"/api/progress/courses/{course.id}/sections",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {"detail": "Enrollment not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_rejects_draft_course(
+    client,
+    auth_headers,
+    course_factory,
+    db,
+    user_data,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    course = await course_factory(slug="draft", is_published=False)
+    await create_enrollment(db, user_id=user.id, course_id=course.id)
+
+    response = await client.get(
+        f"/api/progress/courses/{course.id}/sections",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Course not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_ignores_other_users_progress(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+    user_data,
+):
+    current_user = await get_user_by_email(db, user_data["email"])
+    other_user = await create_user(db)
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_step(db, lesson_id=lesson.id)
+    await create_enrollment(
+        db,
+        user_id=current_user.id,
+        course_id=section.course_id,
+    )
+    await create_enrollment(
+        db,
+        user_id=other_user.id,
+        course_id=section.course_id,
+    )
+    db.add(StepProgress(user_id=other_user.id, step_id=step.id))
+    await db.commit()
+
+    response = await client.get(
+        f"/api/progress/courses/{section.course_id}/sections",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "course_id": section.course_id,
+        "sections": [
+            {
+                "section_id": section.id,
+                "completed_step_count": 0,
+                "total_step_count": 1,
+                "completed_lesson_count": 0,
+                "total_lesson_count": 1,
+                "percent": 0,
+            },
+        ],
+    }

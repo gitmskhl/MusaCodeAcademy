@@ -2,6 +2,7 @@ from fastapi import APIRouter, status
 
 from app.api.dependencies import CurrentUser, DBSession
 from app.schemas.progress import (
+    CourseSectionsProgress,
     LessonProgress,
     StepProgressPublic,
     StepProgressStatus,
@@ -9,6 +10,22 @@ from app.schemas.progress import (
 from app.services import progress as service_progress
 
 router = APIRouter()
+
+
+@router.get(
+    "/courses/{course_id}/sections",
+    response_model=CourseSectionsProgress,
+)
+async def get_course_sections_progress(
+    course_id: int,
+    currentUser: CurrentUser,
+    db: DBSession,
+):
+    return await service_progress.get_course_sections_progress(
+        course_id=course_id,
+        user_id=currentUser.id,
+        db=db,
+    )
 
 
 @router.get(

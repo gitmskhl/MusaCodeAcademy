@@ -4,7 +4,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Course, Enrollment, Lesson, Section, Step, StepProgress
-from app.schemas.progress import LessonProgress
+from app.schemas.progress import (
+    CourseSectionsProgress,
+    LessonProgress,
+    SectionProgress,
+)
 
 
 async def _get_step_course_id(step_id: int, db: AsyncSession) -> int:
@@ -56,6 +60,16 @@ async def _get_lesson_course_id(lesson_id: int, db: AsyncSession) -> int:
         )
 
     return course_id
+
+
+async def _ensure_published_course(course_id: int, db: AsyncSession) -> Course:
+    course = await db.get(Course, course_id)
+    if not course or not course.is_published:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found",
+        )
+    return course
 
 
 async def _ensure_user_enrolled(
@@ -215,3 +229,91 @@ async def get_lesson_progress(
         total_count=total_count,
         percent=round(completed_count / total_count * 100),
     )
+
+
+async def get_course_sections_progress(
+    *,
+    course_id: int,
+    user_id: int,
+    db: AsyncSession,
+) -> CourseSectionsProgress:
+    await _ensure_published_course(course_id=course_id, db=db)
+    await _ensure_user_enrolled(course_id=course_id, user_id=user_id, db=db)
+
+    result = await db.execute(
+        select(
+            Section.id,
+            Lesson.id,
+            Step.id,
+            StepProgress.id,
+        )
+        .outerjoin(Lesson, Lesson.section_id == Section.id)
+        .outerjoin(Step, Step.lesson_id == Lesson.id)
+        .outerjoin(
+            StepProgress,
+            and_(
+                StepProgress.step_id == Step.id,
+                StepProgress.user_id == user_id,
+            ),
+        )
+        .where(Section.course_id == course_id)
+        .order_by(Section.order, Section.id, Lesson.order, Lesson.id, Step.order, Step.id)
+    )
+
+    section_stats: dict[int, dict[str, object]] = {}
+    for section_id, lesson_id, step_id, progress_id in result.all():
+        stats = section_stats.setdefault(
+            section_id,
+            {
+                "lesson_ids": set(),
+                "lesson_steps": {},
+                "completed_steps": 0,
+                "total_steps": 0,
+            },
+        )
+
+        lesson_ids = stats["lesson_ids"]
+        lesson_steps = stats["lesson_steps"]
+
+        if lesson_id is not None:
+            lesson_ids.add(lesson_id)
+            lesson_steps.setdefault(
+                lesson_id,
+                {"completed_steps": 0, "total_steps": 0},
+            )
+
+        if step_id is not None:
+            stats["total_steps"] += 1
+            lesson_step_stats = lesson_steps[lesson_id]
+            lesson_step_stats["total_steps"] += 1
+
+            if progress_id is not None:
+                stats["completed_steps"] += 1
+                lesson_step_stats["completed_steps"] += 1
+
+    sections = []
+    for section_id, stats in section_stats.items():
+        lesson_steps = stats["lesson_steps"]
+        total_step_count = stats["total_steps"]
+        completed_step_count = stats["completed_steps"]
+        completed_lesson_count = sum(
+            1
+            for lesson in lesson_steps.values()
+            if lesson["total_steps"] > 0
+            and lesson["completed_steps"] == lesson["total_steps"]
+        )
+
+        sections.append(
+            SectionProgress(
+                section_id=section_id,
+                completed_step_count=completed_step_count,
+                total_step_count=total_step_count,
+                completed_lesson_count=completed_lesson_count,
+                total_lesson_count=len(stats["lesson_ids"]),
+                percent=round(completed_step_count / total_step_count * 100)
+                if total_step_count
+                else 0,
+            )
+        )
+
+    return CourseSectionsProgress(course_id=course_id, sections=sections)

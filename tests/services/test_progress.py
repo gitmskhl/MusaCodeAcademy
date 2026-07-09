@@ -375,3 +375,194 @@ async def test_get_lesson_progress_rejects_user_without_enrollment(
 
     assert exc.value.status_code == status.HTTP_403_FORBIDDEN
     assert exc.value.detail == "Enrollment not found"
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_returns_section_stats(
+    section_factory,
+    db,
+):
+    user = await create_user(db)
+    first_section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=first_section.course_id,
+        is_published=True,
+        order=1,
+    )
+    first_lesson = await create_lesson(db, section_id=first_section.id)
+    second_lesson = await create_lesson(db, section_id=first_section.id)
+    first_step = await create_step(
+        db,
+        lesson_id=first_lesson.id,
+        title="First lesson step 1",
+        order=0,
+    )
+    second_step = await create_step(
+        db,
+        lesson_id=first_lesson.id,
+        title="First lesson step 2",
+        order=1,
+    )
+    third_step = await create_step(
+        db,
+        lesson_id=second_lesson.id,
+        title="Second lesson step 1",
+        order=0,
+    )
+    await create_step(
+        db,
+        lesson_id=second_lesson.id,
+        title="Second lesson step 2",
+        order=1,
+    )
+    await create_enrollment(
+        db,
+        user_id=user.id,
+        course_id=first_section.course_id,
+    )
+    for step in [first_step, second_step, third_step]:
+        await service_progress.complete_step(
+            step_id=step.id,
+            user_id=user.id,
+            db=db,
+        )
+
+    progress = await service_progress.get_course_sections_progress(
+        course_id=first_section.course_id,
+        user_id=user.id,
+        db=db,
+    )
+
+    assert progress.course_id == first_section.course_id
+    assert [section.section_id for section in progress.sections] == [
+        first_section.id,
+        second_section.id,
+    ]
+    assert progress.sections[0].completed_step_count == 3
+    assert progress.sections[0].total_step_count == 4
+    assert progress.sections[0].completed_lesson_count == 1
+    assert progress.sections[0].total_lesson_count == 2
+    assert progress.sections[0].percent == 75
+    assert progress.sections[1].completed_step_count == 0
+    assert progress.sections[1].total_step_count == 0
+    assert progress.sections[1].completed_lesson_count == 0
+    assert progress.sections[1].total_lesson_count == 0
+    assert progress.sections[1].percent == 0
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_ignores_other_users_progress(
+    section_factory,
+    db,
+):
+    user = await create_user(db)
+    other_user = await create_user(db, email="other@example.com")
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_step(db, lesson_id=lesson.id)
+    await create_enrollment(db, user_id=user.id, course_id=section.course_id)
+    await create_enrollment(
+        db,
+        user_id=other_user.id,
+        course_id=section.course_id,
+    )
+    await service_progress.complete_step(
+        step_id=step.id,
+        user_id=other_user.id,
+        db=db,
+    )
+
+    progress = await service_progress.get_course_sections_progress(
+        course_id=section.course_id,
+        user_id=user.id,
+        db=db,
+    )
+
+    assert len(progress.sections) == 1
+    assert progress.sections[0].section_id == section.id
+    assert progress.sections[0].completed_step_count == 0
+    assert progress.sections[0].total_step_count == 1
+    assert progress.sections[0].completed_lesson_count == 0
+    assert progress.sections[0].total_lesson_count == 1
+    assert progress.sections[0].percent == 0
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_returns_empty_for_course_without_sections(
+    course_factory,
+    db,
+):
+    user = await create_user(db)
+    course = await course_factory(slug="empty-course", is_published=True)
+    await create_enrollment(db, user_id=user.id, course_id=course.id)
+
+    progress = await service_progress.get_course_sections_progress(
+        course_id=course.id,
+        user_id=user.id,
+        db=db,
+    )
+
+    assert progress.course_id == course.id
+    assert progress.sections == []
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_rejects_missing_course(db):
+    user = await create_user(db)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_progress.get_course_sections_progress(
+            course_id=999_999,
+            user_id=user.id,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_rejects_draft_course(
+    course_factory,
+    db,
+):
+    user = await create_user(db)
+    course = await course_factory(slug="draft-course", is_published=False)
+    await create_enrollment(db, user_id=user.id, course_id=course.id)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_progress.get_course_sections_progress(
+            course_id=course.id,
+            user_id=user.id,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Course not found"
+
+
+@pytest.mark.asyncio
+async def test_get_course_sections_progress_rejects_user_without_enrollment(
+    course_factory,
+    db,
+):
+    user = await create_user(db)
+    course = await course_factory(slug="published-course", is_published=True)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_progress.get_course_sections_progress(
+            course_id=course.id,
+            user_id=user.id,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_403_FORBIDDEN
+    assert exc.value.detail == "Enrollment not found"
