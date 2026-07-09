@@ -566,3 +566,157 @@ async def test_get_course_sections_progress_rejects_user_without_enrollment(
 
     assert exc.value.status_code == status.HTTP_403_FORBIDDEN
     assert exc.value.detail == "Enrollment not found"
+
+
+@pytest.mark.asyncio
+async def test_get_my_courses_progress_returns_enrolled_published_courses(
+    section_factory,
+    db,
+):
+    user = await create_user(db)
+    first_section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    second_section = await section_factory(
+        course_id=first_section.course_id,
+        is_published=True,
+        order=1,
+    )
+    second_course_section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    first_lesson = await create_lesson(db, section_id=first_section.id)
+    second_lesson = await create_lesson(db, section_id=second_section.id)
+    second_course_lesson = await create_lesson(
+        db,
+        section_id=second_course_section.id,
+    )
+    first_step = await create_step(db, lesson_id=first_lesson.id, order=0)
+    second_step = await create_step(db, lesson_id=first_lesson.id, order=1)
+    third_step = await create_step(db, lesson_id=second_lesson.id, order=0)
+    second_course_step = await create_step(
+        db,
+        lesson_id=second_course_lesson.id,
+        order=0,
+    )
+    await create_enrollment(
+        db,
+        user_id=user.id,
+        course_id=first_section.course_id,
+    )
+    await create_enrollment(
+        db,
+        user_id=user.id,
+        course_id=second_course_section.course_id,
+    )
+    for step in [first_step, second_step, second_course_step]:
+        await service_progress.complete_step(
+            step_id=step.id,
+            user_id=user.id,
+            db=db,
+        )
+
+    progress = await service_progress.get_my_courses_progress(
+        user_id=user.id,
+        db=db,
+    )
+
+    progress_by_course = {item.course_id: item for item in progress}
+    assert set(progress_by_course) == {
+        first_section.course_id,
+        second_course_section.course_id,
+    }
+    first_course_progress = progress_by_course[first_section.course_id]
+    assert first_course_progress.completed_step_count == 2
+    assert first_course_progress.total_step_count == 3
+    assert first_course_progress.completed_lesson_count == 1
+    assert first_course_progress.total_lesson_count == 2
+    assert first_course_progress.completed_section_count == 1
+    assert first_course_progress.total_section_count == 2
+    assert first_course_progress.percent == 67
+
+    second_course_progress = progress_by_course[second_course_section.course_id]
+    assert second_course_progress.completed_step_count == 1
+    assert second_course_progress.total_step_count == 1
+    assert second_course_progress.completed_lesson_count == 1
+    assert second_course_progress.total_lesson_count == 1
+    assert second_course_progress.completed_section_count == 1
+    assert second_course_progress.total_section_count == 1
+    assert second_course_progress.percent == 100
+    assert third_step.id is not None
+
+
+@pytest.mark.asyncio
+async def test_get_my_courses_progress_ignores_draft_and_unenrolled_courses(
+    course_factory,
+    db,
+):
+    user = await create_user(db)
+    published = await course_factory(slug="published", is_published=True)
+    draft = await course_factory(slug="draft", is_published=False)
+    await course_factory(slug="not-enrolled", is_published=True)
+    await create_enrollment(db, user_id=user.id, course_id=published.id)
+    await create_enrollment(db, user_id=user.id, course_id=draft.id)
+
+    progress = await service_progress.get_my_courses_progress(
+        user_id=user.id,
+        db=db,
+    )
+
+    assert [item.course_id for item in progress] == [published.id]
+    assert progress[0].percent == 0
+    assert progress[0].total_step_count == 0
+
+
+@pytest.mark.asyncio
+async def test_get_my_courses_progress_ignores_other_users_progress(
+    section_factory,
+    db,
+):
+    user = await create_user(db)
+    other_user = await create_user(db, email="other@example.com")
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_step(db, lesson_id=lesson.id)
+    await create_enrollment(db, user_id=user.id, course_id=section.course_id)
+    await create_enrollment(
+        db,
+        user_id=other_user.id,
+        course_id=section.course_id,
+    )
+    await service_progress.complete_step(
+        step_id=step.id,
+        user_id=other_user.id,
+        db=db,
+    )
+
+    progress = await service_progress.get_my_courses_progress(
+        user_id=user.id,
+        db=db,
+    )
+
+    assert len(progress) == 1
+    assert progress[0].course_id == section.course_id
+    assert progress[0].completed_step_count == 0
+    assert progress[0].total_step_count == 1
+    assert progress[0].percent == 0
+
+
+@pytest.mark.asyncio
+async def test_get_my_courses_progress_returns_empty_when_no_enrollments(db):
+    user = await create_user(db)
+
+    progress = await service_progress.get_my_courses_progress(
+        user_id=user.id,
+        db=db,
+    )
+
+    assert progress == []

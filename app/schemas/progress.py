@@ -36,3 +36,14 @@ class SectionProgress(BaseModel):
 class CourseSectionsProgress(BaseModel):
     course_id: int
     sections: list[SectionProgress]
+
+
+class CourseProgress(BaseModel):
+    course_id: int
+    completed_step_count: int
+    total_step_count: int
+    completed_lesson_count: int
+    total_lesson_count: int
+    completed_section_count: int
+    total_section_count: int
+    percent: int

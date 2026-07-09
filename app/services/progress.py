@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Course, Enrollment, Lesson, Section, Step, StepProgress
 from app.schemas.progress import (
+    CourseProgress,
     CourseSectionsProgress,
     LessonProgress,
     SectionProgress,
@@ -231,15 +232,12 @@ async def get_lesson_progress(
     )
 
 
-async def get_course_sections_progress(
+async def _get_course_section_stats(
     *,
     course_id: int,
     user_id: int,
     db: AsyncSession,
-) -> CourseSectionsProgress:
-    await _ensure_published_course(course_id=course_id, db=db)
-    await _ensure_user_enrolled(course_id=course_id, user_id=user_id, db=db)
-
+) -> list[SectionProgress]:
     result = await db.execute(
         select(
             Section.id,
@@ -258,7 +256,7 @@ async def get_course_sections_progress(
         )
         .where(Section.course_id == course_id)
         .order_by(Section.order, Section.id, Lesson.order, Lesson.id, Step.order, Step.id)
-    )
+        )
 
     section_stats: dict[int, dict[str, object]] = {}
     for section_id, lesson_id, step_id, progress_id in result.all():
@@ -291,7 +289,7 @@ async def get_course_sections_progress(
                 stats["completed_steps"] += 1
                 lesson_step_stats["completed_steps"] += 1
 
-    sections = []
+    sections: list[SectionProgress] = []
     for section_id, stats in section_stats.items():
         lesson_steps = stats["lesson_steps"]
         total_step_count = stats["total_steps"]
@@ -316,4 +314,85 @@ async def get_course_sections_progress(
             )
         )
 
+    return sections
+
+
+async def get_course_sections_progress(
+    *,
+    course_id: int,
+    user_id: int,
+    db: AsyncSession,
+) -> CourseSectionsProgress:
+    await _ensure_published_course(course_id=course_id, db=db)
+    await _ensure_user_enrolled(course_id=course_id, user_id=user_id, db=db)
+    sections = await _get_course_section_stats(
+        course_id=course_id,
+        user_id=user_id,
+        db=db,
+    )
+
     return CourseSectionsProgress(course_id=course_id, sections=sections)
+
+
+def _build_course_progress(
+    *,
+    course_id: int,
+    sections: list[SectionProgress],
+) -> CourseProgress:
+    completed_step_count = sum(
+        section.completed_step_count for section in sections
+    )
+    total_step_count = sum(section.total_step_count for section in sections)
+    completed_lesson_count = sum(
+        section.completed_lesson_count for section in sections
+    )
+    total_lesson_count = sum(section.total_lesson_count for section in sections)
+    completed_section_count = sum(
+        1
+        for section in sections
+        if section.total_step_count > 0
+        and section.completed_step_count == section.total_step_count
+    )
+
+    return CourseProgress(
+        course_id=course_id,
+        completed_step_count=completed_step_count,
+        total_step_count=total_step_count,
+        completed_lesson_count=completed_lesson_count,
+        total_lesson_count=total_lesson_count,
+        completed_section_count=completed_section_count,
+        total_section_count=len(sections),
+        percent=round(completed_step_count / total_step_count * 100)
+        if total_step_count
+        else 0,
+    )
+
+
+async def get_my_courses_progress(
+    *,
+    user_id: int,
+    db: AsyncSession,
+) -> list[CourseProgress]:
+    result = await db.execute(
+        select(Course.id)
+        .join(Enrollment, Enrollment.course_id == Course.id)
+        .where(
+            Enrollment.user_id == user_id,
+            Course.is_published.is_(True),
+        )
+        .order_by(Enrollment.created_at.desc(), Course.id)
+    )
+    course_ids = list(result.scalars().all())
+
+    progress = []
+    for course_id in course_ids:
+        sections = await _get_course_section_stats(
+            course_id=course_id,
+            user_id=user_id,
+            db=db,
+        )
+        progress.append(
+            _build_course_progress(course_id=course_id, sections=sections)
+        )
+
+    return progress
