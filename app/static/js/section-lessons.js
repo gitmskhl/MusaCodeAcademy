@@ -222,7 +222,7 @@ import { authFetch, requireToken } from './course-auth.js';
         elements.description.textContent =
             section.description || 'Изучите материалы раздела по порядку.';
         elements.lessonCount.textContent = pluralizeLessons(orderedLessons.length);
-        elements.backLink.href = `/${encodeURIComponent(courseSlug)}`;
+        elements.backLink.href = `/${encodeURIComponent(courseSlug)}/sections`;
         elements.backLink.lastChild.textContent = ` ${formatCourseTitle(courseSlug)}`;
         elements.lessonList.replaceChildren();
         elements.emptyState.hidden = orderedLessons.length !== 0;
