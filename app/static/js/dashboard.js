@@ -60,6 +60,31 @@ const clampProgress = (value) => {
 
 const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}/sections`;
 
+const loadCoursesProgress = async () => {
+    try {
+        const response = await authFetch('/api/progress/me/courses');
+        if (!response.ok) {
+            return new Map();
+        }
+
+        const progress = await response.json();
+        return new Map(
+            (Array.isArray(progress) ? progress : [])
+                .map((item) => [item.course_id, item])
+        );
+    } catch {
+        return new Map();
+    }
+};
+
+const getProgressDetails = (progress) => ({
+    percent: clampProgress(progress?.percent),
+    completedStepCount: Number(progress?.completed_step_count) || 0,
+    totalStepCount: Number(progress?.total_step_count) || 0,
+    completedLessonCount: Number(progress?.completed_lesson_count) || 0,
+    totalLessonCount: Number(progress?.total_lesson_count) || 0,
+});
+
 const getStoredEnrolledCourses = () => {
     try {
         const stored = JSON.parse(localStorage.getItem(ENROLLED_COURSES_KEY) || '[]');
@@ -78,6 +103,7 @@ const rememberEnrolledCourses = (courses) => {
             title: course.title,
             short_description: course.short_description,
             description: course.description,
+            progress: course.progressData,
         }));
 
     localStorage.setItem(ENROLLED_COURSES_KEY, JSON.stringify(storableCourses));
@@ -89,7 +115,8 @@ const mapStoredCourseToDashboardCourse = (course) => ({
     title: course.title ?? '\u041a\u0443\u0440\u0441',
     short_description: course.short_description,
     description: course.short_description || course.description || messages.emptyDescription,
-    progress: 0,
+    progress: getProgressDetails(course.progress).percent,
+    progressData: course.progress,
     action: messages.start,
     href: course.slug ? getCourseUrl(course) : '#',
 });
@@ -100,7 +127,8 @@ const mapCourseInfoToDashboardCourse = (course) => ({
     title: course.title ?? '\u041a\u0443\u0440\u0441',
     short_description: course.short_description,
     description: course.short_description || course.description || messages.emptyDescription,
-    progress: 0,
+    progress: getProgressDetails(course.progress).percent,
+    progressData: course.progress,
     action: messages.start,
     href: course.slug ? getCourseUrl(course) : '#',
 });
@@ -121,6 +149,23 @@ const mapEnrollmentToCourse = (enrollment) => {
         href: course.slug ? getCourseUrl(course) : '#',
     };
 };
+
+const applyCoursesProgress = (courses, progressByCourseId) =>
+    courses.map((course) => {
+        const progressData = progressByCourseId.get(course.id) ?? course.progressData;
+        const details = getProgressDetails(progressData);
+
+        return {
+            ...course,
+            progress: details.percent,
+            progressData,
+            completedStepCount: details.completedStepCount,
+            totalStepCount: details.totalStepCount,
+            completedLessonCount: details.completedLessonCount,
+            totalLessonCount: details.totalLessonCount,
+            action: details.percent > 0 ? messages.continue : messages.start,
+        };
+    });
 
 const setLoading = () => {
     elements.loading.hidden = false;
@@ -168,6 +213,7 @@ const createCourseCard = (course) => {
     const value = document.createElement('span');
     const bar = document.createElement('span');
     const barValue = document.createElement('span');
+    const details = document.createElement('p');
     const link = document.createElement('a');
 
     article.className = 'course-card';
@@ -191,7 +237,11 @@ const createCourseCard = (course) => {
     barValue.className = 'course-card__value';
     barValue.style.width = `${course.progress}%`;
     bar.append(barValue);
-    progress.append(meta, bar);
+    details.className = 'course-card__details';
+    details.textContent =
+        `${course.completedStepCount ?? 0} / ` +
+        `${course.totalStepCount ?? 0} шагов`;
+    progress.append(meta, bar, details);
 
     link.className = 'course-card__button';
     link.href = course.href;
@@ -211,6 +261,9 @@ const renderCurrentCourse = (course) => {
     elements.currentCourseProgressBar.style.width = `${course.progress}%`;
     elements.currentCourseStatus.textContent =
         course.progress > 0 ? `${course.progress}% завершено` : messages.notStarted;
+    elements.currentCourseStatus.textContent =
+        `${course.completedStepCount ?? 0} / ` +
+        `${course.totalStepCount ?? 0} шагов завершено`;
     elements.currentCourseDescription.textContent = course.description;
     elements.currentCourseLink.href = course.href;
     elements.currentCourseLink.textContent = course.action === messages.start
@@ -284,6 +337,9 @@ const loadDashboard = async () => {
                 .map(mapStoredCourseToDashboardCourse)
                 .filter((course) => course.id);
         }
+
+        const progressByCourseId = await loadCoursesProgress();
+        courses = applyCoursesProgress(courses, progressByCourseId);
 
         if (courses.length > 0) {
             rememberEnrolledCourses(courses);
