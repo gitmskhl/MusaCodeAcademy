@@ -83,7 +83,16 @@ const getProgressDetails = (progress) => ({
     totalStepCount: Number(progress?.total_step_count) || 0,
     completedLessonCount: Number(progress?.completed_lesson_count) || 0,
     totalLessonCount: Number(progress?.total_lesson_count) || 0,
+    lastStepId: Number(progress?.last_step_id) || null,
+    lastVisitedAt: progress?.last_visited_at || null,
 });
+
+const getCourseContinueUrl = (course) =>
+    course.slug && course.lastStepId
+        ? `/${encodeURIComponent(course.slug)}/steps/${encodeURIComponent(course.lastStepId)}`
+        : course.slug
+            ? getCourseUrl(course)
+            : '#';
 
 const getStoredEnrolledCourses = () => {
     try {
@@ -163,7 +172,13 @@ const applyCoursesProgress = (courses, progressByCourseId) =>
             totalStepCount: details.totalStepCount,
             completedLessonCount: details.completedLessonCount,
             totalLessonCount: details.totalLessonCount,
+            lastStepId: details.lastStepId,
+            lastVisitedAt: details.lastVisitedAt,
             action: details.percent > 0 ? messages.continue : messages.start,
+            href: getCourseContinueUrl({
+                ...course,
+                lastStepId: details.lastStepId,
+            }),
         };
     });
 
@@ -272,8 +287,19 @@ const renderCurrentCourse = (course) => {
     elements.currentCourse.hidden = false;
 };
 
+const getVisitedAtTime = (course) => {
+    const time = Date.parse(course.lastVisitedAt || '');
+    return Number.isFinite(time) ? time : 0;
+};
+
 const getCurrentCourse = (courses) =>
-    courses.find((course) => (course.completedStepCount ?? 0) > 0) ?? courses[0];
+    [...courses].sort((first, second) => {
+        const visitedDiff = getVisitedAtTime(second) - getVisitedAtTime(first);
+        if (visitedDiff !== 0) {
+            return visitedDiff;
+        }
+        return (second.completedStepCount ?? 0) - (first.completedStepCount ?? 0);
+    })[0] ?? courses[0];
 
 const renderCourses = (courses) => {
     const fragment = document.createDocumentFragment();

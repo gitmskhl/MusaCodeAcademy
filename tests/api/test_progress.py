@@ -641,6 +641,8 @@ async def test_get_my_courses_progress_success(
             "completed_section_count": 1,
             "total_section_count": 2,
             "percent": 67,
+            "last_step_id": None,
+            "last_visited_at": None,
         },
         second_course_section.course_id: {
             "course_id": second_course_section.course_id,
@@ -651,6 +653,8 @@ async def test_get_my_courses_progress_success(
             "completed_section_count": 1,
             "total_section_count": 1,
             "percent": 100,
+            "last_step_id": None,
+            "last_visited_at": None,
         },
     }
     assert third_step.id is not None
@@ -692,6 +696,8 @@ async def test_get_my_courses_progress_ignores_draft_and_unenrolled_courses(
             "completed_section_count": 0,
             "total_section_count": 0,
             "percent": 0,
+            "last_step_id": None,
+            "last_visited_at": None,
         }
     ]
 
@@ -739,6 +745,8 @@ async def test_get_my_courses_progress_ignores_other_users_progress(
             "completed_section_count": 0,
             "total_section_count": 1,
             "percent": 0,
+            "last_step_id": None,
+            "last_visited_at": None,
         }
     ]
 

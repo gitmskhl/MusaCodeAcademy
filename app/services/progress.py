@@ -3,7 +3,15 @@ from sqlalchemy import and_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Course, Enrollment, Lesson, Section, Step, StepProgress
+from app.models import (
+    Course,
+    CourseActivity,
+    Enrollment,
+    Lesson,
+    Section,
+    Step,
+    StepProgress,
+)
 from app.schemas.progress import (
     CourseProgress,
     CourseSectionsProgress,
@@ -338,6 +346,7 @@ def _build_course_progress(
     *,
     course_id: int,
     sections: list[SectionProgress],
+    activity: CourseActivity | None = None,
 ) -> CourseProgress:
     completed_step_count = sum(
         section.completed_step_count for section in sections
@@ -365,6 +374,8 @@ def _build_course_progress(
         percent=round(completed_step_count / total_step_count * 100)
         if total_step_count
         else 0,
+        last_step_id=activity.last_step_id if activity else None,
+        last_visited_at=activity.last_visited_at if activity else None,
     )
 
 
@@ -383,6 +394,19 @@ async def get_my_courses_progress(
         .order_by(Enrollment.created_at.desc(), Course.id)
     )
     course_ids = list(result.scalars().all())
+    if not course_ids:
+        return []
+
+    activity_result = await db.execute(
+        select(CourseActivity).where(
+            CourseActivity.user_id == user_id,
+            CourseActivity.course_id.in_(course_ids),
+        )
+    )
+    activities_by_course_id = {
+        activity.course_id: activity
+        for activity in activity_result.scalars().all()
+    }
 
     progress = []
     for course_id in course_ids:
@@ -392,7 +416,11 @@ async def get_my_courses_progress(
             db=db,
         )
         progress.append(
-            _build_course_progress(course_id=course_id, sections=sections)
+            _build_course_progress(
+                course_id=course_id,
+                sections=sections,
+                activity=activities_by_course_id.get(course_id),
+            )
         )
 
     return progress

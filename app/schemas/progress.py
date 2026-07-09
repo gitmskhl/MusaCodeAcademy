@@ -47,3 +47,5 @@ class CourseProgress(BaseModel):
     completed_section_count: int
     total_section_count: int
     percent: int
+    last_step_id: int | None = None
+    last_visited_at: datetime | None = None
