@@ -41,7 +41,8 @@ const loadGreeting = async () => {
     try {
         const displayName = getUserDisplayName(await requireCurrentUser());
         if (displayName && elements.greetingTitle) {
-            elements.greetingTitle.textContent = `Добро пожаловать, ${displayName}! 👋`;
+            const name = displayName.split(' ')[0] || displayName
+            elements.greetingTitle.textContent = `Добро пожаловать, ${name}! 👋`;
         }
     } catch (error) {
         if (error instanceof Error && error.message === 'authentication-required') {

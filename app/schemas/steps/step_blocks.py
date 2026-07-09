@@ -16,6 +16,11 @@ class CodeBlockData(BaseModel):
     code: str = Field(min_length=1)
 
 
+class CalloutData(BaseModel):
+    variant: Literal["info", "tip", "important", "warning", "error"]
+    content: str
+
+
 class TextBlock(BaseModel):
     type: Literal["text"]
     data: TextBlockData
@@ -31,7 +36,12 @@ class CodeBlock(BaseModel):
     data: CodeBlockData
 
 
+class CalloutBlock(BaseModel):
+    type: Literal["callout"]
+    data: CalloutData
+
+
 StepBlock = Annotated[
-    Union[TextBlock, ImageBlock, CodeBlock],
+    Union[TextBlock, ImageBlock, CodeBlock, CalloutBlock],
     Field(discriminator="type")
 ]
