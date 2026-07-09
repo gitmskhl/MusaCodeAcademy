@@ -7,6 +7,8 @@
     --viewer-border: #e2e3e6;
     --viewer-primary: #3157d5;
     --viewer-primary-hover: #2545b5;
+    --viewer-success: #2f6f56;
+    --viewer-success-soft: #eaf6f0;
 }
 
 * {
@@ -181,6 +183,14 @@ body.is-step-drawer-open .step-drawer {
     font-weight: 750;
 }
 
+.step-drawer__link.is-completed {
+    color: var(--viewer-success);
+}
+
+.step-drawer__link.is-completed .step-drawer__status {
+    color: var(--viewer-success);
+}
+
 .step-drawer__link:not([aria-current="step"]) .step-drawer__status {
     color: #a3a6ad;
 }
@@ -248,6 +258,44 @@ body.is-step-drawer-open .step-drawer {
     font-size: 13px;
     font-weight: 650;
     letter-spacing: 0.03em;
+}
+
+.step-viewer__complete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    margin-top: 18px;
+    padding: 0 16px;
+    border: 1px solid var(--viewer-primary);
+    border-radius: 9px;
+    color: #ffffff;
+    background: var(--viewer-primary);
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: border-color 140ms ease, color 140ms ease,
+        background-color 140ms ease;
+}
+
+.step-viewer__complete-button:hover {
+    border-color: var(--viewer-primary-hover);
+    background: var(--viewer-primary-hover);
+}
+
+.step-viewer__complete-button.is-completed {
+    border-color: var(--viewer-success);
+    color: var(--viewer-success);
+    background: var(--viewer-success-soft);
+}
+
+.step-viewer__complete-button:disabled {
+    cursor: default;
+    opacity: 0.62;
+}
+
+.step-viewer__complete-button[hidden] {
+    display: none;
 }
 
 .step-viewer__content {

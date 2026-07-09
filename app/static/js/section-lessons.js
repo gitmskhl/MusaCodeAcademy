@@ -60,6 +60,19 @@ import { authFetch, requireToken } from './course-auth.js';
     const getStatus = (lesson) =>
         STATUS[lesson.status] ?? STATUS.not_started;
 
+    const getLessonStatusFromProgress = (progress) => {
+        const total = Number(progress?.total_count) || 0;
+        const completed = Number(progress?.completed_count) || 0;
+
+        if (total > 0 && completed >= total) {
+            return 'completed';
+        }
+        if (completed > 0) {
+            return 'in_progress';
+        }
+        return 'not_started';
+    };
+
     const pluralizeLessons = (count) => {
         const mod10 = count % 10;
         const mod100 = count % 100;
@@ -97,6 +110,7 @@ import { authFetch, requireToken } from './course-auth.js';
         const meta = document.createElement('p');
         const title = document.createElement('h3');
         const description = document.createElement('p');
+        const progress = document.createElement('p');
         const actions = document.createElement('div');
         const badge = document.createElement('span');
         const chevron = document.createElement('span');
@@ -119,7 +133,11 @@ import { authFetch, requireToken } from './course-auth.js';
         title.textContent = lesson.title;
         description.className = 'lesson-card__description';
         description.textContent = lesson.description || 'Описание урока пока не добавлено.';
-        body.append(meta, title, description);
+        progress.className = 'lesson-card__progress';
+        progress.textContent =
+            `${lesson.progress?.completed_count ?? 0} / ` +
+            `${lesson.progress?.total_count ?? 0} шагов`;
+        body.append(meta, title, description, progress);
 
         actions.className = 'lesson-card__actions';
         badge.className = 'lesson-card__badge';
@@ -155,6 +173,37 @@ import { authFetch, requireToken } from './course-auth.js';
             `${completed} из ${lessons.length} уроков завершено`;
         elements.progressTrack.setAttribute('aria-valuenow', String(percentage));
         elements.progressBar.style.width = `${percentage}%`;
+    };
+
+    const loadLessonProgress = async (lessonId) => {
+        const response = await authFetch(
+            `/api/progress/lessons/${encodeURIComponent(lessonId)}`
+        );
+        if (!response.ok) {
+            return null;
+        }
+        return response.json();
+    };
+
+    const loadLessonsProgress = async (lessons) => {
+        const progressList = await Promise.all(
+            lessons.map(async (lesson) => {
+                try {
+                    return await loadLessonProgress(lesson.id);
+                } catch {
+                    return null;
+                }
+            })
+        );
+
+        return lessons.map((lesson, index) => {
+            const progress = progressList[index];
+            return {
+                ...lesson,
+                progress,
+                status: getLessonStatusFromProgress(progress),
+            };
+        });
     };
 
     const render = (section, lessons, courseSlug) => {
@@ -219,7 +268,11 @@ import { authFetch, requireToken } from './course-auth.js';
                 lessonsResponse.json(),
             ]);
 
-            render(section, Array.isArray(lessons) ? lessons : [], courseSlug);
+            const lessonsWithProgress = await loadLessonsProgress(
+                Array.isArray(lessons) ? lessons : []
+            );
+
+            render(section, lessonsWithProgress, courseSlug);
             elements.loading.hidden = true;
             elements.content.hidden = false;
         } catch {

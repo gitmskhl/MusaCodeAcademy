@@ -37,6 +37,7 @@ const elements = {
     root: document.querySelector('[data-step-viewer]'),
     title: document.querySelector('[data-step-title]'),
     progress: document.querySelector('[data-step-progress]'),
+    completeToggle: document.querySelector('[data-step-complete-toggle]'),
     content: document.querySelector('[data-step-content]'),
     placeholder: document.querySelector('[data-content-placeholder]'),
     backToLesson: document.querySelector('[data-back-to-lesson]'),
@@ -49,6 +50,13 @@ const elements = {
     drawerTitle: document.querySelector('[data-step-drawer-title]'),
     drawerList: document.querySelector('[data-step-drawer-list]'),
     drawerMessage: document.querySelector('[data-step-drawer-message]'),
+};
+
+const state = {
+    currentStepId: null,
+    lesson: null,
+    progress: null,
+    isProgressSaving: false,
 };
 
 const setDrawerOpen = (isOpen) => {
@@ -115,6 +123,13 @@ const setLessonListLink = (sectionId) => {
     elements.backToLesson.removeAttribute('aria-disabled');
 };
 
+const getCompletedStepIds = () =>
+    new Set(
+        Array.isArray(state.progress?.completed_step_ids)
+            ? state.progress.completed_step_ids
+            : []
+    );
+
 const renderDrawerSteps = (steps, currentStepId) => {
     elements.drawerList.replaceChildren();
     elements.drawerMessage.hidden = true;
@@ -126,8 +141,10 @@ const renderDrawerSteps = (steps, currentStepId) => {
     }
 
     const fragment = document.createDocumentFragment();
+    const completedStepIds = getCompletedStepIds();
     steps.forEach((step) => {
         const isCurrent = step.id === currentStepId;
+        const isCompleted = completedStepIds.has(step.id);
         const item = document.createElement('li');
         const link = document.createElement('a');
         const status = document.createElement('span');
@@ -137,14 +154,15 @@ const renderDrawerSteps = (steps, currentStepId) => {
         link.className = 'step-drawer__link';
         link.href = getStepUrl(step.id);
         link.dataset.drawerStepId = String(step.id);
+        link.classList.toggle('is-completed', isCompleted);
         if (isCurrent) {
             link.setAttribute('aria-current', 'step');
         }
 
         status.className = 'step-drawer__status';
         status.setAttribute('aria-hidden', 'true');
-        status.textContent = isCurrent ? '●' : '○';
         title.textContent = step.title;
+        status.textContent = isCompleted ? '✓' : isCurrent ? '●' : '○';
 
         link.append(status, title);
         item.append(link);
@@ -160,6 +178,85 @@ const renderDrawer = (lesson, currentStepId) => {
         Array.isArray(lesson.steps) ? lesson.steps : [],
         currentStepId
     );
+};
+
+const renderProgressState = () => {
+    if (!elements.completeToggle || state.currentStepId === null) {
+        return;
+    }
+
+    const isCompleted = getCompletedStepIds().has(state.currentStepId);
+
+    elements.completeToggle.hidden = false;
+    elements.completeToggle.disabled = state.isProgressSaving;
+    elements.completeToggle.classList.toggle('is-completed', isCompleted);
+    elements.completeToggle.textContent = isCompleted
+        ? 'Шаг завершен'
+        : 'Завершить шаг';
+
+    if (state.lesson) {
+        renderDrawer(state.lesson, state.currentStepId);
+    }
+};
+
+const loadLessonProgress = async (lessonId) => {
+    const response = await authFetch(
+        `/api/progress/lessons/${encodeURIComponent(lessonId)}`
+    );
+    if (!response.ok) {
+        return null;
+    }
+    return response.json();
+};
+
+const updateLocalProgress = (stepId, isCompleted) => {
+    const completedIds = getCompletedStepIds();
+    if (isCompleted) {
+        completedIds.add(stepId);
+    } else {
+        completedIds.delete(stepId);
+    }
+
+    const orderedStepIds = Array.isArray(state.lesson?.steps)
+        ? state.lesson.steps.map((step) => step.id)
+        : [...completedIds];
+    const completedStepIds = orderedStepIds.filter((id) => completedIds.has(id));
+    const totalCount = Number(state.progress?.total_count) || orderedStepIds.length;
+
+    state.progress = {
+        lesson_id: state.lesson?.id,
+        completed_step_ids: completedStepIds,
+        completed_count: completedStepIds.length,
+        total_count: totalCount,
+        percent: totalCount
+            ? Math.round((completedStepIds.length / totalCount) * 100)
+            : 0,
+    };
+};
+
+const toggleCurrentStepProgress = async () => {
+    if (state.currentStepId === null || state.isProgressSaving) {
+        return;
+    }
+
+    const isCompleted = getCompletedStepIds().has(state.currentStepId);
+    state.isProgressSaving = true;
+    renderProgressState();
+
+    try {
+        const response = await authFetch(
+            `/api/progress/steps/${encodeURIComponent(state.currentStepId)}`,
+            { method: isCompleted ? 'DELETE' : 'POST' }
+        );
+        if (!response.ok) {
+            throw new Error('progress-request-failed');
+        }
+
+        updateLocalProgress(state.currentStepId, !isCompleted);
+    } finally {
+        state.isProgressSaving = false;
+        renderProgressState();
+    }
 };
 
 const handleDrawerNavigation = (event) => {
@@ -255,6 +352,9 @@ const loadStep = async () => {
 
     const viewer = await response.json();
     const { step, navigation, lesson } = viewer;
+    state.currentStepId = step.id;
+    state.lesson = lesson;
+    state.progress = await loadLessonProgress(lesson.id);
     try {
         await loadImageSources(step.content);
     } catch {
@@ -273,6 +373,7 @@ const loadStep = async () => {
         renderEmpty: () => createStatus(messages.contentEmpty),
     });
     renderDrawer(lesson, step.id);
+    renderProgressState();
 };
 
 const init = async () => {
@@ -282,6 +383,7 @@ const init = async () => {
 
     initDrawer();
     elements.drawerList.addEventListener('click', handleDrawerNavigation);
+    elements.completeToggle?.addEventListener('click', toggleCurrentStepProgress);
     localizePage();
     try {
         requireToken();

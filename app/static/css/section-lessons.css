@@ -294,6 +294,13 @@ a {
     white-space: nowrap;
 }
 
+.lesson-card__progress {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
 .lesson-card__actions {
     display: flex;
     align-items: center;
