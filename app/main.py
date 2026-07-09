@@ -11,7 +11,8 @@ from app.api.routers import (
     lessonRouter,
     stepRouter,
     fileRouter,
-    enrollmentRouter
+    enrollmentRouter,
+    progressRouter
 )
 from app.core.database import engine
 from app.models import Base
@@ -85,6 +86,12 @@ app.include_router(
     enrollmentRouter,
     prefix='/api/enrollments',
     tags=['enrollment']
+)
+
+app.include_router(
+    progressRouter,
+    prefix='/api/progress',
+    tags=['progress']
 )
 
 app.include_router(pagesRouter)

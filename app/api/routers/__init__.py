@@ -7,3 +7,4 @@ from .lesson import router as lessonRouter
 from .step import router as stepRouter
 from .file import router as fileRouter
 from .enrollment import router as enrollmentRouter
+from .progress import router as progressRouter
