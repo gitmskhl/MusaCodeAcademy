@@ -1,7 +1,9 @@
 from fastapi import APIRouter, status
 from app.schemas.task import TaskPublic, TaskCreate, TaskUpdate
-from app.api.dependencies import OnlyAdmin, DBSession
+from app.api.dependencies import OnlyAdmin, DBSession, CurrentUser
 from app.services import task as service_task
+from app.services import submission as submission_service
+from app.schemas.submission import SubmissionListItem
 
 router = APIRouter()
 
@@ -40,5 +42,23 @@ async def update_task(
     return await service_task.update_task(
         task_id=task_id,
         taskUpdate=taskUpdate,
+        db=db
+    )
+
+
+@router.get('/{task_id}/submissions', response_model=list[SubmissionListItem])
+async def get_my_task_submissions(task_id: int, user: CurrentUser, db: DBSession):
+    return await submission_service.get_submissions(
+        task_id=task_id,
+        user_id=user.id,
+        db=db
+    )
+
+
+@router.get('/{task_id}/{user_id}/submissions', response_model=list[SubmissionListItem])
+async def get_user_task_submissions_admin(task_id: int, user_id: int, _: OnlyAdmin, db: DBSession):
+    return await submission_service.get_submissions(
+        task_id=task_id,
+        user_id=user_id,
         db=db
     )

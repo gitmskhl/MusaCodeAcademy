@@ -9,7 +9,7 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from .section import Section
-
+    from .step import Step
 
 class Lesson(Base):
     __tablename__ = "lessons"
@@ -55,3 +55,8 @@ class Lesson(Base):
     section: Mapped["Section"] = relationship(
         back_populates="lessons"
     )
+
+    steps: Mapped[list["Step"]] = relationship(
+        back_populates="lesson",
+        cascade="all, delete-orphan"
+    ) 

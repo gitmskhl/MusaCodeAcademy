@@ -114,7 +114,7 @@ async def test_update_task_not_found(db):
 
 
 @pytest.mark.asyncio
-async def test_update_task_step_not_found(section_factory, db):
+async def test_update_task_not_found_after_step_cascade_delete(section_factory, db):
     step = await create_step(db, section_factory)
     task = await create_task(db, step.id)
     await db.delete(step)
@@ -128,7 +128,7 @@ async def test_update_task_step_not_found(section_factory, db):
         )
 
     assert exc.value.status_code == status.HTTP_404_NOT_FOUND
-    assert exc.value.detail == "Step not found"
+    assert exc.value.detail == "Task not found"
 
 
 @pytest.mark.asyncio

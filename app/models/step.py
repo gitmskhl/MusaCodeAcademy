@@ -1,10 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from typing import Any
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, JSON, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from .task import Task
+    from .lesson import Lesson
 
 
 class Step(Base):
@@ -50,4 +56,13 @@ class Step(Base):
         server_default=func.now(),
         onupdate=lambda: datetime.now(UTC),
         nullable=False,
+    )
+
+    task: Mapped["Task"] = relationship(
+        back_populates="step",
+        cascade="all, delete-orphan"
+    )
+
+    lesson: Mapped["Lesson"] = relationship(
+        back_populates="steps"
     )

@@ -11,3 +11,14 @@ class FileType(str, Enum):
     DOCUMENT = "document"
     VIDEO = "video"
     ARCHIVE = "archive"
+
+
+class SubmissionStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    ACCEPTED = "ACCEPTED"
+    WRONG_ANSWER = "WRONG ANSWER"
+    RUNTIME_ERROR = "RUNTIME_ERROR"
+    COMPILATION_ERROR = "COMPILATION_ERROR"
+    TIME_LIMIT_EXCEEDED = "TIME_LIMIT_EXCEEDED"
+    MEMORY_LIMIT_EXCEEDED = "MEMORY_LIMIT_EXCEEDED"

@@ -7,6 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
     from .testCase import TestCase
+    from .step import Step
+    from .submission import Submission
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -32,8 +34,17 @@ class Task(Base):
         nullable=False,
     )
 
+    step: Mapped["Step"] = relationship(
+        back_populates="task",
+    )
+
     test_cases: Mapped[list["TestCase"]] = relationship(
         back_populates="task",
         cascade="all, delete-orphan",
         order_by="TestCase.order"
+    )
+
+    submissions: Mapped[list["Submission"]] = relationship(
+        back_populates="task",
+        cascade="all, delete-orphan",
     )
