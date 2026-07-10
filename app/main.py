@@ -13,7 +13,8 @@ from app.api.routers import (
     fileRouter,
     enrollmentRouter,
     progressRouter,
-    taskRouter
+    taskRouter,
+    testCaseRouter,
 )
 from app.core.database import engine
 from app.models import Base
@@ -99,6 +100,12 @@ app.include_router(
     taskRouter,
     prefix='/api/tasks',
     tags=['tasks']
+)
+
+app.include_router(
+    testCaseRouter,
+    prefix='/api/test-cases',
+    tags=['test-cases']
 )
 
 app.include_router(pagesRouter)

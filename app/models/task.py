@@ -1,7 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from app.models.base import Base
 from sqlalchemy import Integer, ForeignKey, String, Text, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+    from .testCase import TestCase
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -25,4 +30,10 @@ class Task(Base):
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
         nullable=False,
+    )
+
+    test_cases: Mapped[list["TestCase"]] = relationship(
+        back_populates="task",
+        cascade="all, delete-orphan",
+        order_by="TestCase.order"
     )
