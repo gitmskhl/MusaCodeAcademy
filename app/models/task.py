@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from app.models.base import Base
-from sqlalchemy import Integer, ForeignKey, String, Text, Boolean
+from sqlalchemy import Integer, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -21,8 +21,7 @@ class Task(Base):
         unique=True
     )
 
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
+    starter_code: Mapped[str | None] = mapped_column(Text, default=None)
 
     time_limit_ms: Mapped[int] = mapped_column(Integer, default=1000, nullable=False)
     memory_limit_mb: Mapped[int] = mapped_column(Integer, default=128, nullable=False)

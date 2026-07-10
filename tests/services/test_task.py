@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Lesson, Step, Task
-from app.schemas.task import TaskUpdate
+from app.schemas.task import TaskCreate, TaskUpdate
 from app.services import task as service_task
 
 
@@ -44,8 +44,7 @@ async def create_step(db, section_factory) -> Step:
 async def create_task(db, step_id: int) -> Task:
     task = Task(
         step_id=step_id,
-        title="Practice task",
-        description="Solve this practice task",
+        starter_code="print('hello')",
         time_limit_ms=1000,
         memory_limit_mb=128,
     )
@@ -56,23 +55,55 @@ async def create_task(db, step_id: int) -> Task:
 
 
 @pytest.mark.asyncio
-async def test_update_task_updates_only_provided_fields(section_factory, db):
+async def test_create_task_sets_starter_code(section_factory, db):
+    step = await create_step(db, section_factory)
+
+    task = await service_task.create_task(
+        taskInfo=TaskCreate(
+            step_id=step.id,
+            starter_code="print('start')",
+            time_limit_ms=2000,
+            memory_limit_mb=256,
+        ),
+        db=db,
+    )
+
+    assert task.id is not None
+    assert task.step_id == step.id
+    assert task.starter_code == "print('start')"
+    assert task.time_limit_ms == 2000
+    assert task.memory_limit_mb == 256
+
+
+@pytest.mark.asyncio
+async def test_create_task_allows_empty_starter_code(section_factory, db):
+    step = await create_step(db, section_factory)
+
+    task = await service_task.create_task(
+        taskInfo=TaskCreate(step_id=step.id),
+        db=db,
+    )
+
+    assert task.starter_code is None
+
+
+@pytest.mark.asyncio
+async def test_update_task_updates_only_starter_code(section_factory, db):
     step = await create_step(db, section_factory)
     task = await create_task(db, step.id)
 
     updated_task = await service_task.update_task(
         task_id=task.id,
-        taskUpdate=TaskUpdate(title="Updated task"),
+        taskUpdate=TaskUpdate(starter_code="print('updated')"),
         db=db,
     )
 
     assert updated_task.id == task.id
     assert updated_task.step_id == step.id
-    assert updated_task.title == "Updated task"
-    assert updated_task.description == "Solve this practice task"
+    assert updated_task.starter_code == "print('updated')"
     assert updated_task.time_limit_ms == 1000
     assert updated_task.memory_limit_mb == 128
-    assert (await db.get(Task, task.id)).title == "Updated task"
+    assert (await db.get(Task, task.id)).starter_code == "print('updated')"
 
 
 @pytest.mark.asyncio
@@ -83,19 +114,17 @@ async def test_update_task_updates_limits(section_factory, db):
     updated_task = await service_task.update_task(
         task_id=task.id,
         taskUpdate=TaskUpdate(
-            description="Solve this updated practice task",
             time_limit_ms=2000,
             memory_limit_mb=256,
         ),
         db=db,
     )
 
-    assert updated_task.title == "Practice task"
-    assert updated_task.description == "Solve this updated practice task"
+    assert updated_task.starter_code == "print('hello')"
     assert updated_task.time_limit_ms == 2000
     assert updated_task.memory_limit_mb == 256
     stored_task = await db.get(Task, task.id)
-    assert stored_task.description == "Solve this updated practice task"
+    assert stored_task.starter_code == "print('hello')"
     assert stored_task.time_limit_ms == 2000
     assert stored_task.memory_limit_mb == 256
 
@@ -105,7 +134,7 @@ async def test_update_task_not_found(db):
     with pytest.raises(HTTPException) as exc:
         await service_task.update_task(
             task_id=999_999,
-            taskUpdate=TaskUpdate(title="Updated task"),
+            taskUpdate=TaskUpdate(starter_code="print('updated')"),
             db=db,
         )
 
@@ -123,7 +152,7 @@ async def test_update_task_not_found_after_step_cascade_delete(section_factory, 
     with pytest.raises(HTTPException) as exc:
         await service_task.update_task(
             task_id=task.id,
-            taskUpdate=TaskUpdate(title="Updated task"),
+            taskUpdate=TaskUpdate(starter_code="print('updated')"),
             db=db,
         )
 
@@ -145,7 +174,7 @@ async def test_update_task_integrity_error(section_factory, db, monkeypatch):
     with pytest.raises(HTTPException) as exc:
         await service_task.update_task(
             task_id=task.id,
-            taskUpdate=TaskUpdate(title="Updated task"),
+            taskUpdate=TaskUpdate(starter_code="print('updated')"),
             db=db,
         )
 

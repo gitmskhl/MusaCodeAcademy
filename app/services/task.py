@@ -27,8 +27,7 @@ async def create_task(taskInfo: TaskCreate, db: AsyncSession) -> Task:
 
     new_task = Task(
         step_id=taskInfo.step_id,
-        title=taskInfo.title,
-        description=taskInfo.description,
+        starter_code=taskInfo.starter_code,
         time_limit_ms=taskInfo.time_limit_ms,
         memory_limit_mb=taskInfo.memory_limit_mb
     )

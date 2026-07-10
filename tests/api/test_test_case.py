@@ -50,8 +50,7 @@ async def create_step(db, section_factory) -> Step:
 async def create_task(db, step_id: int) -> Task:
     task = Task(
         step_id=step_id,
-        title="Practice task",
-        description="Solve this practice task",
+        starter_code="print('hello')",
         time_limit_ms=1000,
         memory_limit_mb=128,
     )
