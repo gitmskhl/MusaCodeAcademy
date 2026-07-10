@@ -1,6 +1,8 @@
 from fastapi import APIRouter, status
 from app.schemas.steps.step import StepPublic, StepAdmin, StepUpdate, StepOrderUpdateList, StepViewer
+from app.schemas.submission import SubmissionDetail
 from app.services import activity as service_activity
+from app.services import task as service_task
 from app.services import step as service_step
 from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin
 
@@ -51,3 +53,11 @@ async def update_step(step_id: int, stepInfo: StepUpdate, admin: OnlyAdmin, db: 
 @router.patch('/admin/order', response_model=list[StepAdmin])
 async def update_steps_order(order_list: StepOrderUpdateList, admin: OnlyAdmin, db: DBSession):
     return await service_step.update_steps_order(order_list=order_list, db=db)
+
+
+@router.get('/{step_id}/task', response_model=SubmissionDetail)
+async def get_task_by_step_id(step_id: int, _: CurrentUser, db: DBSession):
+    return await service_task.get_task_by_step(
+        step_id=step_id,
+        db=db
+    )
