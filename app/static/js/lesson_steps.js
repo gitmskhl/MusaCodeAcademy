@@ -32,7 +32,7 @@
     const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 
     const redirectHome = () => {
-        window.location.href = '/';
+        window.location.href = '/dashboard';
     };
 
     const getLessonId = () => {
