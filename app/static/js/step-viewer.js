@@ -1,6 +1,11 @@
 import { getStepBlocks } from './step-renderer/layout-renderers.js';
 import { registerImageSource } from './step-renderer/image-sources.js';
 import { renderStep } from './step-renderer/step-renderer.js';
+import {
+    clearTaskViewer,
+    renderTaskError,
+    renderTaskViewer,
+} from './task-viewer/task-viewer.js';
 import { authFetch, requireToken } from './course-auth.js';
 
 const locales = Object.freeze({
@@ -39,6 +44,7 @@ const elements = {
     progress: document.querySelector('[data-step-progress]'),
     completeToggle: document.querySelector('[data-step-complete-toggle]'),
     content: document.querySelector('[data-step-content]'),
+    taskViewer: document.querySelector('[data-task-viewer]'),
     placeholder: document.querySelector('[data-content-placeholder]'),
     backToLesson: document.querySelector('[data-back-to-lesson]'),
     navigation: document.querySelector('[data-step-navigation]'),
@@ -329,6 +335,38 @@ const loadImageSources = async (content) => {
     files.forEach((file) => registerImageSource(file.id, file.url));
 };
 
+const loadTask = async (stepId) => {
+    if (!elements.taskViewer) {
+        return;
+    }
+
+    try {
+        const response = await authFetch(
+            `/api/steps/${encodeURIComponent(stepId)}/task`
+        );
+
+        if (response.status === 404) {
+            clearTaskViewer(elements.taskViewer);
+            return;
+        }
+
+        if (!response.ok) {
+            renderTaskError(
+                elements.taskViewer,
+                'Не удалось загрузить практическое задание.'
+            );
+            return;
+        }
+
+        renderTaskViewer(elements.taskViewer, await response.json());
+    } catch {
+        renderTaskError(
+            elements.taskViewer,
+            'Не удалось загрузить практическое задание.'
+        );
+    }
+};
+
 const loadStep = async () => {
     const stepId = Number(elements.root?.dataset.stepId);
     if (!Number.isInteger(stepId) || stepId <= 0) {
@@ -372,6 +410,7 @@ const loadStep = async () => {
     renderStep(elements.content, step.content, {
         renderEmpty: () => createStatus(messages.contentEmpty),
     });
+    await loadTask(step.id);
     renderDrawer(lesson, step.id);
     renderProgressState();
 };
