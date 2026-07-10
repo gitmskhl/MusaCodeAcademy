@@ -1,0 +1,124 @@
+@import url("./step-editor.css");
+
+.task-editor {
+    width: 100%;
+    padding: 0 24px 72px;
+}
+
+.task-save-status {
+    margin: 0;
+    color: #39734d;
+    font-size: 12px;
+}
+
+.task-save-status.is-error {
+    color: var(--danger);
+}
+
+.task-editor__panel {
+    width: min(100%, 820px);
+    margin: 0 auto;
+}
+
+.task-form {
+    display: grid;
+    gap: 18px;
+}
+
+.task-card {
+    padding: 42px 48px 36px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: var(--shadow-soft);
+}
+
+.task-card__heading {
+    margin-bottom: 22px;
+    padding: 0 2px 18px;
+    border-bottom: 1px solid #eeeeef;
+}
+
+.task-card__heading--inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+
+.task-card__eyebrow {
+    margin: 0 0 5px;
+    color: #979aa1;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.task-card h2 {
+    font-size: 24px;
+    font-weight: 720;
+    letter-spacing: -0.035em;
+}
+
+.task-code-editor {
+    min-height: 320px;
+    overflow: hidden;
+    border: 1px solid #d9dade;
+    border-radius: 10px;
+    background: #fcfcfd;
+}
+
+.task-code-editor .cm-editor {
+    min-height: 320px;
+}
+
+.task-code-editor .cm-scroller {
+    min-height: 320px;
+}
+
+.task-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.task-field {
+    display: grid;
+    gap: 7px;
+}
+
+.task-field__label {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (max-width: 720px) {
+    .task-editor {
+        padding: 0 14px 44px;
+    }
+
+    .task-card {
+        padding: 30px 24px 26px;
+    }
+
+    .task-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .task-card {
+        padding: 24px 14px 20px;
+        border-radius: 14px;
+    }
+
+    .task-card__heading--inline {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}

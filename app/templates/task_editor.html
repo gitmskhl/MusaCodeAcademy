@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/task-editor.css') }}">
+    <script
+        type="module"
+        src="{{ url_for('static', path='js/task-editor/task-editor.js') }}"
+    ></script>
+</head>
+<body>
+    <main class="task-editor" data-task-editor data-step-id="{{ step_id }}">
+        <header class="editor-toolbar">
+            <div class="editor-toolbar__start">
+                <a class="icon-button" href="/admin/steps/{{ step_id }}" data-back-button aria-label="Назад">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </a>
+                <h1>Task Editor</h1>
+            </div>
+
+            <div class="editor-toolbar__actions">
+                <p
+                    class="task-save-status"
+                    data-save-status
+                    role="status"
+                    aria-live="polite"
+                ></p>
+                <button class="button button--primary" type="button" data-save-button>
+                    Сохранить
+                </button>
+            </div>
+        </header>
+
+        <section class="task-editor__panel" aria-label="Task editor">
+            <form class="task-form" data-task-form>
+                <section class="task-card">
+                    <div class="task-card__heading">
+                        <div>
+                            <p class="task-card__eyebrow">Code</p>
+                            <h2>Starter Code</h2>
+                        </div>
+                    </div>
+                    <div class="task-code-editor" data-starter-code-editor></div>
+                </section>
+
+                <section class="task-card task-card--limits">
+                    <div class="task-card__heading">
+                        <div>
+                            <p class="task-card__eyebrow">Limits</p>
+                            <h2>Ограничения</h2>
+                        </div>
+                    </div>
+
+                    <div class="task-fields">
+                        <label class="task-field">
+                            <span class="task-field__label">Time Limit</span>
+                            <input
+                                class="property-field__input"
+                                type="number"
+                                min="1"
+                                max="30000"
+                                step="1"
+                                name="time_limit_ms"
+                                data-time-limit
+                            >
+                        </label>
+
+                        <label class="task-field">
+                            <span class="task-field__label">Memory Limit</span>
+                            <input
+                                class="property-field__input"
+                                type="number"
+                                min="1"
+                                max="1024"
+                                step="1"
+                                name="memory_limit_mb"
+                                data-memory-limit
+                            >
+                        </label>
+                    </div>
+                </section>
+
+                <section class="task-card">
+                    <div class="task-card__heading task-card__heading--inline">
+                        <div>
+                            <p class="task-card__eyebrow">Tests</p>
+                            <h2>Тесты</h2>
+                        </div>
+                        <button class="button button--secondary" type="button">
+                            Прикрепить файл
+                        </button>
+                    </div>
+                </section>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

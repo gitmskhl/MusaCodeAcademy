@@ -61,6 +61,7 @@ const elements = {
     root: document.querySelector('[data-step-editor]'),
     backButton: document.querySelector('[data-back-button]'),
     saveButton: document.querySelector('[data-save-button]'),
+    taskButton: document.querySelector('[data-task-button]'),
     saveStatus: document.querySelector('[data-save-status]'),
     layoutOptions: [...document.querySelectorAll('[data-layout-option]')],
     blockList: document.querySelector('[data-block-list]'),
@@ -148,10 +149,45 @@ const getResponseErrorMessage = async (response, fallback) => {
 
 const setEditorLoading = (loading) => {
     elements.saveButton.disabled = loading;
+    elements.taskButton.disabled = loading;
     elements.addBlockButton.disabled = loading;
     elements.layoutOptions.forEach((option) => {
         option.disabled = loading;
     });
+};
+
+const loadTaskButton = async () => {
+    const stepId = Number(elements.root.dataset.stepId);
+    if (!Number.isInteger(stepId) || stepId <= 0) {
+        return;
+    }
+
+    const token = getToken();
+    if (!token) {
+        return;
+    }
+
+    let response = await fetch(
+        `/api/steps/${encodeURIComponent(stepId)}/task`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (response.status >= 500) {
+        response = await fetch(
+            `/api/tasks/admin/by-step/${encodeURIComponent(stepId)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+    }
+
+    if (response.status === 200) {
+        elements.taskButton.textContent = 'Редактировать задачу';
+        elements.taskButton.hidden = false;
+        return;
+    }
+
+    if (response.status === 404) {
+        elements.taskButton.textContent = 'Создать задачу';
+        elements.taskButton.hidden = false;
+    }
 };
 
 const loadImageSources = async (content, token) => {
@@ -521,6 +557,13 @@ const bindDragAndDrop = () => {
 const bindEvents = () => {
     elements.saveButton.addEventListener('click', saveStep);
 
+    elements.taskButton.addEventListener('click', () => {
+        const stepId = Number(elements.root.dataset.stepId);
+        if (Number.isInteger(stepId) && stepId > 0) {
+            window.location.href = `/admin/steps/${encodeURIComponent(stepId)}/task`;
+        }
+    });
+
     elements.backButton.addEventListener('click', (event) => {
         if (window.history.length > 1) {
             event.preventDefault();
@@ -637,6 +680,7 @@ const init = async () => {
 
     try {
         await loadStep();
+        await loadTaskButton();
         setEditorLoading(false);
     } catch (error) {
         setSaveStatus(
