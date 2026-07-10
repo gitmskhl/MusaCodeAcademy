@@ -149,7 +149,9 @@ const getResponseErrorMessage = async (response, fallback) => {
 
 const setEditorLoading = (loading) => {
     elements.saveButton.disabled = loading;
-    elements.taskButton.disabled = loading;
+    if (elements.taskButton) {
+        elements.taskButton.disabled = loading;
+    }
     elements.addBlockButton.disabled = loading;
     elements.layoutOptions.forEach((option) => {
         option.disabled = loading;
@@ -157,6 +159,10 @@ const setEditorLoading = (loading) => {
 };
 
 const loadTaskButton = async () => {
+    if (!elements.taskButton) {
+        return;
+    }
+
     const stepId = Number(elements.root.dataset.stepId);
     if (!Number.isInteger(stepId) || stepId <= 0) {
         return;
@@ -166,6 +172,9 @@ const loadTaskButton = async () => {
     if (!token) {
         return;
     }
+
+    elements.taskButton.textContent = 'Создать задачу';
+    elements.taskButton.hidden = false;
 
     let response = await fetch(
         `/api/steps/${encodeURIComponent(stepId)}/task`,
@@ -557,7 +566,7 @@ const bindDragAndDrop = () => {
 const bindEvents = () => {
     elements.saveButton.addEventListener('click', saveStep);
 
-    elements.taskButton.addEventListener('click', () => {
+    elements.taskButton?.addEventListener('click', () => {
         const stepId = Number(elements.root.dataset.stepId);
         if (Number.isInteger(stepId) && stepId > 0) {
             window.location.href = `/admin/steps/${encodeURIComponent(stepId)}/task`;
