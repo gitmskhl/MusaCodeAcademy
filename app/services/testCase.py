@@ -1,5 +1,9 @@
-from fastapi import status, HTTPException
-from sqlalchemy import select, func
+import re
+from io import BytesIO
+from zipfile import ZipFile, BadZipFile
+from dataclasses import dataclass
+from fastapi import status, HTTPException, UploadFile
+from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.testCase import TestCaseCreate, TestCaseUpdate
 from app.models import TestCase, Task
@@ -91,3 +95,126 @@ async def delete_test_case(test_case_id: int, db: AsyncSession):
     except Exception:
         await db.rollback()
         raise
+
+# --------------------- ZIP FILE PROCESSING -------------------------------
+
+INPUT_PATTERN = re.compile(r'^input(\d+)\.txt$')
+OUTPUT_PATTERN = re.compile(r'^output(\d+)\.txt$')
+
+
+@dataclass
+class PairNames:
+    input: str | None
+    output: str | None
+
+
+async def _open_zip(file: UploadFile) -> ZipFile:
+    if not file.filename or not file.filename.endswith('.zip'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file must be a .zip file"
+        )
+    content = await file.read()
+    try:
+        archive = ZipFile(BytesIO(content))
+        return archive
+    except BadZipFile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid zip file"
+        )
+
+
+def _get_pairs(archive: ZipFile) -> list[PairNames]:
+    def _handle_name(name: str, match: re.Match[str]):
+        other = 'input' if name == 'output' else 'output'
+        number = int(match.group(1))
+        if number in pairs and getattr(pairs[number], name) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Duplicate {name} file for test case {number}"
+            )
+        elif number in pairs:
+            setattr(pairs[number], name, match.group(0))
+        else:
+            params = {name: match.group(0), other: None}
+            pairs[number] = PairNames(**params)
+
+    pairs: dict[int, PairNames] = {}
+    names = archive.namelist()
+    for name in names:
+        if name.endswith('/'):
+            continue
+        elif input_m := INPUT_PATTERN.match(name):
+            _handle_name(name='input', match=input_m)
+        elif output_m := OUTPUT_PATTERN.match(name):
+            _handle_name(name='output', match=output_m)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid file name in zip: {name}. Expected inputN.txt or outputN.txt"
+            )
+    if not pairs:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No valid test case files found in the zip"
+        )
+    for number, pair in pairs.items():
+        if pair.input is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Missing input file for test case {number}"
+            )
+        elif pair.output is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Missing output file for test case {number}"
+            )
+    return [p for _, p in sorted(pairs.items())]
+    
+
+def _read_text(archive: ZipFile, filename: str) -> str:
+    try:
+        with archive.open(filename) as f:
+            return f.read().decode('utf-8')
+    except UnicodeDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All test files must be UTF-8 encoded."
+        )
+    
+
+async def import_tests_zip(task_id: int, file: UploadFile, db: AsyncSession):
+    task = await db.get(Task, task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    archive = await _open_zip(file=file)
+    with archive:
+        lstPairs = _get_pairs(archive=archive)
+        tests = []
+        try:
+            await db.execute(
+                delete(TestCase)
+                    .where(TestCase.task_id == task_id)
+            )
+            for order, pair in enumerate(lstPairs, start=1):
+                input_data = _read_text(archive=archive, filename=pair.input)
+                output_data = _read_text(archive=archive, filename=pair.output)
+                
+                new_test_case = TestCase(
+                    task_id=task_id,
+                    input=input_data,
+                    expected_output=output_data,
+                    is_hidden=True,
+                    order=order
+                )
+                tests.append(new_test_case)
+            
+            db.add_all(tests)
+            await db.commit()
+        except Exception:
+            await db.rollback()
+            raise

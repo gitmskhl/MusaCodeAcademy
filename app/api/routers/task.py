@@ -1,8 +1,9 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, UploadFile
 from app.schemas.task import TaskPublic, TaskCreate, TaskUpdate
 from app.api.dependencies import OnlyAdmin, DBSession, CurrentUser
 from app.services import task as service_task
 from app.services import submission as submission_service
+from app.services import testCase as service_test
 from app.schemas.submission import SubmissionListItem
 
 router = APIRouter()
@@ -62,3 +63,13 @@ async def get_user_task_submissions_admin(task_id: int, user_id: int, _: OnlyAdm
         user_id=user_id,
         db=db
     )
+
+
+@router.post('/{task_id}/tests/upload', status_code=status.HTTP_204_NO_CONTENT)
+async def upload_tests(
+    task_id: int,
+    file: UploadFile,
+    _: OnlyAdmin,
+    db: DBSession
+):
+    await service_test.import_tests_zip(task_id=task_id, file=file, db=db)

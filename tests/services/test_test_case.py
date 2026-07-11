@@ -1,7 +1,10 @@
 from unittest.mock import AsyncMock
+from io import BytesIO
+from zipfile import ZipFile
 
 import pytest
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Lesson, Step, Task, TestCase as DbTestCase
@@ -10,6 +13,32 @@ from app.schemas.testCase import (
     TestCaseUpdate as UpdateTestCaseSchema,
 )
 from app.services import testCase as service_test_case
+
+
+def create_zip(files: list[tuple[str, bytes | str]]) -> BytesIO:
+    buffer = BytesIO()
+    with ZipFile(buffer, "w") as archive:
+        for filename, content in files:
+            archive.writestr(filename, content)
+    buffer.seek(0)
+    return buffer
+
+
+def upload_file(
+    files: list[tuple[str, bytes | str]],
+    *,
+    filename: str = "tests.zip",
+) -> UploadFile:
+    return UploadFile(filename=filename, file=create_zip(files))
+
+
+async def get_test_cases_for_task(db, task_id: int) -> list[DbTestCase]:
+    result = await db.execute(
+        select(DbTestCase)
+        .where(DbTestCase.task_id == task_id)
+        .order_by(DbTestCase.order)
+    )
+    return list(result.scalars().all())
 
 
 async def create_step(db, section_factory) -> Step:
@@ -269,3 +298,208 @@ async def test_create_test_case_rolls_back_on_commit_error(
 
     commit_mock.assert_awaited_once()
     rollback_mock.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_creates_ordered_hidden_test_cases(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    archive = upload_file([
+        ("input1.txt", "first input"),
+        ("output1.txt", "first output"),
+        ("input2.txt", "second input"),
+        ("output2.txt", "second output"),
+    ])
+
+    await service_test_case.import_tests_zip(task.id, archive, db)
+
+    test_cases = await get_test_cases_for_task(db, task.id)
+    assert len(test_cases) == 2
+    assert [test_case.task_id for test_case in test_cases] == [task.id, task.id]
+    assert [test_case.input for test_case in test_cases] == ["first input", "second input"]
+    assert [test_case.expected_output for test_case in test_cases] == [
+        "first output",
+        "second output",
+    ]
+    assert [test_case.order for test_case in test_cases] == [1, 2]
+    assert all(test_case.is_hidden is True for test_case in test_cases)
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_replaces_existing_test_cases(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    old_cases = [
+        await create_test_case(db, task.id, input_value=f"old {order}", order=order)
+        for order in range(1, 4)
+    ]
+    await service_test_case.import_tests_zip(
+        task.id,
+        upload_file([("input1.txt", "new input"), ("output1.txt", "new output")]),
+        db,
+    )
+
+    test_cases = await get_test_cases_for_task(db, task.id)
+    assert len(test_cases) == 1
+    assert test_cases[0].input == "new input"
+    assert test_cases[0].expected_output == "new output"
+    assert all(test_case.input not in {"old 1", "old 2", "old 3"} for test_case in test_cases)
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_task_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(
+            999_999,
+            upload_file([("input1.txt", "input"), ("output1.txt", "output")]),
+            db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_rejects_invalid_extension(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    task_id = task.id
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(
+            task_id,
+            upload_file([], filename="tests.txt"),
+            db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_rejects_invalid_zip_archive(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    archive = UploadFile(filename="tests.zip", file=BytesIO(b"not a zip archive"))
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(task.id, archive, db)
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_rejects_empty_zip(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(task.id, upload_file([]), db)
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "files",
+    [
+        [("input1.txt", "input")],
+        [("output1.txt", "output")],
+    ],
+    ids=["missing-output", "missing-input"],
+)
+async def test_import_tests_zip_rejects_incomplete_pair(section_factory, db, files):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(task.id, upload_file(files), db)
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("duplicate_name", ["input1.txt", "output1.txt"])
+async def test_import_tests_zip_rejects_duplicate_file(
+    section_factory,
+    db,
+    duplicate_name,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    files = [
+        ("input1.txt", "input"),
+        ("output1.txt", "output"),
+        (duplicate_name, "duplicate"),
+    ]
+
+    with pytest.warns(UserWarning, match="Duplicate name"):
+        archive = upload_file(files)
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(task.id, archive, db)
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_rejects_invalid_filename(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(
+            task.id,
+            upload_file([("hello.txt", "hello")]),
+            db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_rejects_non_utf8_content(section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(
+            task.id,
+            upload_file([("input1.txt", b"\xff"), ("output1.txt", "output")]),
+            db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.asyncio
+async def test_import_tests_zip_rolls_back_existing_cases_on_invalid_utf8(
+    section_factory,
+    db,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    task_id = task.id
+    originals = [
+        await create_test_case(
+            db,
+            task_id,
+            input_value=f"original input {order}",
+            expected_output=f"original output {order}",
+            order=order,
+        )
+        for order in range(1, 3)
+    ]
+    original_ids = [test_case.id for test_case in originals]
+
+    with pytest.raises(HTTPException) as exc:
+        await service_test_case.import_tests_zip(
+            task_id,
+            upload_file([("input1.txt", b"\xff"), ("output1.txt", "new output")]),
+            db,
+        )
+
+    assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
+    test_cases = await get_test_cases_for_task(db, task_id)
+    assert [test_case.id for test_case in test_cases] == original_ids
+    assert [test_case.input for test_case in test_cases] == [
+        "original input 1",
+        "original input 2",
+    ]
