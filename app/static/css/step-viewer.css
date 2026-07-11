@@ -394,7 +394,20 @@ body.is-step-drawer-open .step-drawer {
 
 .task-viewer__actions {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
+    gap: 14px;
+}
+
+.task-viewer__submit-status {
+    margin: 0 auto 0 0;
+    color: #39734d;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.task-viewer__submit-status.is-error {
+    color: #b42318;
 }
 
 .task-viewer__submit {
@@ -412,6 +425,11 @@ body.is-step-drawer-open .step-drawer {
 .task-viewer__submit:hover {
     border-color: var(--viewer-primary-hover);
     background: var(--viewer-primary-hover);
+}
+
+.task-viewer__submit:disabled {
+    cursor: wait;
+    opacity: 0.65;
 }
 
 .step-viewer__navigation {

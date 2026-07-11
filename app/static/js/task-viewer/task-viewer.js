@@ -1,4 +1,8 @@
 import { createCodeEditorView } from '../step-renderer/codemirror/code-editor-view.js';
+import { authFetch } from '../course-auth.js';
+
+const SUBMIT_LABEL = 'Отправить решение';
+const SUBMITTING_LABEL = 'Отправляем решение...';
 
 const createMetaItem = (icon, label, value) => {
     const item = document.createElement('span');
@@ -18,8 +22,19 @@ const createSubmitButton = () => {
     const button = document.createElement('button');
     button.className = 'task-viewer__submit';
     button.type = 'button';
-    button.textContent = 'Отправить решение';
+    button.textContent = SUBMIT_LABEL;
     return button;
+};
+
+const getErrorDetail = async (response) => {
+    try {
+        const body = await response.json();
+        return typeof body.detail === 'string' && body.detail.trim()
+            ? body.detail
+            : null;
+    } catch {
+        return null;
+    }
 };
 
 export const clearTaskViewer = (container) => {
@@ -65,15 +80,60 @@ export const renderTaskViewer = (container, task) => {
     const actions = document.createElement('div');
     actions.className = 'task-viewer__actions';
 
+    const submitStatus = document.createElement('p');
+    submitStatus.className = 'task-viewer__submit-status';
+    submitStatus.setAttribute('role', 'status');
+    submitStatus.setAttribute('aria-live', 'polite');
+
     const submitButton = createSubmitButton();
-    submitButton.addEventListener('click', () => {
-        console.log('TODO: submit solution', {
-            task_id: task.id,
-            source_code: sourceCode,
-        });
+    let isSubmitting = false;
+
+    submitButton.addEventListener('click', async () => {
+        if (isSubmitting) {
+            return;
+        }
+
+        if (!sourceCode.trim()) {
+            submitStatus.textContent = 'Введите код решения.';
+            submitStatus.classList.add('is-error');
+            return;
+        }
+
+        isSubmitting = true;
+        submitButton.disabled = true;
+        submitButton.textContent = SUBMITTING_LABEL;
+        submitStatus.textContent = '';
+        submitStatus.classList.remove('is-error');
+
+        try {
+            const response = await authFetch('/api/submissions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    task_id: task.id,
+                    source_code: sourceCode,
+                }),
+            });
+
+            if (!response.ok) {
+                const detail = await getErrorDetail(response);
+                throw new Error(detail || 'Не удалось отправить решение.');
+            }
+
+            submitStatus.textContent = 'Решение отправлено и ожидает проверки.';
+        } catch (error) {
+            if (error.message !== 'authentication-required') {
+                submitStatus.textContent = error.message || 'Не удалось отправить решение.';
+                submitStatus.classList.add('is-error');
+            }
+        } finally {
+            isSubmitting = false;
+            submitButton.disabled = false;
+            submitButton.textContent = SUBMIT_LABEL;
+        }
     });
 
-    actions.append(submitButton);
+    actions.append(submitStatus, submitButton);
     card.append(header, createDivider(), editorHost, createDivider(), actions);
     container.replaceChildren(card);
     container.hidden = false;
