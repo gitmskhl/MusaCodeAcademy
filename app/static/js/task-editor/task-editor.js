@@ -19,6 +19,12 @@ const elements = {
     starterCodeEditor: document.querySelector('[data-starter-code-editor]'),
     timeLimit: document.querySelector('[data-time-limit]'),
     memoryLimit: document.querySelector('[data-memory-limit]'),
+    testZip: document.querySelector('[data-test-zip]'),
+    uploadTestsButton: document.querySelector('[data-upload-tests]'),
+    testUploadStatus: document.querySelector('[data-test-upload-status]'),
+    testCasesTableWrap: document.querySelector('[data-test-cases-table-wrap]'),
+    testCasesBody: document.querySelector('[data-test-cases-body]'),
+    testCasesEmpty: document.querySelector('[data-test-cases-empty]'),
 };
 
 const state = {
@@ -26,6 +32,7 @@ const state = {
     starterCode: '',
     codeEditor: null,
     saveStatusTimer: null,
+    testCases: [],
 };
 
 const getStepId = () => {
@@ -98,6 +105,8 @@ const setEditorLoading = (loading) => {
     elements.saveButton.disabled = loading;
     elements.timeLimit.disabled = loading;
     elements.memoryLimit.disabled = loading;
+    elements.testZip.disabled = loading || !state.task?.id;
+    elements.uploadTestsButton.disabled = loading || !state.task?.id;
     state.codeEditor?.setEditable(!loading);
 };
 
@@ -142,6 +151,135 @@ const loadTask = async () => {
     }
 
     setTaskValues(await response.json());
+};
+
+const setTestUploadStatus = (message, { error = false } = {}) => {
+    elements.testUploadStatus.classList.toggle('is-error', error);
+    elements.testUploadStatus.textContent = message;
+};
+
+const truncateTestValue = (value) => {
+    const compactValue = String(value ?? '').replace(/[\r\n]+/g, ' ');
+    return compactValue.length > 100
+        ? `${compactValue.slice(0, 100)}...`
+        : compactValue;
+};
+
+const createActionButton = ({ label, path }) => {
+    const button = document.createElement('button');
+    button.className = 'test-case-action';
+    button.type = 'button';
+    button.setAttribute('aria-label', label);
+    button.title = `${label} (coming soon)`;
+    button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg>`;
+    return button;
+};
+
+const renderTestCases = () => {
+    elements.testCasesBody.replaceChildren();
+    const hasTestCases = state.testCases.length > 0;
+    elements.testCasesTableWrap.hidden = !hasTestCases;
+    elements.testCasesEmpty.hidden = hasTestCases;
+
+    state.testCases.forEach((testCase, index) => {
+        const row = document.createElement('tr');
+        const numberCell = document.createElement('td');
+        numberCell.textContent = String(testCase.order ?? index + 1);
+
+        const inputCell = document.createElement('td');
+        const inputValue = document.createElement('span');
+        inputValue.className = 'test-cases-table__value';
+        inputValue.textContent = truncateTestValue(testCase.input);
+        inputValue.title = String(testCase.input ?? '');
+        inputCell.append(inputValue);
+
+        const outputCell = document.createElement('td');
+        const outputValue = document.createElement('span');
+        outputValue.className = 'test-cases-table__value';
+        outputValue.textContent = truncateTestValue(testCase.expected_output);
+        outputValue.title = String(testCase.expected_output ?? '');
+        outputCell.append(outputValue);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'test-cases-table__actions';
+        actionsCell.append(
+            createActionButton({
+                label: 'Edit test case',
+                path: 'M12 20h9 M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z',
+            }),
+            createActionButton({
+                label: 'Delete test case',
+                path: 'M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6 M10 11v5 M14 11v5',
+            })
+        );
+
+        row.append(numberCell, inputCell, outputCell, actionsCell);
+        elements.testCasesBody.append(row);
+    });
+};
+
+const loadTestCases = async () => {
+    if (!state.task?.id) {
+        state.testCases = [];
+        renderTestCases();
+        return;
+    }
+
+    const response = await authFetch(
+        `/api/test-cases/admin/by-task/${encodeURIComponent(state.task.id)}`
+    );
+    if (!response.ok) {
+        throw new Error(
+            await getResponseErrorMessage(response, 'Failed to load test cases')
+        );
+    }
+
+    state.testCases = await response.json();
+    renderTestCases();
+};
+
+const uploadTests = async () => {
+    const file = elements.testZip.files?.[0];
+    if (!state.task?.id) {
+        setTestUploadStatus('Save the task before uploading tests.', { error: true });
+        return;
+    }
+    if (!file) {
+        setTestUploadStatus('Select a ZIP archive to upload.', { error: true });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    elements.testZip.disabled = true;
+    elements.uploadTestsButton.disabled = true;
+    setTestUploadStatus('Uploading test cases...');
+
+    try {
+        const response = await authFetch(
+            `/api/tasks/${encodeURIComponent(state.task.id)}/tests/upload`,
+            { method: 'POST', body: formData }
+        );
+        if (!response.ok) {
+            throw new Error(
+                await getResponseErrorMessage(response, 'Failed to upload tests')
+            );
+        }
+
+        await loadTestCases();
+        elements.testZip.value = '';
+        setTestUploadStatus('Test cases uploaded successfully.');
+    } catch (error) {
+        setTestUploadStatus(
+            error instanceof Error && error.message
+                ? error.message
+                : 'Failed to upload tests.',
+            { error: true }
+        );
+    } finally {
+        elements.testZip.disabled = false;
+        elements.uploadTestsButton.disabled = false;
+    }
 };
 
 const getNumberFieldValue = (input, fallback) => {
@@ -192,6 +330,8 @@ const saveTask = async () => {
         }
 
         state.task = await response.json();
+        elements.testZip.disabled = false;
+        elements.uploadTestsButton.disabled = false;
         elements.saveButton.textContent = 'Сохранено';
         setSaveStatus('Изменения сохранены.');
         state.saveStatusTimer = window.setTimeout(() => {
@@ -217,6 +357,8 @@ const bindEvents = () => {
         event.preventDefault();
         saveTask();
     });
+    elements.uploadTestsButton.addEventListener('click', uploadTests);
+    elements.testZip.addEventListener('change', () => setTestUploadStatus(''));
 
     elements.backButton.addEventListener('click', (event) => {
         if (window.history.length > 1) {
@@ -241,6 +383,7 @@ const init = async () => {
         }
 
         await loadTask();
+        await loadTestCases();
         mountCodeEditor();
         bindEvents();
         setSaveStatus('');
