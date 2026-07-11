@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     secret_key: SecretStr
     algorithm: str
     access_token_expire_minutes: int
+
+    redis_url: str
     
-    
+
 settings = Settings() # type: ignore
