@@ -10,3 +10,4 @@ example/
 uploads/
 node_modules/
 .pytest_cache/
+*postman*
