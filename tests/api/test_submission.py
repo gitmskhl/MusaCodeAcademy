@@ -1,7 +1,8 @@
 import pytest
 from fastapi import status
 from sqlalchemy import select
-
+from unittest.mock import AsyncMock
+from app.services import submission as service_submission
 from app.enums import SubmissionStatus
 from app.main import app
 from app.models import Lesson, Step, Submission, Task, User
@@ -166,10 +167,14 @@ async def test_create_submission_success(
     user_data,
     section_factory,
     db,
+    monkeypatch
 ):
     user = await get_user_by_email(db, user_data["email"])
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
+
+    enque_mock = AsyncMock()
+    monkeypatch.setattr(service_submission, 'enqueu', enque_mock)
 
     response = await client.post(
         create_submission_url(),
@@ -189,6 +194,9 @@ async def test_create_submission_success(
     stored_submission = await db.get(Submission, data["id"])
     assert stored_submission is not None
     assert stored_submission.user_id == user.id
+    enque_mock.assert_awaited_once_with(
+        submission_id=stored_submission.id
+    )
 
 
 @pytest.mark.asyncio
