@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
+from unittest.mock import AsyncMock
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
@@ -79,9 +80,16 @@ async def create_submission(
 async def test_create_submission_success_for_published_course(
     section_factory,
     db,
+    monkeypatch
 ):
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
+
+    monkeypatch.setattr(
+        submission_service.create_submission,
+        "enqueue",
+        AsyncMock()
+    )
 
     submission = await submission_service.create_submission(
         user_id=123,
