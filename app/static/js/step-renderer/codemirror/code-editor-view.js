@@ -96,6 +96,19 @@ export const createCodeEditorView = ({
 
     return {
         focus: () => view.focus(),
+        setDocument: (nextDocument) => {
+            const currentDocument = view.state.doc.toString();
+            if (nextDocument === currentDocument) {
+                return;
+            }
+            view.dispatch({
+                changes: {
+                    from: 0,
+                    to: view.state.doc.length,
+                    insert: nextDocument,
+                },
+            });
+        },
         setEditable: (nextEditable) => {
             if (nextEditable === isEditable) {
                 return;

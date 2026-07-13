@@ -3,6 +3,10 @@ import { authFetch } from '../course-auth.js';
 
 const SUBMIT_LABEL = 'Отправить решение';
 const SUBMITTING_LABEL = 'Отправляем решение...';
+const POLLING_INTERVAL_MS = 1000;
+const ACTIVE_SUBMISSION_STATUSES = new Set(['PENDING', 'RUNNING']);
+
+let cleanupActiveTaskViewer = () => {};
 
 const createMetaItem = (icon, label, value) => {
     const item = document.createElement('span');
@@ -38,11 +42,13 @@ const getErrorDetail = async (response) => {
 };
 
 export const clearTaskViewer = (container) => {
+    cleanupActiveTaskViewer();
     container.replaceChildren();
     container.hidden = true;
 };
 
 export const renderTaskError = (container, message) => {
+    cleanupActiveTaskViewer();
     const card = document.createElement('article');
     card.className = 'task-viewer__card task-viewer__card--error';
     card.setAttribute('role', 'alert');
@@ -53,7 +59,14 @@ export const renderTaskError = (container, message) => {
 };
 
 export const renderTaskViewer = (container, task) => {
+    cleanupActiveTaskViewer();
+
     let sourceCode = task.starter_code || '';
+    let latestSubmissionStatus = null;
+    let pollingTimer = null;
+    let isPollingRequest = false;
+    let isSubmitting = false;
+    let isDestroyed = false;
 
     const card = document.createElement('article');
     card.className = 'task-viewer__card';
@@ -71,7 +84,6 @@ export const renderTaskViewer = (container, task) => {
         createMetaItem('⏱', 'Время', `${task.time_limit_ms} мс`),
         createMetaItem('💾', 'Память', `${task.memory_limit_mb} МБ`)
     );
-
     header.append(title, meta);
 
     const editorHost = document.createElement('div');
@@ -86,7 +98,100 @@ export const renderTaskViewer = (container, task) => {
     submitStatus.setAttribute('aria-live', 'polite');
 
     const submitButton = createSubmitButton();
-    let isSubmitting = false;
+    actions.append(submitStatus, submitButton);
+    card.append(header, createDivider(), editorHost, createDivider(), actions);
+    container.replaceChildren(card);
+    container.hidden = false;
+
+    const editor = createCodeEditorView({
+        parent: editorHost,
+        document: sourceCode,
+        language: 'python',
+        onChange: (value) => {
+            sourceCode = value;
+        },
+    });
+
+    const stopPolling = () => {
+        if (pollingTimer !== null) {
+            window.clearTimeout(pollingTimer);
+            pollingTimer = null;
+        }
+    };
+
+    const displaySubmission = (submission, { loadSource = false } = {}) => {
+        if (!submission) {
+            latestSubmissionStatus = null;
+            stopPolling();
+            submitButton.disabled = false;
+            submitButton.textContent = SUBMIT_LABEL;
+            return false;
+        }
+
+        if (loadSource) {
+            sourceCode = submission.source_code;
+            editor.setDocument(sourceCode);
+        }
+
+        latestSubmissionStatus = submission.status;
+        submitStatus.textContent = `Статус: ${submission.status}`;
+        submitStatus.classList.remove('is-error');
+
+        const isActive = ACTIVE_SUBMISSION_STATUSES.has(submission.status);
+        submitButton.disabled = isActive;
+        submitButton.textContent = SUBMIT_LABEL;
+        if (!isActive) {
+            stopPolling();
+        }
+        return isActive;
+    };
+
+    const getLastSubmission = async () => {
+        const response = await authFetch(
+            `/api/tasks/${encodeURIComponent(task.id)}/submissions/last`
+        );
+        if (!response.ok) {
+            throw new Error('last-submission-request-failed');
+        }
+        return response.json();
+    };
+
+    const startPolling = () => {
+        if (isDestroyed || pollingTimer !== null || isPollingRequest) {
+            return;
+        }
+
+        pollingTimer = window.setTimeout(async () => {
+            pollingTimer = null;
+            isPollingRequest = true;
+            let shouldContinue = true;
+            try {
+                const submission = await getLastSubmission();
+                if (isDestroyed) {
+                    return;
+                }
+                shouldContinue = displaySubmission(submission);
+            } catch {
+                // Retry transient failures while the submission is active.
+            } finally {
+                isPollingRequest = false;
+                if (shouldContinue && !isDestroyed) {
+                    startPolling();
+                }
+            }
+        }, POLLING_INTERVAL_MS);
+    };
+
+    const loadLastSubmission = async () => {
+        try {
+            const submission = await getLastSubmission();
+            if (!isDestroyed && displaySubmission(submission, { loadSource: true })) {
+                startPolling();
+            }
+        } catch {
+            // The editor stays usable if submission history is unavailable.
+        }
+    };
 
     submitButton.addEventListener('click', async () => {
         if (isSubmitting) {
@@ -120,30 +225,39 @@ export const renderTaskViewer = (container, task) => {
                 throw new Error(detail || 'Не удалось отправить решение.');
             }
 
-            submitStatus.textContent = 'Решение отправлено и ожидает проверки.';
+            const submission = await response.json();
+            if (displaySubmission(submission)) {
+                startPolling();
+            }
         } catch (error) {
+            latestSubmissionStatus = null;
             if (error.message !== 'authentication-required') {
                 submitStatus.textContent = error.message || 'Не удалось отправить решение.';
                 submitStatus.classList.add('is-error');
             }
         } finally {
             isSubmitting = false;
-            submitButton.disabled = false;
+            if (!ACTIVE_SUBMISSION_STATUSES.has(latestSubmissionStatus)) {
+                submitButton.disabled = false;
+            }
             submitButton.textContent = SUBMIT_LABEL;
         }
     });
 
-    actions.append(submitStatus, submitButton);
-    card.append(header, createDivider(), editorHost, createDivider(), actions);
-    container.replaceChildren(card);
-    container.hidden = false;
+    const cleanup = () => {
+        if (isDestroyed) {
+            return;
+        }
+        isDestroyed = true;
+        stopPolling();
+        editor.destroy();
+        window.removeEventListener('pagehide', cleanup);
+        if (cleanupActiveTaskViewer === cleanup) {
+            cleanupActiveTaskViewer = () => {};
+        }
+    };
 
-    createCodeEditorView({
-        parent: editorHost,
-        document: sourceCode,
-        language: 'python',
-        onChange: (value) => {
-            sourceCode = value;
-        },
-    });
+    cleanupActiveTaskViewer = cleanup;
+    window.addEventListener('pagehide', cleanup, { once: true });
+    loadLastSubmission();
 };
