@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from app.core.exceptions import SubmissionNotFoundError, TestsNotFound
 from app.models import TestCase, Submission, Task
 from app.enums import SubmissionStatus
 
@@ -10,7 +11,7 @@ async def get_tests(task_id: int, db: AsyncSession):
             .order_by(TestCase.order)
         )).scalars().all()
     if not tests:
-        raise RuntimeError("Task has no tests")
+        raise TestsNotFound(task_id=task_id)
     return tests
 
 
@@ -22,6 +23,13 @@ async def get_submission(submission_id: int, db: AsyncSession) -> Submission:
 async def update_status(status: SubmissionStatus, submission: Submission, db: AsyncSession):
     submission.status = status
     await db.commit()
+
+
+async def update_status_by_submission_id(status: SubmissionStatus, submission_id: int, db: AsyncSession):
+    submission = await db.get(Submission, submission_id)
+    if not submission:
+        raise SubmissionNotFoundError()
+    await update_status(status=status, submission=submission, db=db)
 
 
 async def get_task(task_id: int, db: AsyncSession) -> Task:

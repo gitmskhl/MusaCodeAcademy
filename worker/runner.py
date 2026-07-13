@@ -40,4 +40,9 @@ async def run_code(source_code: str, test_input: str, timeout: float) -> RunResu
                 exit_code=-1,
                 timed_out=True
             )
+        except asyncio.CancelledError:
+            if process.returncode is None:
+                process.kill()
+                await process.wait()
+            raise
     
