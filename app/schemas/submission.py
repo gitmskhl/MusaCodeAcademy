@@ -14,6 +14,7 @@ class SubmissionDetail(BaseModel):
     id: int
     task_id: int
     source_code: str
+    passed_tests: int
     status: SubmissionStatus
     submitted_at: datetime
 

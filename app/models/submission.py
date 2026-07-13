@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from datetime import datetime, UTC
-from sqlalchemy import ForeignKey, DateTime, Text, Index
+from sqlalchemy import ForeignKey, DateTime, Text, Index, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 from app.enums import SubmissionStatus
@@ -33,6 +33,8 @@ class Submission(Base):
     )
 
     source_code: Mapped[str] = mapped_column(Text, nullable=False)
+
+    passed_tests: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     status: Mapped[SubmissionStatus] = mapped_column(default=SubmissionStatus.PENDING, nullable=False)
     submitted_at: Mapped[datetime] = mapped_column(
