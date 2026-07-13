@@ -107,6 +107,10 @@ async def test_create_submission_success_for_published_course(
     assert submission.task_id == task.id
     assert submission.user_id == 123
     assert submission.source_code == "print('ok')"
+    assert submission.passed_tests == 0
+    assert submission.total_tests is None
+    assert submission.failed_test_id is None
+    assert submission.actual_output is None
     assert submission.status == SubmissionStatus.PENDING
     assert submission.submitted_at is not None
     assert await db.get(Submission, submission.id) is not None

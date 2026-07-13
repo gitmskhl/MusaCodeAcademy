@@ -14,6 +14,10 @@ SUBMISSION_DETAIL_FIELDS = {
     "id",
     "task_id",
     "source_code",
+    "passed_tests",
+    "total_tests",
+    "failed_test_id",
+    "actual_output",
     "status",
     "submitted_at",
 }
@@ -97,12 +101,20 @@ async def create_submission(
     source_code: str = "print('ok')",
     status_: SubmissionStatus = SubmissionStatus.PENDING,
     submitted_at: datetime | None = None,
+    passed_tests: int = 0,
+    total_tests: int | None = None,
+    failed_test_id: int | None = None,
+    actual_output: str | None = None,
 ) -> Submission:
     submission = Submission(
         task_id=task_id,
         user_id=user_id,
         source_code=source_code,
         status=status_,
+        passed_tests=passed_tests,
+        total_tests=total_tests,
+        failed_test_id=failed_test_id,
+        actual_output=actual_output,
         **({"submitted_at": submitted_at} if submitted_at is not None else {}),
     )
     db.add(submission)
@@ -154,6 +166,10 @@ def assert_submission_detail(data: dict, submission: Submission) -> None:
     assert data["id"] == submission.id
     assert data["task_id"] == submission.task_id
     assert data["source_code"] == submission.source_code
+    assert data["passed_tests"] == submission.passed_tests
+    assert data["total_tests"] == submission.total_tests
+    assert data["failed_test_id"] == submission.failed_test_id
+    assert data["actual_output"] == submission.actual_output
     assert data["status"] == submission.status.value
     assert data["submitted_at"] is not None
 
@@ -203,6 +219,10 @@ async def test_create_submission_success(
     assert set(data) == SUBMISSION_DETAIL_FIELDS
     assert data["task_id"] == task.id
     assert data["source_code"] == "print('ok')"
+    assert data["passed_tests"] == 0
+    assert data["total_tests"] is None
+    assert data["failed_test_id"] is None
+    assert data["actual_output"] is None
     assert data["status"] == SubmissionStatus.PENDING.value
     stored_submission = await db.get(Submission, data["id"])
     assert stored_submission is not None
@@ -298,7 +318,16 @@ async def test_get_my_submission_success(
     user = await get_user_by_email(db, user_data["email"])
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
-    submission = await create_submission(db, task.id, user_id=user.id)
+    submission = await create_submission(
+        db,
+        task.id,
+        user_id=user.id,
+        status_=SubmissionStatus.WRONG_ANSWER,
+        passed_tests=2,
+        total_tests=5,
+        failed_test_id=17,
+        actual_output="wrong answer",
+    )
 
     response = await client.get(
         get_my_submission_url(submission.id),
