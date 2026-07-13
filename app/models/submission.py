@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from datetime import datetime, UTC
-from sqlalchemy import Integer, ForeignKey, DateTime, Text
+from sqlalchemy import ForeignKey, DateTime, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 from app.enums import SubmissionStatus
@@ -11,6 +11,15 @@ if TYPE_CHECKING:
 
 class Submission(Base):
     __tablename__ = "submissions"
+
+    __table_args__ = (
+        Index(
+            "ix_submission_task_user_submitted_at",
+            "task_id",
+            "user_id",
+            "submitted_at"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

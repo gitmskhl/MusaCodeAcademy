@@ -4,7 +4,7 @@ from app.api.dependencies import OnlyAdmin, DBSession, CurrentUser
 from app.services import task as service_task
 from app.services import submission as submission_service
 from app.services import testCase as service_test
-from app.schemas.submission import SubmissionListItem
+from app.schemas.submission import SubmissionListItem, SubmissionDetail
 
 router = APIRouter()
 
@@ -61,6 +61,15 @@ async def get_user_task_submissions_admin(task_id: int, user_id: int, _: OnlyAdm
     return await submission_service.get_submissions(
         task_id=task_id,
         user_id=user_id,
+        db=db
+    )
+
+
+@router.get('/{task_id}/submissions/last', response_model=(SubmissionDetail | None))
+async def get_last_submission(task_id: int, user: CurrentUser, db: DBSession):
+    return await submission_service.get_last_submission(
+        task_id=task_id,
+        user_id=user.id,
         db=db
     )
 

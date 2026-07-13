@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from fastapi import status
 from sqlalchemy import select
@@ -94,12 +96,14 @@ async def create_submission(
     user_id: int,
     source_code: str = "print('ok')",
     status_: SubmissionStatus = SubmissionStatus.PENDING,
+    submitted_at: datetime | None = None,
 ) -> Submission:
     submission = Submission(
         task_id=task_id,
         user_id=user_id,
         source_code=source_code,
         status=status_,
+        **({"submitted_at": submitted_at} if submitted_at is not None else {}),
     )
     db.add(submission)
     await db.commit()
@@ -132,6 +136,15 @@ def get_user_task_submissions_admin_url(
             "get_user_task_submissions_admin",
             task_id=task_id,
             user_id=user_id,
+        )
+    )
+
+
+def get_last_submission_url(task_id: int | str) -> str:
+    return str(
+        app.url_path_for(
+            "get_last_submission",
+            task_id=task_id,
         )
     )
 
@@ -513,3 +526,93 @@ async def test_get_user_task_submissions_admin_rejects_non_admin(
     assert response.json() == {
         "detail": "You do not have permission to perform this action"
     }
+
+
+# GET /api/tasks/{task_id}/submissions/last
+
+
+def test_get_last_submission_uses_expected_url():
+    assert get_last_submission_url(1) == "/api/tasks/1/submissions/last"
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_success(
+    client,
+    auth_headers,
+    user_data,
+    section_factory,
+    db,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    other_user = await create_user(db)
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    await create_submission(
+        db,
+        task.id,
+        user_id=user.id,
+        source_code="print('older')",
+        submitted_at=datetime(2026, 1, 1, 10, 0),
+    )
+    latest = await create_submission(
+        db,
+        task.id,
+        user_id=user.id,
+        source_code="print('latest')",
+        submitted_at=datetime(2026, 1, 1, 12, 0),
+    )
+    await create_submission(
+        db,
+        task.id,
+        user_id=other_user.id,
+        source_code="print('other user')",
+        submitted_at=datetime(2026, 1, 1, 13, 0),
+    )
+
+    response = await client.get(
+        get_last_submission_url(task.id),
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert_submission_detail(response.json(), latest)
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_returns_null_when_there_are_no_submissions(
+    client,
+    auth_headers,
+    user_data,
+    section_factory,
+    db,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+
+    response = await client.get(
+        get_last_submission_url(task.id),
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() is None
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_task_not_found(client, auth_headers):
+    response = await client.get(
+        get_last_submission_url(999_999),
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "Task not found"}
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_requires_authentication(client):
+    response = await client.get(get_last_submission_url(1))
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {"detail": "Not authenticated"}

@@ -72,3 +72,22 @@ async def get_submissions(task_id: int, user_id: int, db: AsyncSession) -> list[
                 Submission.user_id == user_id
             ))
     )).scalars().all()
+
+
+async def get_last_submission(task_id: int, user_id: int, db: AsyncSession) -> Submission | None:
+    task = await db.get(Task, task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    return (await db.execute(
+        select(Submission)
+            .where(
+                Submission.task_id == task_id,
+                Submission.user_id == user_id
+            )
+            .order_by(Submission.submitted_at.desc())
+            .limit(1)
+    )).scalar_one_or_none()
+

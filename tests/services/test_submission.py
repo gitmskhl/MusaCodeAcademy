@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock
+from datetime import datetime
 
 import pytest
 from unittest.mock import AsyncMock
@@ -63,12 +63,14 @@ async def create_submission(
     user_id: int,
     source_code: str = "print('ok')",
     status: SubmissionStatus = SubmissionStatus.PENDING,
+    submitted_at: datetime | None = None,
 ) -> Submission:
     submission = Submission(
         task_id=task_id,
         user_id=user_id,
         source_code=source_code,
         status=status,
+        **({"submitted_at": submitted_at} if submitted_at is not None else {}),
     )
     db.add(submission)
     await db.commit()
@@ -285,6 +287,84 @@ async def test_get_submissions_filters_by_task_and_user(section_factory, db):
 async def test_get_submissions_task_not_found(db):
     with pytest.raises(HTTPException) as exc:
         await submission_service.get_submissions(
+            task_id=999_999,
+            user_id=123,
+            db=db,
+        )
+
+    assert exc.value.status_code == status.HTTP_404_NOT_FOUND
+    assert exc.value.detail == "Task not found"
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_returns_latest_for_task_and_user(
+    section_factory,
+    db,
+):
+    first_step = await create_step(db, section_factory, is_published=True)
+    first_task = await create_task(db, first_step.id)
+    second_step = await create_step(db, section_factory, is_published=True)
+    second_task = await create_task(db, second_step.id)
+    await create_submission(
+        db,
+        first_task.id,
+        user_id=123,
+        source_code="print('older')",
+        submitted_at=datetime(2026, 1, 1, 10, 0),
+    )
+    latest = await create_submission(
+        db,
+        first_task.id,
+        user_id=123,
+        source_code="print('latest')",
+        submitted_at=datetime(2026, 1, 1, 12, 0),
+    )
+    await create_submission(
+        db,
+        first_task.id,
+        user_id=456,
+        submitted_at=datetime(2026, 1, 1, 13, 0),
+    )
+    await create_submission(
+        db,
+        second_task.id,
+        user_id=123,
+        submitted_at=datetime(2026, 1, 1, 14, 0),
+    )
+
+    result = await submission_service.get_last_submission(
+        task_id=first_task.id,
+        user_id=123,
+        db=db,
+    )
+
+    assert result is not None
+    assert result.id == latest.id
+    assert result.source_code == "print('latest')"
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_returns_none_when_user_has_no_submissions(
+    section_factory,
+    db,
+):
+    step = await create_step(db, section_factory, is_published=True)
+    task = await create_task(db, step.id)
+    await create_submission(db, task.id, user_id=456)
+
+    result = await submission_service.get_last_submission(
+        task_id=task.id,
+        user_id=123,
+        db=db,
+    )
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_last_submission_task_not_found(db):
+    with pytest.raises(HTTPException) as exc:
+        await submission_service.get_last_submission(
             task_id=999_999,
             user_id=123,
             db=db,
