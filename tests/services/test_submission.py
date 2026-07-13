@@ -85,10 +85,11 @@ async def test_create_submission_success_for_published_course(
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
 
+    enqueu_mock = AsyncMock()
     monkeypatch.setattr(
-        submission_service.create_submission,
+        submission_service,
         "enqueu",
-        AsyncMock()
+        enqueu_mock
     )
 
     submission = await submission_service.create_submission(
@@ -107,6 +108,9 @@ async def test_create_submission_success_for_published_course(
     assert submission.status == SubmissionStatus.PENDING
     assert submission.submitted_at is not None
     assert await db.get(Submission, submission.id) is not None
+    enqueu_mock.assert_awaited_once_with(
+        submission_id=submission.id
+    )
 
 
 @pytest.mark.asyncio
