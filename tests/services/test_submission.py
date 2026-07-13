@@ -87,7 +87,7 @@ async def test_create_submission_success_for_published_course(
 
     monkeypatch.setattr(
         submission_service.create_submission,
-        "enqueue",
+        "enqueu",
         AsyncMock()
     )
 
