@@ -42,6 +42,16 @@ async def create_test_case(testInfo: TestCaseCreate, db: AsyncSession) -> TestCa
         raise
 
 
+async def get_test_case(test_case_id: int, db: AsyncSession) -> TestCase:
+    test_case = await db.get(TestCase, test_case_id)
+    if not test_case or test_case.is_hidden:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Test not found"
+        )
+    return test_case
+
+
 async def get_test_cases_by_task(task_id: int, db: AsyncSession) -> list[TestCase]:
     task = await db.get(Task, task_id)
     if not task:

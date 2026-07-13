@@ -25,6 +25,16 @@ async def update_status(status: SubmissionStatus, submission: Submission, db: As
     await db.commit()
 
 
+async def update_submission(
+        status: SubmissionStatus,
+        submission: Submission,
+        passed_tests: int,
+        total_tests: int,
+        failed_test_id: int | None,
+        actual_output: str | None
+):
+    pass
+
 async def update_status_by_submission_id(status: SubmissionStatus, submission_id: int, db: AsyncSession):
     submission = await db.get(Submission, submission_id)
     if not submission:
