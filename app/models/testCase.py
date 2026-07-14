@@ -21,7 +21,7 @@ class TestCase(Base):
     input: Mapped[str | None] = mapped_column(Text)
     expected_output: Mapped[str] = mapped_column(Text, nullable=False)
 
-    is_hidden: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_hidden: Mapped[bool] = mapped_column(Boolean, default=False)
     order: Mapped[int] = mapped_column(Integer, nullable=False)
 
     task: Mapped["Task"] = relationship(back_populates="test_cases")
