@@ -14,7 +14,8 @@ from app.queue.submission import enqueu
 from app.enums import SubmissionStatus
 from worker.runner import run_code
 from worker.checker import compare
-from worker.services import get_tests, get_submission, update_status, get_task, update_status_by_submission_id
+from worker.services import get_tests, get_submission, update_status, get_task, update_status_by_submission_id, update_submission
+from worker.models import TestsResult
 
 logger = logging.getLogger(__name__)
 
@@ -34,12 +35,13 @@ async def _start_submission_processing(submission_id: int, db: AsyncSession):
     return task, submission
 
 
-async def _check_tests(submission_id: int, submission: Submission, task: Task, tests: list[TestCase]):
+async def _check_tests(submission_id: int, submission: Submission, task: Task, tests: list[TestCase]) -> TestsResult:
     status_result = SubmissionStatus.ACCEPTED
     logger.info(
         "Started checking submission %s",
         submission_id
     )
+    passed_tests = 0
     for test in tests:
         result = await run_code(
             source_code=submission.source_code,
@@ -55,12 +57,19 @@ async def _check_tests(submission_id: int, submission: Submission, task: Task, t
         if not compare(result.stdout, test.expected_output):
             status_result = SubmissionStatus.WRONG_ANSWER
             break
+        passed_tests += 1
     logger.info(
         "Submission %s finished with status %s",
         submission_id,
         status_result.name
     )
-    return status_result
+    return TestsResult(
+        status=status_result,
+        passed_tests=passed_tests,
+        total_tests=len(tests),
+        failed_test_id=None if status_result == SubmissionStatus.ACCEPTED else test.id,
+        actual_output= result.stdout if (status_result != SubmissionStatus.ACCEPTED) and not test.is_hidden else (result.stderr[:10000] if status_result == SubmissionStatus.RUNTIME_ERROR else None)
+    )
 
 
 async def process_submission(submission_id: int):
@@ -68,15 +77,19 @@ async def process_submission(submission_id: int):
         try:
             task, submission = await _start_submission_processing(submission_id=submission_id, db=db)
             tests = await get_tests(task_id=submission.task_id, db=db)
-            status_result = await _check_tests(
+            result = await _check_tests(
                 submission_id=submission_id,
                 submission=submission,
                 task=task,
                 tests=tests
             )
-            await update_status(
-                status=status_result,
+            await update_submission(
                 submission=submission,
+                status=result.status,
+                passed_tests=result.passed_tests,
+                total_tests=result.total_tests,
+                failed_test_id=result.failed_test_id,
+                actual_output=result.actual_output,
                 db=db
             )
         except SubmissionNotFoundError:
