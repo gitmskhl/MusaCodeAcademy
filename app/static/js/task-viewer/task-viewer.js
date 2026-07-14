@@ -100,10 +100,17 @@ export const renderTaskViewer = (container, task) => {
 
     const submitButton = createSubmitButton();
     actions.append(submitStatus, submitButton);
-    card.append(header, createDivider(), editorHost, createDivider(), actions);
-
     const statusPanel = createSubmissionStatusPanel({ fetcher: authFetch });
-    container.replaceChildren(card, statusPanel.element);
+    card.append(
+        header,
+        createDivider(),
+        statusPanel.element,
+        editorHost,
+        createDivider(),
+        actions
+    );
+
+    container.replaceChildren(card);
     container.hidden = false;
 
     const editor = createCodeEditorView({

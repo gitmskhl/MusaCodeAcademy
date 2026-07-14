@@ -329,12 +329,17 @@ body.is-step-drawer-open .step-drawer {
 }
 
 .submission-status {
-    margin-top: 16px;
-    padding: clamp(20px, 4vw, 28px);
+    width: 100%;
+    margin: 0 0 14px;
+    padding: clamp(18px, 3vw, 24px);
     overflow: hidden;
     border: 1px solid var(--viewer-border);
     border-radius: 14px;
     background: var(--viewer-surface);
+}
+
+.submission-status[hidden] {
+    display: none;
 }
 
 .submission-status__heading {
