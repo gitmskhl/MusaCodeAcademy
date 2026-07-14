@@ -10,6 +10,8 @@ import {
     keymap,
     placeholder,
     python,
+    selectLineDown,
+    selectLineUp,
 } from '../../../vendor/codemirror.esm.js';
 
 const languageExtensions = new Map([
@@ -32,13 +34,27 @@ const lightTheme = EditorView.theme({
     '&': {
         color: '#25272d',
         backgroundColor: '#fcfcfd',
+        fontSize: '14px',
     },
     '.cm-content': {
-        caretColor: '#635bdb',
-        padding: '12px 0',
+        caretColor: '#2563eb',
+        padding: '14px 0 18px',
+    },
+    '.cm-line': {
+        padding: '0 14px',
+    },
+    '.cm-scroller': {
+        fontFamily:
+            '"JetBrains Mono", "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
+        lineHeight: '1.65',
     },
     '.cm-cursor, .cm-dropCursor': {
-        borderLeftColor: '#635bdb',
+        borderLeftColor: '#2563eb',
+        borderLeftWidth: '2px',
+        marginLeft: '-1px',
+    },
+    '&.cm-focused .cm-cursor': {
+        animation: 'cm-blink 1.15s ease-in-out infinite',
     },
     '.cm-gutters': {
         color: '#8a8e98',
@@ -46,12 +62,28 @@ const lightTheme = EditorView.theme({
         borderRight: '1px solid #e2e3e7',
     },
     '.cm-activeLine, .cm-activeLineGutter': {
-        backgroundColor: '#f1f0ff',
+        backgroundColor: '#eef4ff',
     },
-    '&.cm-focused .cm-selectionBackground, ::selection': {
-        backgroundColor: '#dcd9ff',
+    '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
+        backgroundColor: '#add6ff',
+    },
+    '&:not(.cm-focused) > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
+        backgroundColor: '#dce8f6',
     },
 });
+
+const desktopSelectionKeymap = [
+    {
+        key: 'Ctrl-Shift-ArrowUp',
+        run: selectLineUp,
+        preventDefault: true,
+    },
+    {
+        key: 'Ctrl-Shift-ArrowDown',
+        run: selectLineDown,
+        preventDefault: true,
+    },
+];
 
 export const createCodeEditorView = ({
     parent,
@@ -80,7 +112,7 @@ export const createCodeEditorView = ({
         doc: document,
         extensions: [
             basicSetup,
-            keymap.of([indentWithTab]),
+            keymap.of([indentWithTab, ...desktopSelectionKeymap]),
             placeholder('Write or paste code…'),
             languageConfig.of(getLanguageExtension(language)),
             editableConfig.of(editableExtensions(editable)),

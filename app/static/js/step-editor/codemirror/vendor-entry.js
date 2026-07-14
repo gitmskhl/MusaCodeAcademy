@@ -1,5 +1,9 @@
 export { basicSetup, EditorView } from 'codemirror';
-export { indentWithTab } from '@codemirror/commands';
+export {
+    indentWithTab,
+    selectLineDown,
+    selectLineUp,
+} from '@codemirror/commands';
 export { java } from '@codemirror/lang-java';
 export { javascript } from '@codemirror/lang-javascript';
 export { cpp } from '@codemirror/lang-cpp';
