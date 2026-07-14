@@ -5,7 +5,7 @@ class TestCaseCreate(BaseModel):
     task_id: int
     input: str | None = Field(default=None, min_length=1)
     expected_output: str = Field(min_length=1)
-    is_hidden: bool = True
+    is_hidden: bool = False
 
 
 class TestCasePublic(BaseModel):
