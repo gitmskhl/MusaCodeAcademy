@@ -218,7 +218,7 @@ async def import_tests_zip(task_id: int, file: UploadFile, db: AsyncSession):
                     task_id=task_id,
                     input=input_data,
                     expected_output=output_data,
-                    is_hidden=True,
+                    is_hidden=False,
                     order=order
                 )
                 tests.append(new_test_case)
