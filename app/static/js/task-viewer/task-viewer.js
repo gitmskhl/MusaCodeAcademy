@@ -1,5 +1,6 @@
 import { createCodeEditorView } from '../step-renderer/codemirror/code-editor-view.js';
 import { authFetch } from '../course-auth.js';
+import { createSubmissionStatusPanel } from './submission-status-panel.js';
 
 const SUBMIT_LABEL = 'Отправить решение';
 const SUBMITTING_LABEL = 'Отправляем решение...';
@@ -100,7 +101,9 @@ export const renderTaskViewer = (container, task) => {
     const submitButton = createSubmitButton();
     actions.append(submitStatus, submitButton);
     card.append(header, createDivider(), editorHost, createDivider(), actions);
-    container.replaceChildren(card);
+
+    const statusPanel = createSubmissionStatusPanel({ fetcher: authFetch });
+    container.replaceChildren(card, statusPanel.element);
     container.hidden = false;
 
     const editor = createCodeEditorView({
@@ -125,6 +128,7 @@ export const renderTaskViewer = (container, task) => {
             stopPolling();
             submitButton.disabled = false;
             submitButton.textContent = SUBMIT_LABEL;
+            statusPanel.render(null);
             return false;
         }
 
@@ -134,7 +138,8 @@ export const renderTaskViewer = (container, task) => {
         }
 
         latestSubmissionStatus = submission.status;
-        submitStatus.textContent = `Статус: ${submission.status}`;
+        statusPanel.render(submission);
+        submitStatus.textContent = '';
         submitStatus.classList.remove('is-error');
 
         const isActive = ACTIVE_SUBMISSION_STATUSES.has(submission.status);
