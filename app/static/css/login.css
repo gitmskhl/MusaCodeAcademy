@@ -201,6 +201,12 @@ button:disabled {
     text-align: center;
 }
 
+.forgot-password-link {
+    margin: -2px 0 0;
+    font-size: 14px;
+    text-align: right;
+}
+
 @media (max-width: 520px) {
     .page {
         padding: 12px;
