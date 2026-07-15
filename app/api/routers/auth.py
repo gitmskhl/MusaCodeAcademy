@@ -47,7 +47,7 @@ async def get_token(
         "token_type": "bearer"
     }
 
-@router.post('/forgot_password', response_model=MessageResponse)
+@router.post('/forgot-password', response_model=MessageResponse)
 async def forgot_password(
     data: ForgotPasswordRequest,
     db: DBSession
