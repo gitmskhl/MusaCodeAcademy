@@ -52,7 +52,10 @@ async def forgot_password(
     data: ForgotPasswordRequest,
     db: DBSession
 ):
-    await request_password_reset()
+    await request_password_reset(
+        email=data.email,
+        db=db
+    )
 
     return MessageResponse(
         message=(
