@@ -25,6 +25,16 @@ async def register_page(request: Request):
     )
     
 
+@router.get('/forgot-password', response_class=HTMLResponse, include_in_schema=False)
+async def get_forgot_password_page(
+    request: Request
+):
+    return templates.TemplateResponse(
+        request,
+        "forgot-password.html"
+    )
+
+
 @router.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
 async def dashboard_page(request: Request):
     return templates.TemplateResponse(
@@ -187,11 +197,4 @@ async def section_lessons_page(
     )
 
 
-@router.get('/forgot-password', response_class=HTMLResponse, include_in_schema=False)
-async def get_forgot_password_page(
-    request: Request
-):
-    return templates.TemplateResponse(
-        request,
-        "forgot-password.html"
-    )
+
