@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
 
     redis_url: str
-    
+
+    password_reset_token_expire_minutes: int = 30
+    password_reset_token_length: int = 32
 
 settings = Settings() # type: ignore

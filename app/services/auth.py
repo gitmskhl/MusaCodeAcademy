@@ -1,13 +1,17 @@
 import asyncio
-from datetime import datetime, UTC
+import secrets
+import hashlib
+from datetime import datetime, UTC, timedelta
 from fastapi import HTTPException, status
-from sqlalchemy import exists, select
+from sqlalchemy import exists, select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User
+from app.models import User, PasswordResetToken
 from app.schemas.user import UserCreate
+from app.core.config import settings
 from app.core.security import hash_password, verify_password
+
 
 async def email_exists(email: str, db: AsyncSession) -> bool:
     return bool(
@@ -73,3 +77,41 @@ async def register_user(user: UserCreate, db: AsyncSession) -> User:
             status_code=status.HTTP_409_CONFLICT,
             detail="User with this email already exists"
         )
+
+
+async def _remove_password_reset_tokens(user_id: int, db: AsyncSession) -> None:
+    await db.execute(
+        delete(PasswordResetToken)
+            .where(PasswordResetToken.user_id == user_id)
+    )
+
+
+def _generate_password_reset_token() -> str:
+    token = secrets.token_urlsafe(settings.password_reset_token_length)
+    return token
+
+
+def _hash_password_reset_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _get_password_reset_token_expiration() -> datetime:
+    return datetime.now(UTC) + timedelta(minutes=settings.password_reset_token_expire_minutes)
+
+
+async def create_password_reset_token(user: User, db: AsyncSession) -> str:
+    try:
+        await _remove_password_reset_tokens(user_id=user.id, db=db)
+        token = _generate_password_reset_token()
+        token_hash = _hash_password_reset_token(token=token)
+        new_password_reset_token = PasswordResetToken(
+            user_id=user.id,
+            token_hash=token_hash,
+            expires_at=_get_password_reset_token_expiration()
+        )
+        db.add(new_password_reset_token)
+        await db.commit()
+        return token
+    except Exception:
+        await db.rollback()
+        raise

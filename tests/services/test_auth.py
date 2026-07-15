@@ -1,12 +1,41 @@
+import hashlib
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException, status
+from sqlalchemy import select
+
+from app.core.config import settings
 from app.core.security import hash_password, verify_password
+from app.models import PasswordResetToken
 from app.models.user import User
 from app.schemas.user import UserCreate
 from app.services import auth as service_auth
-from app.services.auth import email_exists, register_user, get_user_id
+from app.services.auth import (
+    create_password_reset_token,
+    email_exists,
+    get_user_id,
+    register_user,
+)
+
+
+def as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
+async def create_test_user(db, email: str) -> User:
+    return await register_user(
+        UserCreate(
+            email=email,
+            password="12345678",
+            first_name="Alex",
+            last_name="Black",
+        ),
+        db,
+    )
 
 
 @pytest.mark.asyncio
@@ -216,3 +245,83 @@ async def test_get_user_id_refresh_last_login_at(db):
     
     assert id == user.id
     assert user.last_login_at is not None
+
+
+@pytest.mark.asyncio
+async def test_create_password_reset_token_success(db):
+    user = await create_test_user(db, "password-reset@example.com")
+
+    token = await create_password_reset_token(user, db)
+
+    result = await db.execute(
+        select(PasswordResetToken).where(PasswordResetToken.user_id == user.id)
+    )
+    stored_tokens = result.scalars().all()
+
+    assert isinstance(token, str)
+    assert token
+    assert len(stored_tokens) == 1
+
+    stored_token = stored_tokens[0]
+    expected_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    assert stored_token.token_hash != token
+    assert stored_token.token_hash == expected_hash
+    assert as_utc(stored_token.expires_at) > datetime.now(UTC)
+
+
+@pytest.mark.asyncio
+async def test_create_password_reset_token_removes_old_tokens(db):
+    user = await create_test_user(db, "replace-reset-tokens@example.com")
+    old_hashes = {
+        hashlib.sha256(b"old-token-one").hexdigest(),
+        hashlib.sha256(b"old-token-two").hexdigest(),
+    }
+    expires_at = datetime.now(UTC) + timedelta(minutes=5)
+    db.add_all(
+        [
+            PasswordResetToken(
+                user_id=user.id,
+                token_hash=token_hash,
+                expires_at=expires_at,
+            )
+            for token_hash in old_hashes
+        ]
+    )
+    await db.commit()
+
+    token = await create_password_reset_token(user, db)
+
+    result = await db.execute(
+        select(PasswordResetToken).where(PasswordResetToken.user_id == user.id)
+    )
+    stored_tokens = result.scalars().all()
+
+    assert len(stored_tokens) == 1
+    assert stored_tokens[0].token_hash not in old_hashes
+    assert stored_tokens[0].token_hash == hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+@pytest.mark.asyncio
+async def test_create_password_reset_token_expiration(db):
+    user = await create_test_user(db, "reset-token-expiration@example.com")
+    before_creation = datetime.now(UTC)
+
+    await create_password_reset_token(user, db)
+
+    after_creation = datetime.now(UTC)
+    stored_token = await db.scalar(
+        select(PasswordResetToken).where(PasswordResetToken.user_id == user.id)
+    )
+    assert stored_token is not None
+
+    expected_expiration = before_creation + timedelta(
+        minutes=settings.password_reset_token_expire_minutes
+    )
+    latest_expected_expiration = after_creation + timedelta(
+        minutes=settings.password_reset_token_expire_minutes
+    )
+    actual_expiration = as_utc(stored_token.expires_at)
+
+    tolerance = timedelta(seconds=3)
+    assert expected_expiration - tolerance <= actual_expiration
+    assert actual_expiration <= latest_expected_expiration + tolerance

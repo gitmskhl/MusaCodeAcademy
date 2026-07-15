@@ -9,6 +9,7 @@ from app.enums import UserRole
 
 if TYPE_CHECKING:
     from .enrollment import Enrollment
+    from .password_reset_token import PasswordResetToken
 
 class User(Base):
     __tablename__ = "users"
@@ -46,4 +47,9 @@ class User(Base):
     enrollments: Mapped[list["Enrollment"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+
+    password_reset_tokens: Mapped[list["PasswordResetToken"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
     )
