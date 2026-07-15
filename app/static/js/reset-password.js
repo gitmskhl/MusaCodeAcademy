@@ -18,19 +18,19 @@ form.addEventListener("submit", (event) => {
     clearMessage();
 
     if (!password.value) {
-        showError("Password is required.");
+        showError("Введите пароль.");
         password.focus();
         return;
     }
 
     if (!passwordConfirm.value) {
-        showError("Please confirm your password.");
+        showError("Подтвердите пароль.");
         passwordConfirm.focus();
         return;
     }
 
     if (password.value !== passwordConfirm.value) {
-        showError("Passwords do not match.");
+        showError("Пароли не совпадают.");
         passwordConfirm.focus();
         return;
     }

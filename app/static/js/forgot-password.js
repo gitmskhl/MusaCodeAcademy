@@ -17,13 +17,13 @@ form.addEventListener("submit", (event) => {
     clearMessage();
 
     if (!email.value.trim()) {
-        showError("Email is required.");
+        showError("Введите email.");
         email.focus();
         return;
     }
 
     if (!email.validity.valid) {
-        showError("Enter a valid email address.");
+        showError("Введите корректный адрес электронной почты.");
         email.focus();
         return;
     }
