@@ -2,9 +2,9 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas.user import UserCreate
-from app.schemas.auth import AuthResponse, Token
+from app.schemas.auth import AuthResponse, Token, MessageResponse, ForgotPasswordRequest
 from app.api.dependencies import DBSession
-from app.services.auth import register_user, get_user_id
+from app.services.auth import register_user, get_user_id, create_password_reset_token, request_password_reset
 from app.core.security import create_access_token
 
 
@@ -46,3 +46,16 @@ async def get_token(
         "access_token": create_access_token(user_id),
         "token_type": "bearer"
     }
+
+@router.post('/forgot_password', response_model=MessageResponse)
+async def forgot_password(
+    data: ForgotPasswordRequest,
+    db: DBSession
+):
+    await request_password_reset()
+
+    return MessageResponse(
+        message=(
+            "The letter has been sent"
+        )
+    )

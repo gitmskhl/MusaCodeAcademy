@@ -1,6 +1,9 @@
 const form = document.querySelector("#forgot-password-form");
 const email = form.querySelector("#email");
+const button = form.querySelector("button");
 const message = document.querySelector("#form-message");
+const successState = document.querySelector("#success-state");
+const defaultButtonText = button.textContent;
 
 function showError(text) {
     message.textContent = text;
@@ -12,7 +15,7 @@ function clearMessage() {
     message.className = "message";
 }
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
     event.preventDefault();
     clearMessage();
 
@@ -28,5 +31,32 @@ form.addEventListener("submit", (event) => {
         return;
     }
 
-    // TODO: Connect password recovery when backend integration is implemented.
+    button.disabled = true;
+    button.textContent = "Отправка…";
+
+    try {
+        const response = await fetch("/api/auth/forgot-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email.value.trim()
+            })
+        });
+
+        if (response.status !== 200) {
+            throw new Error("Password reset request failed");
+        }
+
+        form.hidden = true;
+        clearMessage();
+        successState.hidden = false;
+        successState.querySelector("h2").focus();
+    } catch (error) {
+        showError("Не удалось отправить запрос. Попробуйте еще раз позже.");
+    } finally {
+        button.disabled = false;
+        button.textContent = defaultButtonText;
+    }
 });

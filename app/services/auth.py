@@ -115,3 +115,22 @@ async def create_password_reset_token(user: User, db: AsyncSession) -> str:
     except Exception:
         await db.rollback()
         raise
+
+
+async def request_password_reset(
+    email: str,
+    db: AsyncSession
+) -> None:
+    email_lower = email.lower()
+    user =  await db.scalar(
+        select(User)
+            .where(User.email == email_lower)
+    )
+    if not user:
+        return
+    token = await create_password_reset_token(user=user, db=db)
+    await send_password_reset_email(
+        email=user.email,
+        token=token
+    )
+    
