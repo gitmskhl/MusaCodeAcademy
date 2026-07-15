@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User, PasswordResetToken
+from app.services.email import send_password_reset_email
 from app.schemas.user import UserCreate
 from app.core.config import settings
 from app.core.security import hash_password, verify_password
@@ -133,4 +134,3 @@ async def request_password_reset(
         email=user.email,
         token=token
     )
-    
