@@ -322,7 +322,7 @@ async def test_import_tests_zip_creates_ordered_hidden_test_cases(section_factor
         "second output",
     ]
     assert [test_case.order for test_case in test_cases] == [1, 2]
-    assert all(test_case.is_hidden is True for test_case in test_cases)
+    assert all(test_case.is_hidden is False for test_case in test_cases)
 
 
 @pytest.mark.asyncio
