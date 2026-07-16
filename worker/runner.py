@@ -13,11 +13,26 @@ async def run_code(source_code: str, test_input: str, timeout: float) -> RunResu
             encoding="utf-8"
         )
         process = await asyncio.create_subprocess_exec(
-            "python3",
-            str(source_file),
+            "docker",
+            "run",
+            "--rm",
+            "-i",
+
+            "--network=none",
+            "--memory=64m",
+            "--cpus=1",
+            "--pids-limit=8",
+            "--read-only",
+            "--tmpfs", "/tmp",
+            "--cap-drop=ALL",
+
+            "-v",
+            f"{str(temp_path)}:/sandbox:ro",
+            "musa-python-sandbox",
+
             stdin=PIPE,
             stdout=PIPE,
-            stderr=PIPE
+            stderr=PIPE,
         )
         try:
             stdout, stderr = await asyncio.wait_for(
@@ -26,6 +41,7 @@ async def run_code(source_code: str, test_input: str, timeout: float) -> RunResu
                 ),
                 timeout=timeout
             )
+            print(stdout.decode('utf-8'), stderr.decode('utf-8'))
             return RunResult(
                 stdout=stdout.decode("utf-8"),
                 stderr=stderr.decode("utf-8"),
