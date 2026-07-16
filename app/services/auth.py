@@ -134,3 +134,21 @@ async def request_password_reset(
         email=user.email,
         token=token
     )
+
+
+async def verify_password_reset_token(token: str, db: AsyncSession) -> PasswordResetToken:
+    token_hash = _hash_password_reset_token(token=token)
+    
+    password_reset_token = await db.scalar(
+        select(PasswordResetToken)
+            .where(PasswordResetToken.token_hash == token_hash)
+    )
+
+    if not password_reset_token or password_reset_token.expires_at < datetime.now(UTC):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token"
+        )
+    
+    return password_reset_token
+

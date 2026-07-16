@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Request
+from typing import Annotated
+from fastapi import APIRouter, Request, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 
@@ -34,6 +35,13 @@ async def get_forgot_password_page(
         "forgot-password.html"
     )
 
+
+@router.get('/reset-password', response_class=HTMLResponse, include_in_schema=False)
+async def get_reset_password_page(request: Request, token: Annotated[str, Query()]):
+    return templates.TemplateResponse(
+        request,
+        "reset-password.html"
+    )
 
 @router.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
 async def dashboard_page(request: Request):
