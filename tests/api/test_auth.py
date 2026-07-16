@@ -254,3 +254,99 @@ async def test_verify_password_reset_token_requires_token(client):
     response = await client.get("/api/auth/reset-password/verify")
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_reset_password_success(client, db):
+    email = "reset-password-endpoint@example.com"
+    old_password = "12345678"
+    new_password = "new-password-123"
+    user = await register_user(
+        UserCreate(
+            email=email,
+            password=old_password,
+            first_name="Alex",
+            last_name="Silver",
+        ),
+        db,
+    )
+    token = await create_password_reset_token(user, db)
+
+    response = await client.post(
+        "/api/auth/reset-password",
+        json={"token": token, "new_password": new_password},
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert response.content == b""
+
+    old_password_response = await client.post(
+        "/api/auth/token",
+        data={"username": email, "password": old_password},
+    )
+    new_password_response = await client.post(
+        "/api/auth/token",
+        data={"username": email, "password": new_password},
+    )
+
+    assert old_password_response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert new_password_response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.asyncio
+async def test_reset_password_invalid_token(client):
+    response = await client.post(
+        "/api/auth/reset-password",
+        json={
+            "token": "unknown-token",
+            "new_password": "new-password-123",
+        },
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Invalid or expired token"}
+
+
+@pytest.mark.asyncio
+async def test_reset_password_rejects_short_password(client):
+    response = await client.post(
+        "/api/auth/reset-password",
+        json={
+            "token": "some-token",
+            "new_password": "1234567",
+        },
+    )
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+    detail = response.json()["detail"]
+    assert len(detail) == 1
+    assert detail[0]["type"] == "string_too_short"
+    assert detail[0]["loc"] == ["body", "new_password"]
+    assert detail[0]["ctx"]["min_length"] == 8
+
+
+@pytest.mark.asyncio
+async def test_reset_password_token_cannot_be_reused(client, db):
+    user = await register_user(
+        UserCreate(
+            email="single-use-reset-token@example.com",
+            password="12345678",
+            first_name="Alex",
+            last_name="Silver",
+        ),
+        db,
+    )
+    token = await create_password_reset_token(user, db)
+
+    first_response = await client.post(
+        "/api/auth/reset-password",
+        json={"token": token, "new_password": "new-password-123"},
+    )
+    second_response = await client.post(
+        "/api/auth/reset-password",
+        json={"token": token, "new_password": "another-password-123"},
+    )
+
+    assert first_response.status_code == status.HTTP_204_NO_CONTENT
+    assert second_response.status_code == status.HTTP_400_BAD_REQUEST
+    assert second_response.json() == {"detail": "Invalid or expired token"}

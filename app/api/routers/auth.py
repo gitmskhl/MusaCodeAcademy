@@ -2,14 +2,15 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, status, Depends, Response, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schemas.user import UserCreate
-from app.schemas.auth import AuthResponse, Token, MessageResponse, ForgotPasswordRequest
+from app.schemas.auth import AuthResponse, Token, MessageResponse, ForgotPasswordRequest, PasswordResetRequest
 from app.api.dependencies import DBSession
 from app.services.auth import (
     register_user,
     get_user_id,
     create_password_reset_token,
     request_password_reset,
-    verify_password_reset_token as verify_prt
+    verify_password_reset_token as verify_prt,
+    reset_password as rpassword
 )
 from app.core.security import create_access_token
 
@@ -73,4 +74,10 @@ async def forgot_password(
 @router.get('/reset-password/verify')
 async def verify_password_reset_token(token: Annotated[str, Query()], db: DBSession):
     await verify_prt(token=token, db=db)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post('/reset-password', status_code=status.HTTP_204_NO_CONTENT)
+async def reset_password(passwordResetInfo: PasswordResetRequest, db: DBSession):
+    await rpassword(token=passwordResetInfo.token, new_password=passwordResetInfo.new_password, db=db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

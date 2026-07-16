@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from .user import UserPublicDetailed
 
 class Token(BaseModel):
@@ -17,3 +17,8 @@ class ForgotPasswordRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class PasswordResetRequest(BaseModel):
+    token: str
+    new_password: str = Field(min_length=8)

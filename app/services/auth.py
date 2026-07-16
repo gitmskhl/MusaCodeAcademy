@@ -157,3 +157,17 @@ async def verify_password_reset_token(token: str, db: AsyncSession) -> PasswordR
     
     return password_reset_token
 
+
+async def reset_password(token: str, new_password: str, db: AsyncSession):
+    password_reset_token = await verify_password_reset_token(token=token, db=db)
+    user = await db.get(User, password_reset_token.user_id)
+    user.password_hash = await asyncio.to_thread(hash_password, new_password)
+    await db.execute(
+        delete(PasswordResetToken)
+            .where(PasswordResetToken.user_id == user.id)
+    )
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise
