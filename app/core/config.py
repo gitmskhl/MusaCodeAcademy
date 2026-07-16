@@ -16,5 +16,15 @@ class Settings(BaseSettings):
 
     password_reset_token_expire_minutes: int = 30
     password_reset_token_length: int = 32
+    
+    smtp_host: str
+    smtp_port: int
+    smtp_username: str
+    smtp_password: str
+    smtp_from: str
+    smtp_use_tls: bool = True
+
+    frontend_url: str
+
 
 settings = Settings() # type: ignore
