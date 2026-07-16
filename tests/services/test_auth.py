@@ -17,6 +17,7 @@ from app.services.auth import (
     email_exists,
     get_user_id,
     register_user,
+    verify_password_reset_token,
 )
 
 
@@ -325,3 +326,43 @@ async def test_create_password_reset_token_expiration(db):
     tolerance = timedelta(seconds=3)
     assert expected_expiration - tolerance <= actual_expiration
     assert actual_expiration <= latest_expected_expiration + tolerance
+
+
+@pytest.mark.asyncio
+async def test_verify_password_reset_token_success(db):
+    user = await create_test_user(db, "verify-reset-token@example.com")
+    token = await create_password_reset_token(user, db)
+
+    stored_token = await verify_password_reset_token(token, db)
+
+    assert stored_token.user_id == user.id
+    assert stored_token.token_hash == hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+@pytest.mark.asyncio
+async def test_verify_password_reset_token_rejects_expired_token(db):
+    user = await create_test_user(db, "expired-reset-token@example.com")
+    token = "expired-token"
+    db.add(
+        PasswordResetToken(
+            user_id=user.id,
+            token_hash=hashlib.sha256(token.encode("utf-8")).hexdigest(),
+            expires_at=datetime.now(UTC) - timedelta(minutes=1),
+        )
+    )
+    await db.commit()
+
+    with pytest.raises(HTTPException) as exc_info:
+        await verify_password_reset_token(token, db)
+
+    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc_info.value.detail == "Invalid or expired token"
+
+
+@pytest.mark.asyncio
+async def test_verify_password_reset_token_rejects_unknown_token(db):
+    with pytest.raises(HTTPException) as exc_info:
+        await verify_password_reset_token("unknown-token", db)
+
+    assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
+    assert exc_info.value.detail == "Invalid or expired token"

@@ -9,7 +9,7 @@ from app.services.auth import (
     get_user_id,
     create_password_reset_token,
     request_password_reset,
-    verify_password_reset_token
+    verify_password_reset_token as verify_prt
 )
 from app.core.security import create_access_token
 
@@ -72,5 +72,5 @@ async def forgot_password(
 
 @router.get('/reset-password/verify')
 async def verify_password_reset_token(token: Annotated[str, Query()], db: DBSession):
-    await verify_password_reset_token(token=token, db=db)
+    await verify_prt(token=token, db=db)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

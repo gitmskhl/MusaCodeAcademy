@@ -135,6 +135,11 @@ async def request_password_reset(
         token=token
     )
 
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
 
 async def verify_password_reset_token(token: str, db: AsyncSession) -> PasswordResetToken:
     token_hash = _hash_password_reset_token(token=token)
@@ -144,7 +149,7 @@ async def verify_password_reset_token(token: str, db: AsyncSession) -> PasswordR
             .where(PasswordResetToken.token_hash == token_hash)
     )
 
-    if not password_reset_token or password_reset_token.expires_at < datetime.now(UTC):
+    if not password_reset_token or _as_utc(password_reset_token.expires_at) < datetime.now(UTC):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid or expired token"

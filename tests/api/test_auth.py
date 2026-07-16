@@ -1,6 +1,10 @@
 import pytest
 from fastapi import status
 
+from app.services.auth import create_password_reset_token
+from app.schemas.user import UserCreate
+from app.services.auth import register_user
+
 @pytest.mark.asyncio
 async def test_register_success(client):
     email = "test@example.com"
@@ -210,3 +214,43 @@ async def test_get_token_wrong_password(client):
     assert response.json() == {
         "detail": "Incorrect email or password"
     }
+
+
+@pytest.mark.asyncio
+async def test_verify_password_reset_token_success(client, db):
+    user = await register_user(
+        UserCreate(
+            email="verify-reset-endpoint@example.com",
+            password="12345678",
+            first_name="Alex",
+            last_name="Silver",
+        ),
+        db,
+    )
+    token = await create_password_reset_token(user, db)
+
+    response = await client.get(
+        "/api/auth/reset-password/verify",
+        params={"token": token},
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert response.content == b""
+
+
+@pytest.mark.asyncio
+async def test_verify_password_reset_token_invalid_token(client):
+    response = await client.get(
+        "/api/auth/reset-password/verify",
+        params={"token": "unknown-token"},
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"detail": "Invalid or expired token"}
+
+
+@pytest.mark.asyncio
+async def test_verify_password_reset_token_requires_token(client):
+    response = await client.get("/api/auth/reset-password/verify")
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
