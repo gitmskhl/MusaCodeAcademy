@@ -1,6 +1,8 @@
 import asyncio
 import logging
-import app.core.logging
+
+from app.core.logging import configure_logging
+configure_logging()
 
 from app.core.redis import redis
 from app.queue.submission import dequeue

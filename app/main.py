@@ -2,6 +2,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from app.core.logging import configure_logging
+configure_logging()
+
 from app.api.routers import (
     authRouter,
     userRouter,
