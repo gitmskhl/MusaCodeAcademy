@@ -23,6 +23,7 @@ import { authFetch, requireToken } from './course-auth.js';
         root: document.querySelector('[data-lesson-page]'),
         loading: document.querySelector('[data-page-loading]'),
         error: document.querySelector('[data-page-error]'),
+        errorTitle: document.querySelector('[data-page-error] h1'),
         errorMessage: document.querySelector('[data-error-message]'),
         retry: document.querySelector('[data-retry]'),
         content: document.querySelector('[data-page-content]'),
@@ -38,6 +39,12 @@ import { authFetch, requireToken } from './course-auth.js';
         lessonList: document.querySelector('[data-lesson-list]'),
         emptyState: document.querySelector('[data-empty-state]'),
     };
+
+    class AccessDeniedError extends Error {
+        constructor() {
+            super('access-denied');
+        }
+    }
 
     const getPathContext = () => {
         const match = window.location.pathname.match(
@@ -187,6 +194,9 @@ import { authFetch, requireToken } from './course-auth.js';
         const response = await authFetch(
             `/api/progress/lessons/${encodeURIComponent(lessonId)}`
         );
+        if (response.status === 403) {
+            throw new AccessDeniedError();
+        }
         if (!response.ok) {
             return null;
         }
@@ -198,7 +208,10 @@ import { authFetch, requireToken } from './course-auth.js';
             lessons.map(async (lesson) => {
                 try {
                     return await loadLessonProgress(lesson.id);
-                } catch {
+                } catch (error) {
+                    if (error instanceof AccessDeniedError) {
+                        throw error;
+                    }
                     return null;
                 }
             })
@@ -243,11 +256,29 @@ import { authFetch, requireToken } from './course-auth.js';
         updateProgress(orderedLessons);
     };
 
-    const showError = (message) => {
+    const showError = (
+        message,
+        {
+            title = 'Не удалось загрузить раздел',
+            retry = true,
+        } = {}
+    ) => {
         elements.loading.hidden = true;
         elements.content.hidden = true;
         elements.error.hidden = false;
+        elements.errorTitle.textContent = title;
         elements.errorMessage.textContent = message;
+        elements.retry.hidden = !retry;
+    };
+
+    const showAccessDenied = () => {
+        showError(
+            'Вы не записаны на этот курс. Запишитесь на курс, чтобы открыть уроки.',
+            {
+                title: 'Доступ закрыт',
+                retry: false,
+            }
+        );
     };
 
     const loadPage = async () => {
@@ -259,6 +290,7 @@ import { authFetch, requireToken } from './course-auth.js';
 
         elements.loading.hidden = false;
         elements.error.hidden = true;
+        elements.retry.hidden = false;
         elements.content.hidden = true;
 
         try {
@@ -266,6 +298,10 @@ import { authFetch, requireToken } from './course-auth.js';
                 authFetch(`/api/sections/${encodeURIComponent(sectionId)}`),
                 authFetch(`/api/sections/${encodeURIComponent(sectionId)}/lessons`),
             ]);
+
+            if (sectionResponse.status === 403 || lessonsResponse.status === 403) {
+                throw new AccessDeniedError();
+            }
 
             if (!sectionResponse.ok || !lessonsResponse.ok) {
                 throw new Error('request-failed');
@@ -283,8 +319,12 @@ import { authFetch, requireToken } from './course-auth.js';
             render(section, lessonsWithProgress, courseSlug);
             elements.loading.hidden = true;
             elements.content.hidden = false;
-        } catch {
-            showError('Не удалось загрузить уроки. Попробуйте обновить страницу.');
+        } catch (error) {
+            if (error instanceof AccessDeniedError) {
+                showAccessDenied();
+            } else {
+                showError('Не удалось загрузить уроки. Попробуйте обновить страницу.');
+            }
         }
     };
 

@@ -51,3 +51,78 @@ def require_role(*allowed_roles: UserRole):
 
 
 OnlyAdmin = Annotated[models.User, Depends(require_role(UserRole.ADMIN))]
+
+
+async def require_course_enrollment(
+    course_id: int,
+    current_user: models.User,
+    db: AsyncSession,
+) -> None:
+    enrollment_id = await db.scalar(
+        select(models.Enrollment.id)
+            .where(
+                models.Enrollment.course_id == course_id,
+                models.Enrollment.user_id == current_user.id
+            )
+    )
+    if enrollment_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Enrollment required"
+        )
+
+
+async def require_step_enrollment(
+    step_id: int,
+    current_user: CurrentUser,
+    db: DBSession
+) -> models.User:
+    result = await db.execute(
+        select(models.Course.id)
+            .join(models.Section, models.Section.course_id == models.Course.id)
+            .join(models.Lesson, models.Lesson.section_id == models.Section.id)
+            .join(models.Step, models.Step.lesson_id == models.Lesson.id)
+            .where(
+                models.Step.id == step_id,
+                models.Course.is_published.is_(True)
+            )
+    )
+    course_id = result.scalar_one_or_none()
+    if course_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Step not found"
+        )
+    await require_course_enrollment(course_id, current_user, db)
+    return current_user
+
+
+async def require_step_viewer_enrollment(
+    step_id: int,
+    course_slug: str,
+    current_user: CurrentUser,
+    db: DBSession
+) -> models.User:
+    result = await db.execute(
+        select(models.Course.id)
+            .join(models.Section, models.Section.course_id == models.Course.id)
+            .join(models.Lesson, models.Lesson.section_id == models.Section.id)
+            .join(models.Step, models.Step.lesson_id == models.Lesson.id)
+            .where(
+                models.Step.id == step_id,
+                models.Course.slug == course_slug.lower(),
+                models.Course.is_published.is_(True)
+            )
+    )
+    course_id = result.scalar_one_or_none()
+    if course_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Step not found"
+        )
+    await require_course_enrollment(course_id, current_user, db)
+    return current_user
+
+
+StepEnrolledUser = Annotated[models.User, Depends(require_step_enrollment)]
+StepViewerEnrolledUser = Annotated[models.User, Depends(require_step_viewer_enrollment)]

@@ -4,13 +4,13 @@ from app.schemas.task import TaskPublic
 from app.services import activity as service_activity
 from app.services import task as service_task
 from app.services import step as service_step
-from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin
+from app.api.dependencies import DBSession, OnlyAdmin, StepEnrolledUser, StepViewerEnrolledUser
 
 router = APIRouter()
 
 
 @router.get('/{step_id}', response_model=StepPublic)
-async def get_step(step_id: int, _: CurrentUser, db: DBSession):
+async def get_step(step_id: int, _: StepEnrolledUser, db: DBSession):
     return await service_step.get_step(step_id=step_id, db=db, check_course_published=True)
 
 
@@ -23,7 +23,7 @@ async def get_step_admin(step_id: int, admin: OnlyAdmin, db: DBSession):
 async def get_step_viewer(
     course_slug: str,
     step_id: int,
-    currentUser: CurrentUser,
+    currentUser: StepViewerEnrolledUser,
     db: DBSession,
 ):
     viewer = await service_step.get_step_viewer(
@@ -56,7 +56,7 @@ async def update_steps_order(order_list: StepOrderUpdateList, admin: OnlyAdmin, 
 
 
 @router.get('/{step_id}/task', response_model=TaskPublic)
-async def get_task_by_step_id(step_id: int, _: CurrentUser, db: DBSession):
+async def get_task_by_step_id(step_id: int, _: StepEnrolledUser, db: DBSession):
     return await service_task.get_task_by_step(
         step_id=step_id,
         db=db

@@ -320,6 +320,14 @@ body.is-step-drawer-open .step-drawer {
     color: #a23a32;
 }
 
+.step-viewer__placeholder--access-denied {
+    padding: 24px;
+    border: 1px solid #fecdca;
+    border-radius: 12px;
+    color: #912018;
+    background: #fff2f0;
+}
+
 .task-viewer {
     margin-top: 24px;
 }

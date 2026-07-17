@@ -137,7 +137,7 @@ async def test_complete_step_rejects_user_without_enrollment(
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": "Enrollment not found"}
+    assert response.json() == {"detail": "Enrollment required"}
 
 
 @pytest.mark.asyncio
@@ -162,7 +162,7 @@ async def test_complete_step_rejects_draft_course(
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Course not found"}
+    assert response.json() == {"detail": "Step not found"}
 
 
 @pytest.mark.asyncio

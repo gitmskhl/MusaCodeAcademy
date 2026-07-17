@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from app.api.dependencies import CurrentUser, DBSession
+from app.api.dependencies import CurrentUser, DBSession, StepEnrolledUser
 from app.schemas.progress import (
     CourseProgress,
     CourseSectionsProgress,
@@ -65,7 +65,7 @@ async def get_lesson_progress(
 )
 async def get_step_progress(
     step_id: int,
-    currentUser: CurrentUser,
+    currentUser: StepEnrolledUser,
     db: DBSession,
 ):
     completed = await service_progress.is_step_completed(
@@ -83,7 +83,7 @@ async def get_step_progress(
 )
 async def complete_step(
     step_id: int,
-    currentUser: CurrentUser,
+    currentUser: StepEnrolledUser,
     db: DBSession,
 ):
     return await service_progress.complete_step(
@@ -99,7 +99,7 @@ async def complete_step(
 )
 async def uncomplete_step(
     step_id: int,
-    currentUser: CurrentUser,
+    currentUser: StepEnrolledUser,
     db: DBSession,
 ):
     await service_progress.uncomplete_step(

@@ -1,8 +1,9 @@
 import pytest
 from fastapi import status
+from sqlalchemy import select
 
 from app.main import app
-from app.models import Lesson, Step
+from app.models import Enrollment, Lesson, Section, Step, User
 
 
 STEP_FIELDS = {
@@ -93,6 +94,29 @@ async def create_step(
     return step
 
 
+async def get_user_by_email(db, email: str) -> User:
+    result = await db.execute(select(User).where(User.email == email.lower()))
+    return result.scalars().one()
+
+
+async def create_enrollment(db, *, user_id: int, course_id: int) -> Enrollment:
+    enrollment = Enrollment(user_id=user_id, course_id=course_id)
+    db.add(enrollment)
+    await db.commit()
+    await db.refresh(enrollment)
+    return enrollment
+
+
+async def get_course_id_for_step(db, step_id: int) -> int:
+    result = await db.execute(
+        select(Section.course_id)
+        .join(Lesson, Lesson.section_id == Section.id)
+        .join(Step, Step.lesson_id == Lesson.id)
+        .where(Step.id == step_id)
+    )
+    return result.scalars().one()
+
+
 async def create_step_for_course(
     db,
     section_factory,
@@ -125,7 +149,32 @@ def delete_step_url(step_id: int | str) -> str:
 
 
 @pytest.mark.asyncio
-async def test_get_step_success(client, section_factory, db, auth_headers):
+async def test_get_step_success(client, section_factory, db, auth_headers, user_data):
+    user = await get_user_by_email(db, user_data["email"])
+    step = await create_step_for_course(
+        db,
+        section_factory,
+        is_published=True,
+    )
+    course_id = await get_course_id_for_step(db, step.id)
+    await create_enrollment(db, user_id=user.id, course_id=course_id)
+
+    response = await client.get(
+        f"/api/steps/{step.id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert_step_response(response.json(), step)
+
+
+@pytest.mark.asyncio
+async def test_get_step_rejects_user_without_enrollment(
+    client,
+    section_factory,
+    db,
+    auth_headers,
+):
     step = await create_step_for_course(
         db,
         section_factory,
@@ -137,8 +186,8 @@ async def test_get_step_success(client, section_factory, db, auth_headers):
         headers=auth_headers,
     )
 
-    assert response.status_code == status.HTTP_200_OK
-    assert_step_response(response.json(), step)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {"detail": "Enrollment required"}
 
 
 @pytest.mark.asyncio
@@ -160,7 +209,7 @@ async def test_get_step_hides_step_from_draft_course(
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Course not found"}
+    assert response.json() == {"detail": "Step not found"}
 
 
 @pytest.mark.asyncio
@@ -195,7 +244,9 @@ async def test_get_step_viewer_success(
     section_factory,
     db,
     auth_headers,
+    user_data,
 ):
+    user = await get_user_by_email(db, user_data["email"])
     course = await course_factory(
         slug="python-viewer",
         is_published=True,
@@ -215,6 +266,7 @@ async def test_get_step_viewer_success(
         content=TWO_COLUMNS_CONTENT,
     )
     last = await create_step(db, lesson_id=lesson.id, order=10)
+    await create_enrollment(db, user_id=user.id, course_id=course.id)
 
     response = await client.get(
         f"/api/steps/{current.id}/viewer",
@@ -245,6 +297,36 @@ async def test_get_step_viewer_success(
 
 
 @pytest.mark.asyncio
+async def test_get_step_viewer_rejects_user_without_enrollment(
+    client,
+    course_factory,
+    section_factory,
+    db,
+    auth_headers,
+):
+    course = await course_factory(
+        slug="viewer-not-enrolled",
+        is_published=True,
+    )
+    section = await section_factory(
+        course_id=course.id,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_step(db, lesson_id=lesson.id)
+
+    response = await client.get(
+        f"/api/steps/{step.id}/viewer",
+        params={"course_slug": course.slug},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {"detail": "Enrollment required"}
+
+
+@pytest.mark.asyncio
 async def test_get_step_viewer_requires_course_slug(client, auth_headers):
     response = await client.get(
         "/api/steps/1/viewer",
@@ -262,7 +344,9 @@ async def test_get_step_viewer_rejects_wrong_course_slug(
     section_factory,
     db,
     auth_headers,
+    user_data,
 ):
+    user = await get_user_by_email(db, user_data["email"])
     course = await course_factory(
         slug="actual-course",
         is_published=True,
@@ -274,6 +358,7 @@ async def test_get_step_viewer_rejects_wrong_course_slug(
     )
     lesson = await create_lesson(db, section_id=section.id)
     step = await create_step(db, lesson_id=lesson.id)
+    await create_enrollment(db, user_id=user.id, course_id=course.id)
 
     response = await client.get(
         f"/api/steps/{step.id}/viewer",

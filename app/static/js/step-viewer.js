@@ -18,6 +18,8 @@ const locales = Object.freeze({
         contentLoading: 'Загружаем материал…',
         contentEmpty: 'В этом шаге пока нет материалов.',
         contentLoadError: 'Не удалось загрузить материал шага.',
+        accessDeniedTitle: 'Доступ закрыт',
+        accessDeniedMessage: 'Вы не записаны на этот курс. Запишитесь на курс, чтобы открыть материалы урока.',
         navigationLabel: 'Навигация по шагам',
         previousStep: 'Предыдущий',
         nextStep: 'Следующий',
@@ -37,6 +39,12 @@ const format = (template, values) =>
     );
 
 const messages = getLocale();
+
+class AccessDeniedError extends Error {
+    constructor() {
+        super('access-denied');
+    }
+}
 
 const elements = {
     root: document.querySelector('[data-step-viewer]'),
@@ -209,6 +217,9 @@ const loadLessonProgress = async (lessonId) => {
     const response = await authFetch(
         `/api/progress/lessons/${encodeURIComponent(lessonId)}`
     );
+    if (response.status === 403) {
+        throw new AccessDeniedError();
+    }
     if (!response.ok) {
         return null;
     }
@@ -301,12 +312,31 @@ const localizePage = () => {
     elements.nextStep.textContent = messages.nextStep;
 };
 
-const createStatus = (message, { error = false } = {}) => {
+const createStatus = (message, { error = false, accessDenied = false } = {}) => {
     const status = document.createElement('div');
     status.className = 'step-viewer__placeholder';
     status.classList.toggle('step-viewer__placeholder--error', error);
+    status.classList.toggle('step-viewer__placeholder--access-denied', accessDenied);
     status.textContent = message;
     return status;
+};
+
+const renderAccessDenied = () => {
+    document.title = messages.accessDeniedTitle;
+    elements.title.textContent = messages.accessDeniedTitle;
+    elements.progress.textContent = '';
+    elements.completeToggle.hidden = true;
+    elements.navigation.hidden = true;
+    if (elements.taskViewer) {
+        clearTaskViewer(elements.taskViewer);
+    }
+    showDrawerMessage(messages.accessDeniedMessage, { error: true });
+    elements.content.replaceChildren(
+        createStatus(messages.accessDeniedMessage, {
+            error: true,
+            accessDenied: true,
+        })
+    );
 };
 
 const getImageFileIds = (content) => [
@@ -344,6 +374,14 @@ const loadTask = async (stepId) => {
         const response = await authFetch(
             `/api/steps/${encodeURIComponent(stepId)}/task`
         );
+
+        if (response.status === 403) {
+            renderTaskError(
+                elements.taskViewer,
+                messages.accessDeniedMessage
+            );
+            return;
+        }
 
         if (response.status === 404) {
             clearTaskViewer(elements.taskViewer);
@@ -384,6 +422,9 @@ const loadStep = async () => {
     const response = await authFetch(
         `/api/steps/${encodeURIComponent(stepId)}/viewer?${params}`
     );
+    if (response.status === 403) {
+        throw new AccessDeniedError();
+    }
     if (!response.ok) {
         throw new Error('step-request-failed');
     }
@@ -427,11 +468,15 @@ const init = async () => {
     try {
         requireToken();
         await loadStep();
-    } catch {
-        showDrawerMessage('Не удалось загрузить шаги урока.', { error: true });
-        elements.content.replaceChildren(
-            createStatus(messages.contentLoadError, { error: true })
-        );
+    } catch (error) {
+        if (error instanceof AccessDeniedError) {
+            renderAccessDenied();
+        } else {
+            showDrawerMessage('Не удалось загрузить шаги урока.', { error: true });
+            elements.content.replaceChildren(
+                createStatus(messages.contentLoadError, { error: true })
+            );
+        }
     } finally {
         elements.content.setAttribute('aria-busy', 'false');
     }
