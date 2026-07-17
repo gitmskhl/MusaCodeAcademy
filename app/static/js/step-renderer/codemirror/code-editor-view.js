@@ -61,7 +61,11 @@ const lightTheme = EditorView.theme({
         backgroundColor: '#f5f5f7',
         borderRight: '1px solid #e2e3e7',
     },
-    '.cm-activeLine, .cm-activeLineGutter': {
+    '.cm-activeLine': {
+        backgroundColor: 'transparent',
+        boxShadow: 'inset 3px 0 0 rgba(37, 99, 235, 0.25)',
+    },
+    '.cm-activeLineGutter': {
         backgroundColor: '#eef4ff',
     },
     '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
