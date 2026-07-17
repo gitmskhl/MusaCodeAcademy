@@ -433,6 +433,50 @@ body.is-step-drawer-open .step-drawer {
     font-weight: 650;
 }
 
+.submission-status__result-section {
+    display: grid;
+    gap: 5px;
+    margin-top: 12px;
+}
+
+.submission-status__result-section:first-child {
+    margin-top: 0;
+}
+
+.submission-status__result-label {
+    margin: 0;
+    color: var(--viewer-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.submission-status__result-value {
+    margin: 0;
+    color: var(--viewer-text);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.submission-status__result-value--strong {
+    font-weight: 750;
+}
+
+.submission-status__result-code {
+    max-height: 220px;
+    margin: 0;
+    padding: 12px;
+    overflow: auto;
+    border: 1px solid var(--viewer-border);
+    border-radius: 8px;
+    background: #f8f8f7;
+    color: var(--viewer-text);
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .submission-status__show-test,
 .submission-status__copy {
     min-height: 36px;

@@ -48,14 +48,22 @@ async def _check_tests(submission_id: int, submission: Submission, task: Task, t
             test_input=test.input,
             timeout=task.time_limit_ms / 1000
         )
+        
+        if result.oom_killed:
+            status_result = SubmissionStatus.MEMORY_LIMIT_EXCEEDED
+            print('MEMORY KILLED')
+            break
         if result.timed_out:
             status_result = SubmissionStatus.TIME_LIMIT_EXCEEDED
+            print('TIME LIMIT')
             break
         if result.exit_code != 0:
             status_result = SubmissionStatus.RUNTIME_ERROR
+            print('RUNTIME ERROR')
             break
         if not compare(result.stdout, test.expected_output):
             status_result = SubmissionStatus.WRONG_ANSWER
+            print('WRONG ANSWER')
             break
         passed_tests += 1
     logger.info(

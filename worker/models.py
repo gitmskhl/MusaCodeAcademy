@@ -6,7 +6,10 @@ class RunResult:
     stdout: str
     stderr: str
     exit_code: int
+    execution_time_ms: int = 0
+
     timed_out: bool = False
+    oom_killed: bool = False
 
 
 @dataclass(slots=True)

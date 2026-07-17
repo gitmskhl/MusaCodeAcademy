@@ -20,6 +20,10 @@ const STATUS_CONFIG = {
     TIME_LIMIT_EXCEEDED: {
         tone: 'error', icon: '\u2715', title: 'Превышено ограничение времени', progress: 100, failed: true,
     },
+    MEMORY_LIMIT_EXCEEDED: {
+        tone: 'error', icon: '\u2715', title: 'Превышено ограничение памяти', progress: 100,
+        message: 'Превышено ограничение по памяти.',
+    },
     SYSTEM_ERROR: {
         tone: 'warning', icon: '!', title: 'Системная ошибка', progress: 100,
         message: 'Во время проверки произошла внутренняя ошибка. Пожалуйста, попробуйте ещё раз.',
@@ -58,6 +62,81 @@ const createTestValue = (label, value) => {
         createElement('pre', 'submission-status__test-value', value || '')
     );
     return group;
+};
+
+const getRunResult = (submission) => submission.run_result ?? submission.result ?? submission;
+
+const hasValue = (value) => value !== null && value !== undefined;
+
+const hasOutput = (value) => typeof value === 'string' && value.trim() !== '';
+
+const getRuntimeErrorMessage = (runResult) => {
+    if (runResult.timed_out === true) {
+        return 'Превышено ограничение по времени выполнения.';
+    }
+    if (runResult.oom_killed === true) {
+        return 'Превышено ограничение по памяти.';
+    }
+    if (
+        runResult.timed_out === false &&
+        runResult.oom_killed === false &&
+        hasValue(runResult.exit_code) &&
+        runResult.exit_code !== 0
+    ) {
+        return 'Ошибка выполнения программы.';
+    }
+    return null;
+};
+
+const createResultSection = (label, content, { code = false, strong = false } = {}) => {
+    const section = createElement('section', 'submission-status__result-section');
+    section.append(createElement('h5', 'submission-status__result-label', label));
+
+    if (code) {
+        section.append(createElement('pre', 'submission-status__result-code', content));
+        return section;
+    }
+
+    const value = createElement('p', 'submission-status__result-value', content);
+    if (strong) value.classList.add('submission-status__result-value--strong');
+    section.append(value);
+    return section;
+};
+
+const appendExecutionTime = (content, runResult) => {
+    if (!hasValue(runResult.execution_time_ms)) return;
+    content.append(createResultSection(
+        'Время выполнения',
+        `${runResult.execution_time_ms} мс`
+    ));
+};
+
+const appendRuntimeResultDetails = (content, runResult) => {
+    const errorMessage = getRuntimeErrorMessage(runResult);
+    if (!errorMessage) return false;
+    const isRuntimeError = runResult.timed_out === false && runResult.oom_killed === false;
+
+    content.append(createResultSection('Ошибка', errorMessage, { strong: true }));
+    appendExecutionTime(content, runResult);
+
+    if (
+        isRuntimeError &&
+        hasValue(runResult.exit_code)
+    ) {
+        content.append(createResultSection('Код завершения', String(runResult.exit_code)));
+    }
+
+    if (isRuntimeError && hasOutput(runResult.stderr)) {
+        content.append(createResultSection('Standard Error (stderr)', runResult.stderr, { code: true }));
+    }
+    if (hasOutput(runResult.stdout)) {
+        content.append(createResultSection('Standard Output (stdout)', runResult.stdout, { code: true }));
+    }
+    if (!isRuntimeError && hasOutput(runResult.stderr)) {
+        content.append(createResultSection('Standard Error (stderr)', runResult.stderr, { code: true }));
+    }
+
+    return true;
 };
 
 export const createSubmissionStatusPanel = ({ fetcher }) => {
@@ -141,11 +220,18 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
         }
 
         const status = normalizeStatus(submission.status);
+        const runResult = getRunResult(submission);
         const renderKey = JSON.stringify([
             status,
             submission.passed_tests,
             submission.total_tests,
             submission.test_case_id ?? submission.failed_test_id,
+            runResult.stdout,
+            runResult.stderr,
+            runResult.exit_code,
+            runResult.execution_time_ms,
+            runResult.timed_out,
+            runResult.oom_killed,
         ]);
         if (renderKey === currentRenderKey) return;
         currentRenderKey = renderKey;
@@ -174,7 +260,8 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
         progress.append(progressValue);
 
         const content = createElement('div', 'submission-status__content');
-        if (config.failed) {
+        const hasRuntimeResultDetails = appendRuntimeResultDetails(content, runResult);
+        if (!hasRuntimeResultDetails && config.failed) {
             const hasPassedTests = Number.isFinite(submission.passed_tests);
             content.append(createElement(
                 'p', 'submission-status__message',
@@ -186,12 +273,15 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
                     `Не пройден тест №${submission.passed_tests + 1}`
                 ));
             }
-        } else {
+        } else if (!hasRuntimeResultDetails) {
             content.append(createElement('p', 'submission-status__message', config.message));
+        }
+        if (!hasRuntimeResultDetails) {
+            appendExecutionTime(content, runResult);
         }
 
         const testCaseId = submission.test_case_id ?? submission.failed_test_id;
-        if (config.failed && testCaseId != null) {
+        if (config.failed && !hasRuntimeResultDetails && testCaseId != null) {
             const button = createElement('button', 'submission-status__show-test', 'Показать непройденный тест');
             button.type = 'button';
             const detailsHost = createElement('div', 'submission-status__details-host');
