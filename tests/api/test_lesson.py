@@ -34,6 +34,14 @@ STEP_CONTENT = {
 }
 
 
+async def enroll_in_course(client, auth_headers, course_id: int):
+    response = await client.post(
+        f"/api/courses/{course_id}/enroll",
+        headers=auth_headers,
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+
 async def create_lesson(
     db,
     *,
@@ -433,6 +441,7 @@ async def test_get_steps_returns_public_steps_in_order(
         order=0,
     )
     await create_step(db, lesson_id=other_lesson.id, order=0)
+    await enroll_in_course(client, auth_headers, section.course_id)
 
     response = await client.get(
         f"/api/lessons/{lesson.id}/steps",
@@ -459,6 +468,7 @@ async def test_get_steps_returns_empty_list(
         order=0,
     )
     lesson = await create_lesson(db, section_id=section.id)
+    await enroll_in_course(client, auth_headers, section.course_id)
 
     response = await client.get(
         f"/api/lessons/{lesson.id}/steps",
@@ -467,6 +477,29 @@ async def test_get_steps_returns_empty_list(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_get_steps_requires_enrollment(
+    client,
+    section_factory,
+    db,
+    auth_headers,
+):
+    section = await section_factory(
+        course_id=None,
+        is_published=True,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+
+    response = await client.get(
+        f"/api/lessons/{lesson.id}/steps",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {"detail": "Enrollment required"}
 
 
 @pytest.mark.asyncio

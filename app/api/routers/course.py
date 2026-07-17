@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from app.schemas.course import CourseCreate, CoursePublic, CourseUpdate, CourseAdmin, CourseInfo
 from app.schemas.section import SectionPublic, SectionAdmin, SectionCreate
 from app.schemas.enrollment import EnrollmentPublic
-from app.api.dependencies import CurrentUser, OnlyAdmin, DBSession
+from app.api.dependencies import CourseEnrolledUser, CurrentUser, OnlyAdmin, DBSession
 from app.services import course as service_course
 from app.services import section as service_section
 from app.services import enrollment as service_enrollment
@@ -87,7 +87,7 @@ async def enroll_course(
 # ---------------------------------- /api/courses/{id}/sections --------------------------------
 
 @router.get('/{course_id}/sections', response_model=list[SectionPublic])
-async def get_course_sections(course_id: int, _: CurrentUser, db: DBSession):
+async def get_course_sections(course_id: int, _: CourseEnrolledUser, db: DBSession):
     return await service_section.get_course_sections(course_id=course_id, db=db, check_published=True)
     
 
@@ -110,4 +110,3 @@ async def create_course_section(
 @router.get('/{course_id}/sections/admin', response_model=list[SectionAdmin])
 async def get_course_sections_admin(course_id: int, admin: OnlyAdmin, db: DBSession):
     return await service_section.get_course_sections(course_id=course_id, db=db, check_published=False)
-

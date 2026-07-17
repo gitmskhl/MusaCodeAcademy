@@ -72,6 +72,59 @@ async def require_course_enrollment(
         )
 
 
+async def require_course_enrolled_user(
+    course_id: int,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> models.User:
+    row = await db.execute(
+        select(models.Course.id, models.Course.is_published)
+            .where(models.Course.id == course_id)
+    )
+    course = row.one_or_none()
+    if course is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+
+    _, course_is_published = course
+    if not course_is_published:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    await require_course_enrollment(course_id, current_user, db)
+    return current_user
+
+
+async def require_section_enrollment(
+    section_id: int,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> models.User:
+    result = await db.execute(
+        select(models.Section.id, models.Course.id, models.Course.is_published)
+            .outerjoin(models.Course, models.Course.id == models.Section.course_id)
+            .where(models.Section.id == section_id)
+    )
+    row = result.one_or_none()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Section not found"
+        )
+
+    _, course_id, course_is_published = row
+    if course_id is None or not course_is_published:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    await require_course_enrollment(course_id, current_user, db)
+    return current_user
+
+
 async def require_step_enrollment(
     step_id: int,
     current_user: CurrentUser,
@@ -126,3 +179,32 @@ async def require_step_viewer_enrollment(
 
 StepEnrolledUser = Annotated[models.User, Depends(require_step_enrollment)]
 StepViewerEnrolledUser = Annotated[models.User, Depends(require_step_viewer_enrollment)]
+CourseEnrolledUser = Annotated[models.User, Depends(require_course_enrolled_user)]
+SectionEnrolledUser = Annotated[models.User, Depends(require_section_enrollment)]
+
+
+async def require_lesson_enrollment(lesson_id: int, current_user: CurrentUser, db: DBSession) -> models.User:
+    result = await db.execute(
+        select(models.Lesson.id, models.Course.id, models.Course.is_published)
+            .outerjoin(models.Section, models.Section.id == models.Lesson.section_id)
+            .outerjoin(models.Course, models.Course.id == models.Section.course_id)
+            .where(models.Lesson.id == lesson_id)
+    )
+    row = result.one_or_none()
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lesson not found"
+        )
+
+    _, course_id, course_is_published = row
+    if course_id is None or not course_is_published:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    await require_course_enrollment(course_id, current_user, db)
+    return current_user
+
+
+LessonEnrolledUser = Annotated[models.User, Depends(require_lesson_enrollment)]
