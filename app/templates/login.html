@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход | Musa Code Academy</title>
     <link rel="stylesheet" href="{{url_for('static', path='css/login.css')}}">
+    <script>
+        if (localStorage.getItem("musa_code_academy_token")) {
+            document.documentElement.classList.add("is-auth-checking");
+        }
+    </script>
     <script defer src="{{url_for('static', path='js/login.js')}}"></script>
 </head>
 <body>

@@ -38,7 +38,6 @@ async def get_current_user(
 
 CurrentUser = Annotated[models.User, Depends(get_current_user)]
 
-
 def require_role(*allowed_roles: UserRole):
     async def dependency(current_user: CurrentUser) -> models.User:
         if current_user.role not in allowed_roles:

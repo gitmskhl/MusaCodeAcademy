@@ -1,6 +1,37 @@
 const form = document.querySelector("#login-form");
 const message = document.querySelector("#form-message");
 const button = form.querySelector("button");
+const TOKEN_KEY = "musa_code_academy_token";
+
+async function redirectAuthenticatedUser() {
+    const token = localStorage.getItem(TOKEN_KEY);
+
+    if (!token) {
+        document.documentElement.classList.remove("is-auth-checking");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/users/me", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 200) {
+            window.location.replace("/dashboard");
+            return;
+        }
+
+        if (response.status === 401) {
+            localStorage.removeItem(TOKEN_KEY);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+
+    document.documentElement.classList.remove("is-auth-checking");
+}
 
 function showMessage(text, type) {
     message.textContent = text;
@@ -30,7 +61,7 @@ form.addEventListener("submit", async (event) => {
             throw new Error(getErrorText(data.detail));
         }
 
-        localStorage.setItem("musa_code_academy_token", data.access_token);
+        localStorage.setItem(TOKEN_KEY, data.access_token);
         const nextUrl = new URLSearchParams(window.location.search).get("next");
         const destination = nextUrl?.startsWith("/") && !nextUrl.startsWith("//")
             ? nextUrl
@@ -42,3 +73,5 @@ form.addEventListener("submit", async (event) => {
         button.disabled = false;
     }
 });
+
+redirectAuthenticatedUser();
