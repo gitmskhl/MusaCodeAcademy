@@ -1,0 +1,14 @@
+{% extends "errors/error_base.html" %}
+
+{% block accent_color %}#2563eb{% endblock %}
+{% block code %}404{% endblock %}
+{% block heading %}Страница не найдена{% endblock %}
+{% block description %}Возможно, страница была удалена, переименована или вы перешли по неверной ссылке.{% endblock %}
+{% block icon %}
+<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img">
+    <path d="M14.8 14.8 20 20"/>
+    <circle cx="10.5" cy="10.5" r="6.5"/>
+    <path d="M8.5 10.5h4"/>
+    <path d="M10.5 8.5v4"/>
+</svg>
+{% endblock %}

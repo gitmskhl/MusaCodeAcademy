@@ -1,0 +1,13 @@
+{% extends "errors/error_base.html" %}
+
+{% block accent_color %}#c2410c{% endblock %}
+{% block code %}403{% endblock %}
+{% block heading %}Доступ запрещён{% endblock %}
+{% block description %}У вас недостаточно прав для просмотра этой страницы.{% endblock %}
+{% block icon %}
+<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img">
+    <path d="M12 3.5 5.5 6v5.2c0 4 2.7 7.7 6.5 9.3 3.8-1.6 6.5-5.3 6.5-9.3V6L12 3.5Z"/>
+    <path d="M9.8 11.2V9.9a2.2 2.2 0 0 1 4.4 0v1.3"/>
+    <path d="M9.3 11.2h5.4v4.2H9.3z"/>
+</svg>
+{% endblock %}

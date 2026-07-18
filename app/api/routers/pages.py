@@ -104,14 +104,6 @@ async def admin_task_editor_page(request: Request, step_id: int):
     )
 
 
-@router.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
-async def dashboard_page(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "dashboard.html"
-    )
-
-
 @router.get("/courses", response_class=HTMLResponse, include_in_schema=False)
 async def courses_page(request: Request):
     return templates.TemplateResponse(

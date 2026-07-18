@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>{{ self.code() }} | Musa Code Academy</title>
+    <style>
+        :root {
+            --accent: {% block accent_color %}#2563eb{% endblock %};
+            --accent-soft: color-mix(in srgb, var(--accent) 11%, #ffffff);
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #111827;
+            --muted: #5b6472;
+            --border: #e5e7eb;
+            --shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+            --focus: 0 0 0 4px color-mix(in srgb, var(--accent) 24%, transparent);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--bg);
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text);
+            font-family:
+                Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                "Segoe UI", sans-serif;
+            line-height: 1.5;
+            background:
+                radial-gradient(circle at top left, var(--accent-soft), transparent 34rem),
+                linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        .error-page {
+            display: grid;
+            min-height: 100vh;
+            place-items: center;
+            padding: 48px 20px;
+        }
+
+        .error-card {
+            width: min(100%, 620px);
+            padding: clamp(32px, 7vw, 64px);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(229, 231, 235, 0.92);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 520ms ease-out both;
+        }
+
+        .icon-wrap {
+            display: inline-grid;
+            width: 72px;
+            height: 72px;
+            place-items: center;
+            margin-bottom: 28px;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border: 1px solid color-mix(in srgb, var(--accent) 20%, #ffffff);
+            border-radius: 50%;
+        }
+
+        .icon-wrap svg {
+            width: 34px;
+            height: 34px;
+            stroke: currentColor;
+        }
+
+        .error-code {
+            margin: 0 0 8px;
+            color: var(--accent);
+            font-size: clamp(68px, 17vw, 132px);
+            font-weight: 760;
+            line-height: 0.95;
+            letter-spacing: 0;
+        }
+
+        .error-title {
+            margin: 0;
+            color: var(--text);
+            font-size: clamp(28px, 5vw, 42px);
+            font-weight: 720;
+            line-height: 1.12;
+            letter-spacing: 0;
+        }
+
+        .error-description {
+            max-width: 500px;
+            margin: 18px auto 0;
+            color: var(--muted);
+            font-size: clamp(16px, 2.6vw, 18px);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 36px;
+        }
+
+        .button {
+            display: inline-flex;
+            min-height: 46px;
+            align-items: center;
+            justify-content: center;
+            padding: 0 18px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 650;
+            transition:
+                transform 160ms ease,
+                border-color 160ms ease,
+                background-color 160ms ease,
+                box-shadow 160ms ease;
+        }
+
+        .button:focus-visible {
+            outline: none;
+            box-shadow: var(--focus);
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            color: #ffffff;
+            background: var(--accent);
+        }
+
+        .button-secondary {
+            color: var(--text);
+            background: #ffffff;
+            border-color: var(--border);
+        }
+
+        .button-secondary:hover {
+            border-color: color-mix(in srgb, var(--accent) 34%, var(--border));
+            background: color-mix(in srgb, var(--accent) 6%, #ffffff);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 1ms !important;
+                scroll-behavior: auto !important;
+                transition-duration: 1ms !important;
+            }
+        }
+
+        @media (max-width: 460px) {
+            .error-page {
+                padding: 24px 14px;
+            }
+
+            .error-card {
+                padding: 32px 22px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="error-page" aria-labelledby="error-title">
+        <section class="error-card">
+            <div class="icon-wrap" aria-hidden="true">
+                {% block icon %}{% endblock %}
+            </div>
+
+            <p class="error-code">{% block code %}{% endblock %}</p>
+            <h1 class="error-title" id="error-title">{% block heading %}{% endblock %}</h1>
+            <p class="error-description">{% block description %}{% endblock %}</p>
+
+            <div class="actions" aria-label="Действия">
+                <a class="button button-primary" href="/">На главную</a>
+                <button class="button button-secondary" type="button" data-back-button>
+                    Вернуться назад
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            var backButton = document.querySelector("[data-back-button]");
+
+            if (!backButton) {
+                return;
+            }
+
+            backButton.addEventListener("click", function () {
+                if (window.history.length > 1) {
+                    window.history.back();
+                    return;
+                }
+
+                window.location.assign("/");
+            });
+        })();
+    </script>
+</body>
+</html>
