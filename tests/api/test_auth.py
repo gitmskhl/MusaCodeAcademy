@@ -61,7 +61,7 @@ async def test_register_duplicate_email(client):
 
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json() == {
-        "detail": "User with this email already exists"
+        "detail": "Пользователь с таким email уже существует."
     }
 
 
@@ -182,7 +182,7 @@ async def test_get_token_wrong_username(client):
     
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {
-        "detail": "Incorrect email or password"
+        "detail": "Неверный email или пароль."
     }
     
     
@@ -212,7 +212,7 @@ async def test_get_token_wrong_password(client):
     
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {
-        "detail": "Incorrect email or password"
+        "detail": "Неверный email или пароль."
     }
 
 

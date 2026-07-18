@@ -57,7 +57,7 @@ async def register_user(user: UserCreate, db: AsyncSession) -> User:
     if email_taken:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="User with this email already exists"
+            detail="Пользователь с таким email уже существует."
         )
         
     password_hash = await asyncio.to_thread(hash_password, user.password)
@@ -76,7 +76,7 @@ async def register_user(user: UserCreate, db: AsyncSession) -> User:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="User with this email already exists"
+            detail="Пользователь с таким email уже существует."
         )
 
 

@@ -7,12 +7,50 @@ function showMessage(text, type) {
     message.className = `message is-visible is-${type}`;
 }
 
-function getErrorText(detail) {
-    if (Array.isArray(detail)) {
-        return detail.map((item) => item.msg).join(" ");
+const FIELD_LABELS = {
+    email: "email",
+    password: "пароль",
+    first_name: "имя",
+    last_name: "фамилия"
+};
+
+const ERROR_TEXTS = {
+    "User with this email already exists": "Пользователь с таким email уже существует."
+};
+
+function getFieldLabel(error) {
+    const field = error?.loc?.at(-1);
+    return FIELD_LABELS[field] || "поле";
+}
+
+function getValidationErrorText(error) {
+    const fieldLabel = getFieldLabel(error);
+
+    if (error.type === "missing") {
+        return `Заполните поле «${fieldLabel}».`;
     }
 
-    return detail || "Не удалось создать аккаунт. Проверьте данные и попробуйте снова.";
+    if (error.type === "string_too_short") {
+        return `Поле «${fieldLabel}» должно содержать минимум ${error.ctx?.min_length || 1} символов.`;
+    }
+
+    if (error.type === "string_too_long") {
+        return `Поле «${fieldLabel}» должно содержать не больше ${error.ctx?.max_length || "допустимого количества"} символов.`;
+    }
+
+    if (error.loc?.at(-1) === "email") {
+        return "Введите корректный email.";
+    }
+
+    return error.msg || "Проверьте данные формы.";
+}
+
+function getErrorText(detail) {
+    if (Array.isArray(detail)) {
+        return detail.map(getValidationErrorText).join(" ");
+    }
+
+    return ERROR_TEXTS[detail] || detail || "Не удалось создать аккаунт. Проверьте данные и попробуйте снова.";
 }
 
 form.addEventListener("submit", async (event) => {

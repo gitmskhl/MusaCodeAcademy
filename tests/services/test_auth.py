@@ -149,7 +149,7 @@ async def test_register_user_duplicate_email(db):
     with pytest.raises(HTTPException) as exc:
         await register_user(user_data2, db)
     assert exc.value.status_code == status.HTTP_409_CONFLICT
-    assert exc.value.detail == "User with this email already exists"
+    assert exc.value.detail == "Пользователь с таким email уже существует."
     
     
 @pytest.mark.asyncio

@@ -46,7 +46,7 @@ async def get_token(
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Неверный email или пароль.",
             headers={"WWW-Authenticate": "Bearer"}
         )
     return {
