@@ -1,3 +1,4 @@
+import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
@@ -6,6 +7,9 @@ from app.schemas.submission import SubmissionCreate
 from app.models import Submission, Task, Step, Lesson, Section
 from app.enums import SubmissionStatus
 from app.queue.submission import enqueu
+
+
+logger = logging.getLogger(__name__)
 
 async def create_submission(user_id: int, submissionInfo: SubmissionCreate, db: AsyncSession) -> Submission:
     task = (
@@ -36,7 +40,14 @@ async def create_submission(user_id: int, submissionInfo: SubmissionCreate, db: 
     try:
         await db.commit()
         await db.refresh(new_submission)
-        await enqueu(submission_id=new_submission.id)
+        try:
+            await enqueu(submission_id=new_submission.id)
+        except Exception as e:
+            logger.exception("Redis error: can not enqueue %s", e)
+            new_submission.status = SubmissionStatus.SYSTEM_ERROR
+            await db.commit()
+            await db.refresh(new_submission)
+            return new_submission
         return new_submission
     except Exception:
         await db.rollback()
