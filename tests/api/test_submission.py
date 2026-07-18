@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 from app.services import submission as service_submission
 from app.enums import SubmissionStatus
 from app.main import app
-from app.models import Lesson, Step, Submission, Task, User
+from app.models import Enrollment, Lesson, Section, Step, Submission, Task, User
 
 
 SUBMISSION_DETAIL_FIELDS = {
@@ -91,6 +91,25 @@ async def create_task(db, step_id: int) -> Task:
     await db.commit()
     await db.refresh(task)
     return task
+
+
+async def create_enrollment(db, *, user_id: int, course_id: int) -> Enrollment:
+    enrollment = Enrollment(user_id=user_id, course_id=course_id)
+    db.add(enrollment)
+    await db.commit()
+    await db.refresh(enrollment)
+    return enrollment
+
+
+async def get_course_id_for_task(db, task_id: int) -> int:
+    result = await db.execute(
+        select(Section.course_id)
+        .join(Lesson, Lesson.section_id == Section.id)
+        .join(Step, Step.lesson_id == Lesson.id)
+        .join(Task, Task.step_id == Step.id)
+        .where(Task.id == task_id)
+    )
+    return result.scalars().one()
 
 
 async def create_submission(
@@ -201,6 +220,8 @@ async def test_create_submission_success(
     user = await get_user_by_email(db, user_data["email"])
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
+    course_id = await get_course_id_for_task(db, task.id)
+    await create_enrollment(db, user_id=user.id, course_id=course_id)
 
     enque_mock = AsyncMock()
     monkeypatch.setattr(service_submission, 'enqueu', enque_mock)
@@ -230,6 +251,34 @@ async def test_create_submission_success(
     enque_mock.assert_awaited_once_with(
         submission_id=stored_submission.id
     )
+
+
+@pytest.mark.asyncio
+async def test_create_submission_rejects_user_without_enrollment(
+    client,
+    auth_headers,
+    section_factory,
+    db,
+    monkeypatch,
+):
+    step = await create_step(db, section_factory, is_published=True)
+    task = await create_task(db, step.id)
+
+    enque_mock = AsyncMock()
+    monkeypatch.setattr(service_submission, 'enqueu', enque_mock)
+
+    response = await client.post(
+        create_submission_url(),
+        headers=auth_headers,
+        json={
+            "task_id": task.id,
+            "source_code": "print('ok')",
+        },
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == {"detail": "Enrollment required"}
+    enque_mock.assert_not_awaited()
 
 
 @pytest.mark.asyncio

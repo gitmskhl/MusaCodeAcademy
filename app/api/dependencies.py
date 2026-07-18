@@ -9,6 +9,7 @@ from app.core.security import (
 from app.core.exceptions import InvalidTokenError
 from app import models
 from app.enums import UserRole
+from app.schemas.submission import SubmissionCreate
 
 DBSession = Annotated[AsyncSession, Depends(get_db)]
 
@@ -181,6 +182,35 @@ StepEnrolledUser = Annotated[models.User, Depends(require_step_enrollment)]
 StepViewerEnrolledUser = Annotated[models.User, Depends(require_step_viewer_enrollment)]
 CourseEnrolledUser = Annotated[models.User, Depends(require_course_enrolled_user)]
 SectionEnrolledUser = Annotated[models.User, Depends(require_section_enrollment)]
+
+
+async def require_task_enrollment(
+    submissionInfo: SubmissionCreate,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> models.User:
+    result = await db.execute(
+        select(models.Course.id)
+            .join(models.Section, models.Section.course_id == models.Course.id)
+            .join(models.Lesson, models.Lesson.section_id == models.Section.id)
+            .join(models.Step, models.Step.lesson_id == models.Lesson.id)
+            .join(models.Task, models.Task.step_id == models.Step.id)
+            .where(
+                models.Task.id == submissionInfo.task_id,
+                models.Course.is_published.is_(True)
+            )
+    )
+    course_id = result.scalar_one_or_none()
+    if course_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    await require_course_enrollment(course_id, current_user, db)
+    return current_user
+
+
+TaskEnrolledUser = Annotated[models.User, Depends(require_task_enrollment)]
 
 
 async def require_lesson_enrollment(lesson_id: int, current_user: CurrentUser, db: DBSession) -> models.User:

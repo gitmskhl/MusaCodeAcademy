@@ -456,7 +456,8 @@ async def test_first_lesson_step_page_returns_not_found_for_empty_lesson(
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "Lesson step not found"}
+    assert response.headers["content-type"].startswith("text/html")
+    assert "404 | Musa Code Academy" in response.text
 
 
 # GET /api/steps/{step_id}/admin

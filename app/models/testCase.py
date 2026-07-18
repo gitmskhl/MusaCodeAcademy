@@ -18,7 +18,7 @@ class TestCase(Base):
         index=True
     )
 
-    input: Mapped[str | None] = mapped_column(Text)
+    input: Mapped[str] = mapped_column(Text)
     expected_output: Mapped[str] = mapped_column(Text, nullable=False)
 
     is_hidden: Mapped[bool] = mapped_column(Boolean, default=False)

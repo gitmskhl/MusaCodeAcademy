@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin
+from app.api.dependencies import CurrentUser, DBSession, OnlyAdmin, TaskEnrolledUser
 from app.schemas.submission import SubmissionCreate, SubmissionDetail
 from app.services import submission as submission_service
 
@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.post('', response_model=SubmissionDetail, status_code=status.HTTP_201_CREATED)
-async def create_submission(user: CurrentUser, submissionInfo: SubmissionCreate, db: DBSession):
+async def create_submission(user: TaskEnrolledUser, submissionInfo: SubmissionCreate, db: DBSession):
     return await submission_service.create_submission(
         user_id=user.id,
         submissionInfo=submissionInfo,
