@@ -1,13 +1,15 @@
-import select
+import os
 from io import BytesIO
 from uuid import uuid4
+
+import asyncpg
 from httpx import AsyncClient, ASGITransport
 import pytest
 import pytest_asyncio
 from fastapi import UploadFile
 from starlette.datastructures import Headers
-from sqlalchemy import delete, select
-from sqlalchemy.pool import StaticPool
+from sqlalchemy import make_url, select, text
+from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.database import get_db
 from app.enums import UserRole
@@ -17,12 +19,39 @@ from app.core.config import settings
 from app.services.storage import StorageService
 
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+def _quote_identifier(identifier: str) -> str:
+    escaped_identifier = identifier.replace('"', '""')
+    return f'"{escaped_identifier}"'
+
+
+def _make_test_database_url() -> str:
+    test_database_url = os.getenv("TEST_DATABASE_URL")
+    if test_database_url:
+        return test_database_url
+
+    database_url = make_url(settings.sqlalchemy_database_url)
+    database_name = database_url.database
+    if not database_name:
+        raise RuntimeError("SQLALCHEMY_DATABASE_URL must include a database name")
+
+    if not database_name.endswith("_test"):
+        database_url = database_url.set(database=f"{database_name}_test")
+
+    return database_url.render_as_string(hide_password=False)
+
+
+TEST_DATABASE_URL = _make_test_database_url()
+TEST_DATABASE_NAME = make_url(TEST_DATABASE_URL).database
+
+if not TEST_DATABASE_NAME or not TEST_DATABASE_NAME.endswith("_test"):
+    raise RuntimeError(
+        "Test database name must end with '_test'. "
+        "Set TEST_DATABASE_URL to a dedicated PostgreSQL test database."
+    )
 
 test_engine = create_async_engine(
     TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
+    poolclass=NullPool,
 )
 
 test_async_session_maker = async_sessionmaker(
@@ -32,9 +61,36 @@ test_async_session_maker = async_sessionmaker(
 )
 
 
+async def _ensure_test_database_exists() -> None:
+    database_url = make_url(TEST_DATABASE_URL)
+    if not database_url.drivername.startswith("postgresql"):
+        return
+
+    connection = await asyncpg.connect(
+        user=database_url.username,
+        password=database_url.password,
+        host=database_url.host or "localhost",
+        port=database_url.port or 5432,
+        database=os.getenv("TEST_MAINTENANCE_DATABASE", "postgres"),
+    )
+    try:
+        exists = await connection.fetchval(
+            "SELECT 1 FROM pg_database WHERE datname = $1",
+            database_url.database,
+        )
+        if not exists:
+            await connection.execute(
+                f"CREATE DATABASE {_quote_identifier(database_url.database)}"
+            )
+    finally:
+        await connection.close()
+
+
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_tables():
+    await _ensure_test_database_exists()
     async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with test_engine.begin() as conn:
@@ -48,9 +104,19 @@ async def db():
         yield session
 
         await session.rollback()
-        
-        for table in reversed(Base.metadata.sorted_tables):
-            await session.execute(delete(table))
+
+        table_names = [
+            _quote_identifier(table.name)
+            for table in Base.metadata.sorted_tables
+        ]
+        if table_names:
+            await session.execute(
+                text(
+                    "TRUNCATE TABLE "
+                    f"{', '.join(table_names)} "
+                    "RESTART IDENTITY CASCADE"
+                )
+            )
         await session.commit()
         
         

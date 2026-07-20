@@ -6,7 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
 from app.enums import SubmissionStatus
-from app.models import Lesson, Step, Task, Submission
+from app.models import Lesson, Step, Task, Submission, User
 from app.schemas.submission import SubmissionCreate as CreateSubmissionSchema
 from app.services import submission as submission_service
 
@@ -56,6 +56,24 @@ async def create_task(db, step_id: int) -> Task:
     return task
 
 
+async def create_user(db, user_id: int) -> User:
+    user = await db.get(User, user_id)
+    if user:
+        return user
+
+    user = User(
+        id=user_id,
+        email=f"user-{user_id}@example.com",
+        password_hash="hash",
+        first_name="Test",
+        last_name="User",
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 async def create_submission(
     db,
     task_id: int,
@@ -65,6 +83,7 @@ async def create_submission(
     status: SubmissionStatus = SubmissionStatus.PENDING,
     submitted_at: datetime | None = None,
 ) -> Submission:
+    await create_user(db, user_id)
     submission = Submission(
         task_id=task_id,
         user_id=user_id,
@@ -86,6 +105,7 @@ async def test_create_submission_success_for_published_course(
 ):
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
+    await create_user(db, 123)
 
     enqueu_mock = AsyncMock()
     monkeypatch.setattr(
@@ -165,6 +185,7 @@ async def test_create_submission_rolls_back_on_commit_error(
 ):
     step = await create_step(db, section_factory, is_published=True)
     task = await create_task(db, step.id)
+    await create_user(db, 123)
     commit_mock = AsyncMock(
         side_effect=IntegrityError("forced error", {}, Exception("forced error"))
     )

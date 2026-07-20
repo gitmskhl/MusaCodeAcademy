@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from app.models.base import Base
-from sqlalchemy import Integer, ForeignKey, Text
+from sqlalchemy import DateTime, Integer, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -26,8 +26,13 @@ class Task(Base):
     time_limit_ms: Mapped[int] = mapped_column(Integer, default=1000, nullable=False)
     memory_limit_mb: Mapped[int] = mapped_column(Integer, default=128, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
     updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         onupdate=lambda: datetime.now(UTC),
         nullable=False,
