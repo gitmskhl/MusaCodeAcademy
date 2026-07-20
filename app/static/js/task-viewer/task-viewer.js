@@ -9,6 +9,9 @@ const ACTIVE_SUBMISSION_STATUSES = new Set(['PENDING', 'RUNNING']);
 
 let cleanupActiveTaskViewer = () => {};
 
+const normalizeSubmissionStatus = (status) =>
+    String(status || '').trim().toUpperCase().replace(/[\s-]+/g, '_');
+
 const createMetaItem = (icon, label, value) => {
     const item = document.createElement('span');
     item.className = 'task-viewer__meta-item';
@@ -59,11 +62,12 @@ export const renderTaskError = (container, message) => {
     container.hidden = false;
 };
 
-export const renderTaskViewer = (container, task) => {
+export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     cleanupActiveTaskViewer();
 
     let sourceCode = task.starter_code || '';
     let latestSubmissionStatus = null;
+    let hasReportedAccepted = false;
     let pollingTimer = null;
     let isPollingRequest = false;
     let isSubmitting = false;
@@ -144,12 +148,17 @@ export const renderTaskViewer = (container, task) => {
             editor.setDocument(sourceCode);
         }
 
-        latestSubmissionStatus = submission.status;
+        latestSubmissionStatus = normalizeSubmissionStatus(submission.status);
         statusPanel.render(submission);
         submitStatus.textContent = '';
         submitStatus.classList.remove('is-error');
 
-        const isActive = ACTIVE_SUBMISSION_STATUSES.has(submission.status);
+        if (latestSubmissionStatus === 'ACCEPTED' && !hasReportedAccepted) {
+            hasReportedAccepted = true;
+            Promise.resolve(onAccepted?.(submission)).catch(() => {});
+        }
+
+        const isActive = ACTIVE_SUBMISSION_STATUSES.has(latestSubmissionStatus);
         submitButton.disabled = isActive;
         submitButton.textContent = SUBMIT_LABEL;
         if (!isActive) {

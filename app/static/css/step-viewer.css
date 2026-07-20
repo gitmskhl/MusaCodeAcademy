@@ -684,11 +684,16 @@ body.is-step-drawer-open .step-drawer {
 }
 
 .step-viewer__navigation {
-    display: flex;
+    display: grid;
+    grid-template-columns: max-content max-content;
     justify-content: space-between;
     gap: 16px;
     margin-top: auto;
     padding-top: 32px;
+}
+
+.step-viewer__navigation[hidden] {
+    display: none;
 }
 
 .step-viewer__navigation-button {
@@ -728,6 +733,14 @@ body.is-step-drawer-open .step-drawer {
     opacity: 0.62;
 }
 
+.step-viewer__navigation-button[hidden] {
+    display: none;
+}
+
+[data-next-step] {
+    grid-column: 2;
+}
+
 @media (max-width: 640px) {
     .step-drawer-toggle {
         top: 12px;
@@ -762,6 +775,7 @@ body.is-step-drawer-open .step-drawer {
     }
 
     .step-viewer__navigation {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 10px;
         padding-top: 22px;
     }

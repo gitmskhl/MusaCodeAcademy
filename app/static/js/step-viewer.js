@@ -70,6 +70,7 @@ const state = {
     currentStepId: null,
     lesson: null,
     progress: null,
+    hasTask: false,
     isProgressSaving: false,
 };
 
@@ -201,7 +202,7 @@ const renderProgressState = () => {
 
     const isCompleted = getCompletedStepIds().has(state.currentStepId);
 
-    elements.completeToggle.hidden = false;
+    elements.completeToggle.hidden = state.hasTask;
     elements.completeToggle.disabled = state.isProgressSaving;
     elements.completeToggle.classList.toggle('is-completed', isCompleted);
     elements.completeToggle.textContent = isCompleted
@@ -276,6 +277,34 @@ const toggleCurrentStepProgress = async () => {
     }
 };
 
+const completeCurrentStep = async () => {
+    if (
+        state.currentStepId === null ||
+        state.isProgressSaving ||
+        getCompletedStepIds().has(state.currentStepId)
+    ) {
+        return;
+    }
+
+    state.isProgressSaving = true;
+    renderProgressState();
+
+    try {
+        const response = await authFetch(
+            `/api/progress/steps/${encodeURIComponent(state.currentStepId)}`,
+            { method: 'POST' }
+        );
+        if (!response.ok) {
+            throw new Error('progress-request-failed');
+        }
+
+        updateLocalProgress(state.currentStepId, true);
+    } finally {
+        state.isProgressSaving = false;
+        renderProgressState();
+    }
+};
+
 const handleDrawerNavigation = (event) => {
     const link = event.target.closest('[data-drawer-step-id]');
     if (!link) {
@@ -293,6 +322,38 @@ const handleDrawerNavigation = (event) => {
     link.querySelector('.step-drawer__status').textContent = '●';
     setDrawerOpen(false);
     window.location.assign(link.href);
+};
+
+const renderStepNavigation = (navigation) => {
+    const previousStepId = navigation.previous_step_id;
+    const nextStepId = navigation.next_step_id;
+
+    elements.navigation.hidden = !previousStepId && !nextStepId;
+
+    elements.previousStep.hidden = !previousStepId;
+    elements.previousStep.disabled = !previousStepId;
+    elements.previousStep.dataset.stepId = previousStepId
+        ? String(previousStepId)
+        : '';
+
+    elements.nextStep.hidden = !nextStepId;
+    elements.nextStep.disabled = !nextStepId;
+    elements.nextStep.dataset.stepId = nextStepId ? String(nextStepId) : '';
+};
+
+const handleStepNavigation = (event) => {
+    const button = event.target.closest('[data-previous-step], [data-next-step]');
+    if (!button || button.disabled || button.hidden) {
+        return;
+    }
+
+    const stepId = Number(button.dataset.stepId);
+    if (!Number.isInteger(stepId) || stepId <= 0) {
+        return;
+    }
+
+    button.disabled = true;
+    window.location.assign(getStepUrl(stepId));
 };
 
 const localizePage = () => {
@@ -367,6 +428,7 @@ const loadImageSources = async (content) => {
 
 const loadTask = async (stepId) => {
     if (!elements.taskViewer) {
+        state.hasTask = false;
         return;
     }
 
@@ -384,6 +446,7 @@ const loadTask = async (stepId) => {
         }
 
         if (response.status === 404) {
+            state.hasTask = false;
             clearTaskViewer(elements.taskViewer);
             return;
         }
@@ -396,7 +459,10 @@ const loadTask = async (stepId) => {
             return;
         }
 
-        renderTaskViewer(elements.taskViewer, await response.json());
+        state.hasTask = true;
+        renderTaskViewer(elements.taskViewer, await response.json(), {
+            onAccepted: completeCurrentStep,
+        });
     } catch {
         renderTaskError(
             elements.taskViewer,
@@ -445,6 +511,7 @@ const loadStep = async () => {
         current: navigation.position,
         total: navigation.total,
     });
+    renderStepNavigation(navigation);
     document.title = format(messages.stepDocumentTitle, {
         title: step.title,
     });
@@ -463,6 +530,7 @@ const init = async () => {
 
     initDrawer();
     elements.drawerList.addEventListener('click', handleDrawerNavigation);
+    elements.navigation.addEventListener('click', handleStepNavigation);
     elements.completeToggle?.addEventListener('click', toggleCurrentStepProgress);
     localizePage();
     try {
