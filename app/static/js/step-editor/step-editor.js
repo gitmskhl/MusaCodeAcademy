@@ -62,6 +62,7 @@ const elements = {
     backButton: document.querySelector('[data-back-button]'),
     saveButton: document.querySelector('[data-save-button]'),
     taskButton: document.querySelector('[data-task-button]'),
+    deleteTaskButton: document.querySelector('[data-delete-task-button]'),
     saveStatus: document.querySelector('[data-save-status]'),
     layoutOptions: [...document.querySelectorAll('[data-layout-option]')],
     blockList: document.querySelector('[data-block-list]'),
@@ -75,6 +76,7 @@ let focusEditorAfterRender = false;
 let draggedBlockIndex = null;
 let dropInsertionIndex = null;
 let saveStatusTimer = null;
+let currentTask = null;
 
 const dropPlaceholder = document.createElement('div');
 dropPlaceholder.className = 'block-drop-placeholder';
@@ -152,10 +154,30 @@ const setEditorLoading = (loading) => {
     if (elements.taskButton) {
         elements.taskButton.disabled = loading;
     }
+    if (elements.deleteTaskButton) {
+        elements.deleteTaskButton.disabled = loading || !currentTask?.id;
+    }
     elements.addBlockButton.disabled = loading;
     elements.layoutOptions.forEach((option) => {
         option.disabled = loading;
     });
+};
+
+const renderTaskActions = () => {
+    if (!elements.taskButton) {
+        return;
+    }
+
+    const hasTask = Boolean(currentTask?.id);
+    elements.taskButton.textContent = hasTask
+        ? 'Редактировать задачу'
+        : 'Создать задачу';
+    elements.taskButton.hidden = false;
+
+    if (elements.deleteTaskButton) {
+        elements.deleteTaskButton.hidden = !hasTask;
+        elements.deleteTaskButton.disabled = !hasTask;
+    }
 };
 
 const loadTaskButton = async () => {
@@ -173,29 +195,30 @@ const loadTaskButton = async () => {
         return;
     }
 
-    elements.taskButton.textContent = 'Создать задачу';
-    elements.taskButton.hidden = false;
+    currentTask = null;
+    renderTaskActions();
 
-    let response = await fetch(
-        `/api/steps/${encodeURIComponent(stepId)}/task`,
+    const response = await fetch(
+        `/api/tasks/admin/by-step/${encodeURIComponent(stepId)}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
-    if (response.status >= 500) {
-        response = await fetch(
-            `/api/tasks/admin/by-step/${encodeURIComponent(stepId)}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-    }
 
     if (response.status === 200) {
-        elements.taskButton.textContent = 'Редактировать задачу';
-        elements.taskButton.hidden = false;
+        currentTask = await response.json();
+        renderTaskActions();
         return;
     }
 
     if (response.status === 404) {
-        elements.taskButton.textContent = 'Создать задачу';
-        elements.taskButton.hidden = false;
+        currentTask = null;
+        renderTaskActions();
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            await getResponseErrorMessage(response, 'Failed to load task')
+        );
     }
 };
 
@@ -320,6 +343,60 @@ const saveStep = async () => {
         );
     } finally {
         elements.saveButton.disabled = false;
+    }
+};
+
+const deleteTask = async () => {
+    if (!currentTask?.id || !elements.deleteTaskButton) {
+        return;
+    }
+
+    const confirmed = window.confirm('Удалить задачу из этого шага?');
+    if (!confirmed) {
+        return;
+    }
+
+    const token = getToken();
+    if (!token) {
+        setSaveStatus('Sign in again to delete the task.', { error: true });
+        return;
+    }
+
+    const taskId = currentTask.id;
+    elements.deleteTaskButton.disabled = true;
+    elements.deleteTaskButton.textContent = 'Удаление...';
+    setSaveStatus('');
+
+    try {
+        const response = await fetch(
+            `/api/tasks/admin/${encodeURIComponent(taskId)}`,
+            {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+        if (!response.ok && response.status !== 404) {
+            throw new Error(
+                await getResponseErrorMessage(response, 'Failed to delete task')
+            );
+        }
+
+        currentTask = null;
+        renderTaskActions();
+        setSaveStatus('Задача удалена.');
+        saveStatusTimer = window.setTimeout(() => {
+            elements.saveStatus.textContent = '';
+        }, 1800);
+    } catch (error) {
+        elements.deleteTaskButton.disabled = false;
+        setSaveStatus(
+            error instanceof Error && error.message
+                ? error.message
+                : 'Failed to delete task.',
+            { error: true }
+        );
+    } finally {
+        elements.deleteTaskButton.textContent = 'Удалить задачу';
     }
 };
 
@@ -572,6 +649,7 @@ const bindEvents = () => {
             window.location.href = `/admin/steps/${encodeURIComponent(stepId)}/task`;
         }
     });
+    elements.deleteTaskButton?.addEventListener('click', deleteTask);
 
     elements.backButton.addEventListener('click', (event) => {
         if (window.history.length > 1) {

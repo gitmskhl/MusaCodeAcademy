@@ -8,6 +8,8 @@ from worker.checker import compare
         ("42", "42", True),
         ("42\n", "42", True),
         (" 42", "42", True),
+        ("first\nsecond\n", "first\r\nsecond", True),
+        ("first\nsecond\n", "first\rsecond", True),
         ("41", "42", False),
         ("", "42", False)
     ],
