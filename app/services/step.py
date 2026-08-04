@@ -165,7 +165,11 @@ async def update_step(step_id: int, stepInfo: StepUpdate, db: AsyncSession) -> S
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Step not found"
         )
-    for key, value in stepInfo.model_dump(exclude_unset=True).items():
+    update_data = stepInfo.model_dump(exclude_unset=True)
+    if "content" in stepInfo.model_fields_set and stepInfo.content is not None:
+        update_data["content"] = stepInfo.content.model_dump()
+
+    for key, value in update_data.items():
         setattr(step, key, value)
     
     try:

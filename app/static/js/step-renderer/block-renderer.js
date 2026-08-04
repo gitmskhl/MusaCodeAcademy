@@ -2,12 +2,14 @@ import { renderCalloutBlock } from './block-renderers/callout-renderer.js';
 import { renderCodeBlock } from './block-renderers/code-renderer.js';
 import { renderImageBlock } from './block-renderers/image-renderer.js';
 import { renderTextBlock } from './block-renderers/text-renderer.js';
+import { renderVideoBlock } from './block-renderers/video-renderer.js';
 
 const blockRenderers = new Map([
     ['text', renderTextBlock],
     ['image', renderImageBlock],
     ['code', renderCodeBlock],
     ['callout', renderCalloutBlock],
+    ['video', renderVideoBlock],
 ]);
 
 const renderUnknownBlock = (block) => {

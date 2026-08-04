@@ -735,6 +735,51 @@ async def test_update_step_updates_content(section_factory, db):
 
 
 @pytest.mark.asyncio
+async def test_update_step_updates_content_with_video_block(section_factory, db):
+    section = await section_factory(
+        course_id=None,
+        is_published=False,
+        order=0,
+    )
+    lesson = await create_lesson(db, section_id=section.id)
+    step = await create_existing_step(db, lesson_id=lesson.id, order=0)
+    update_info = StepUpdate(
+        content={
+            "version": 1,
+            "layout": "vertical",
+            "blocks": [
+                {
+                    "type": "video",
+                    "data": {
+                        "embed_url": (
+                            '<iframe src="https://kinescope.io/embed/'
+                            'mmmLhAmqMPRxgfuLqW9Z91" allowfullscreen></iframe>'
+                        ),
+                        "title": "Intro video",
+                        "caption": "Watch before the task",
+                        "aspect_ratio": "16:9",
+                    },
+                },
+            ],
+        },
+    )
+
+    updated_step = await service_step.update_step(
+        step_id=step.id,
+        stepInfo=update_info,
+        db=db,
+    )
+
+    expected_content = update_info.content.model_dump()
+    assert expected_content["blocks"][0]["data"]["embed_url"] == (
+        "https://kinescope.io/embed/mmmLhAmqMPRxgfuLqW9Z91"
+    )
+    assert expected_content["blocks"][0]["data"]["provider"] == "kinescope"
+    assert updated_step.content == expected_content
+    assert (await db.get(Step, step.id)).content == expected_content
+
+
+@pytest.mark.asyncio
 async def test_update_step_not_found(db):
     with pytest.raises(HTTPException) as exc:
         await service_step.update_step(

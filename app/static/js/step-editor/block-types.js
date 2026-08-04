@@ -38,6 +38,27 @@ const blockTypes = new Map([
         },
     ],
     [
+        'video',
+        {
+            label: 'Video',
+            description: 'Kinescope embed',
+            icon: 'play',
+            createData: () => ({
+                provider: 'kinescope',
+                embed_url: '',
+                title: '',
+                caption: '',
+                aspect_ratio: '16:9',
+            }),
+            summarize: (data) =>
+                data.title?.trim() ||
+                data.caption?.trim() ||
+                (data.embed_url?.trim()
+                    ? 'Kinescope video'
+                    : 'No video attached'),
+        },
+    ],
+    [
         'callout',
         {
             label: 'Callout',

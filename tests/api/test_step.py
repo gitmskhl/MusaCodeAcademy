@@ -60,6 +60,42 @@ CODE_CONTENT = {
     ],
 }
 
+VIDEO_CONTENT = {
+    "version": 1,
+    "layout": "vertical",
+    "blocks": [
+        {
+            "type": "video",
+            "data": {
+                "provider": "kinescope",
+                "embed_url": "https://kinescope.io/embed/mmmLhAmqMPRxgfuLqW9Z91",
+                "title": "Intro video",
+                "caption": "Watch before the task",
+                "aspect_ratio": "16:9",
+            },
+        },
+    ],
+}
+
+VIDEO_IFRAME_CONTENT = {
+    "version": 1,
+    "layout": "vertical",
+    "blocks": [
+        {
+            "type": "video",
+            "data": {
+                "embed_url": (
+                    '<iframe src="https://kinescope.io/embed/'
+                    'mmmLhAmqMPRxgfuLqW9Z91" allowfullscreen></iframe>'
+                ),
+                "title": "Intro video",
+                "caption": "Watch before the task",
+                "aspect_ratio": "16:9",
+            },
+        },
+    ],
+}
+
 
 async def create_lesson(db, *, section_id: int) -> Lesson:
     lesson = Lesson(
@@ -737,6 +773,31 @@ async def test_update_step_admin_updates_content_with_code_block(
 
 
 @pytest.mark.asyncio
+async def test_update_step_admin_updates_content_with_video_block(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    step = await create_step_for_course(
+        db,
+        section_factory,
+        is_published=False,
+    )
+
+    response = await client.patch(
+        f"/api/steps/{step.id}/admin",
+        headers=admin_headers,
+        json={"content": VIDEO_IFRAME_CONTENT},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["content"] == VIDEO_CONTENT
+    await db.refresh(step)
+    assert step.content == VIDEO_CONTENT
+
+
+@pytest.mark.asyncio
 async def test_update_step_admin_not_found(client, admin_headers):
     response = await client.patch(
         "/api/steps/999999/admin",
@@ -892,6 +953,41 @@ async def test_update_step_admin_requires_authentication(
                     {
                         "type": "code",
                         "data": {"language": "python", "code": ""},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "video",
+                        "data": {
+                            "provider": "youtube",
+                            "embed_url": (
+                                "https://kinescope.io/embed/"
+                                "mmmLhAmqMPRxgfuLqW9Z91"
+                            ),
+                        },
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "video",
+                        "data": {
+                            "embed_url": (
+                                "https://example.com/embed/"
+                                "mmmLhAmqMPRxgfuLqW9Z91"
+                            ),
+                        },
                     }
                 ],
             }

@@ -15,18 +15,31 @@ const notify = (change) => {
 };
 
 const normalizeBlock = (block) => {
-    if (block?.type !== 'callout') {
-        return block;
+    if (block?.type === 'callout') {
+        return {
+            ...block,
+            data: {
+                variant: block.data?.variant ?? 'info',
+                title: block.data?.title ?? '',
+                content: block.data?.content ?? '',
+            },
+        };
     }
 
-    return {
-        ...block,
-        data: {
-            variant: block.data?.variant ?? 'info',
-            title: block.data?.title ?? '',
-            content: block.data?.content ?? '',
-        },
-    };
+    if (block?.type === 'video') {
+        return {
+            ...block,
+            data: {
+                provider: block.data?.provider ?? 'kinescope',
+                embed_url: block.data?.embed_url ?? '',
+                title: block.data?.title ?? '',
+                caption: block.data?.caption ?? '',
+                aspect_ratio: block.data?.aspect_ratio ?? '16:9',
+            },
+        };
+    }
+
+    return block;
 };
 
 const normalizeContent = (content) => {

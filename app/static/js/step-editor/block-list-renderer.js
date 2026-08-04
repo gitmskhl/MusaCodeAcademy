@@ -5,6 +5,7 @@ import { renderCodeEditor } from './block-editors/code-editor.js';
 import { renderImageEditor } from './block-editors/image-editor.js';
 import { renderTextEditor } from './block-editors/text-editor.js';
 import { renderUnavailableEditor } from './block-editors/unavailable-editor.js';
+import { renderVideoEditor } from './block-editors/video-editor.js';
 import { getBlockType } from './block-types.js';
 
 const blockEditors = new Map([
@@ -12,6 +13,7 @@ const blockEditors = new Map([
     ['image', renderImageEditor],
     ['code', renderCodeEditor],
     ['callout', renderCalloutEditor],
+    ['video', renderVideoEditor],
 ]);
 
 const createEmptyState = () => {
@@ -21,7 +23,7 @@ const createEmptyState = () => {
         <div>
             <span class="block-list__empty-icon" aria-hidden="true">+</span>
             <strong>Start your document</strong>
-            <p>Add a text, image, code, or callout block below.</p>
+            <p>Add a text, image, code, video, or callout block below.</p>
         </div>
     `;
     return emptyState;
@@ -100,7 +102,10 @@ const createBlockCard = ({
 
     const shouldShowEditor =
         isEditing ||
-        (isSelected && (block.type === 'image' || block.type === 'code'));
+        (isSelected &&
+            (block.type === 'image' ||
+                block.type === 'code' ||
+                block.type === 'video'));
     if (shouldShowEditor) {
         const editor = blockEditors.get(block.type) ?? renderUnavailableEditor;
         content.appendChild(editor({
