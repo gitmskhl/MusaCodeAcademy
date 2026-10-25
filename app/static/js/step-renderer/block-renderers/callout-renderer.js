@@ -2,23 +2,23 @@ import { renderMarkdown } from './markdown.js';
 
 const calloutVariants = {
     info: {
-        label: 'Info',
+        label: 'Информация',
         icon: 'ℹ️',
     },
     tip: {
-        label: 'Tip',
+        label: 'Совет',
         icon: '💡',
     },
     important: {
-        label: 'Important',
+        label: 'Важно',
         icon: '⭐',
     },
     warning: {
-        label: 'Warning',
+        label: 'Предупреждение',
         icon: '⚠️',
     },
     error: {
-        label: 'Error',
+        label: 'Ошибка',
         icon: '❌',
     },
 };
@@ -31,7 +31,7 @@ export const renderCalloutBlock = (block) => {
     const definition = calloutVariants[variant];
     const callout = document.createElement('aside');
     callout.className = `rendered-callout rendered-callout--${variant}`;
-    callout.setAttribute('aria-label', `${definition.label} callout`);
+    callout.setAttribute('aria-label', `Заметка: ${definition.label}`);
 
     const icon = document.createElement('span');
     icon.className = 'rendered-callout__icon';
@@ -53,7 +53,7 @@ export const renderCalloutBlock = (block) => {
     } else {
         const placeholder = document.createElement('p');
         placeholder.className = 'rendered-block__placeholder';
-        placeholder.textContent = 'Click to write a callout...';
+        placeholder.textContent = 'Нажмите, чтобы написать заметку...';
         body.appendChild(placeholder);
     }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Step Editor</title>
+    <title>Редактор шага</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/step-editor.css') }}">
     <script
         type="module"
@@ -14,12 +14,12 @@
     <main class="step-editor" data-step-editor data-step-id="{{ step_id }}">
         <header class="editor-toolbar">
             <div class="editor-toolbar__start">
-                <a class="icon-button" href="/admin" data-back-button aria-label="Go back">
+                <a class="icon-button" href="/admin" data-back-button aria-label="Назад">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M15 18l-6-6 6-6"/>
                     </svg>
                 </a>
-                <h1>Step Editor</h1>
+                <h1>Редактор шага</h1>
             </div>
 
             <div class="editor-toolbar__actions">
@@ -41,18 +41,18 @@
                     Удалить задачу
                 </button>
                 <button class="button button--primary" type="button" data-save-button>
-                    Save
+                    Сохранить
                 </button>
             </div>
         </header>
 
-        <section class="editor-panel" data-editor-panel aria-label="Step content editor">
+        <section class="editor-panel" data-editor-panel aria-label="Редактор содержимого шага">
             <div class="editor-workspace">
                 <div class="editor-main">
                     <section class="editor-section editor-section--layout">
-                        <h2>Layout</h2>
+                        <h2>Макет</h2>
 
-                        <div class="layout-options" role="radiogroup" aria-label="Step layout">
+                        <div class="layout-options" role="radiogroup" aria-label="Макет шага">
                             <label class="layout-option">
                                 <input
                                     type="radio"
@@ -64,7 +64,7 @@
                                 <span class="layout-option__icon layout-option__icon--vertical" aria-hidden="true">
                                     <i></i><i></i>
                                 </span>
-                                <strong>Vertical</strong>
+                                <strong>Вертикально</strong>
                             </label>
 
                             <label class="layout-option">
@@ -77,7 +77,7 @@
                                 <span class="layout-option__icon layout-option__icon--columns" aria-hidden="true">
                                     <i></i><i></i>
                                 </span>
-                                <strong>Two columns</strong>
+                                <strong>Две колонки</strong>
                             </label>
                         </div>
                     </section>
@@ -85,8 +85,8 @@
                     <section class="editor-section editor-section--blocks">
                         <div class="editor-section__heading">
                             <div>
-                                <p class="editor-section__eyebrow">Document</p>
-                                <h2>Content</h2>
+                                <p class="editor-section__eyebrow">Материал</p>
+                                <h2>Содержимое</h2>
                             </div>
                         </div>
 
@@ -104,7 +104,7 @@
                                 <svg viewBox="0 0 24 24" aria-hidden="true">
                                     <path d="M12 5v14M5 12h14"/>
                                 </svg>
-                                Add block
+                                Добавить блок
                             </button>
                             <div
                                 class="block-menu"

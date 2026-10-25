@@ -7,6 +7,6 @@ export const renderTextBlock = (block) => {
 
     const placeholder = document.createElement('p');
     placeholder.className = 'rendered-block__placeholder';
-    placeholder.textContent = 'Click to write…';
+    placeholder.textContent = 'Нажмите, чтобы написать...';
     return placeholder;
 };

@@ -1,4 +1,5 @@
 __pycache__/
+.runner-tmp/
 .venv/
 .codex
 *codex*

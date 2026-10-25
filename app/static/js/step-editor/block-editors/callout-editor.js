@@ -1,11 +1,11 @@
 import { createMarkdownTextarea } from './text-editor.js';
 
 const calloutVariants = [
-    ['info', 'Info'],
-    ['tip', 'Tip'],
-    ['important', 'Important'],
-    ['warning', 'Warning'],
-    ['error', 'Error'],
+    ['info', 'Информация'],
+    ['tip', 'Совет'],
+    ['important', 'Важно'],
+    ['warning', 'Предупреждение'],
+    ['error', 'Ошибка'],
 ];
 
 export const renderCalloutEditor = ({ block, index, onChange }) => {
@@ -21,7 +21,7 @@ export const renderCalloutEditor = ({ block, index, onChange }) => {
 
     const variantText = document.createElement('span');
     variantText.className = 'inline-callout-editor__label';
-    variantText.textContent = 'Variant';
+    variantText.textContent = 'Тип';
 
     const variant = document.createElement('select');
     variant.className = 'inline-callout-editor__select';
@@ -45,13 +45,13 @@ export const renderCalloutEditor = ({ block, index, onChange }) => {
 
     const titleText = document.createElement('span');
     titleText.className = 'inline-callout-editor__label';
-    titleText.textContent = 'Title';
+    titleText.textContent = 'Заголовок';
 
     const title = document.createElement('input');
     title.className = 'inline-callout-editor__input';
     title.id = titleLabel.htmlFor;
     title.type = 'text';
-    title.placeholder = 'Optional title';
+    title.placeholder = 'Необязательный заголовок';
     title.value = block.data.title ?? '';
     title.addEventListener('input', () => {
         onChange({ title: title.value });
@@ -61,8 +61,8 @@ export const renderCalloutEditor = ({ block, index, onChange }) => {
     const textarea = createMarkdownTextarea({
         id: `callout-content-${index}`,
         value: block.data.content,
-        placeholder: 'Write callout content with Markdown...',
-        ariaLabel: 'Callout Markdown content',
+        placeholder: 'Напишите текст заметки в Markdown...',
+        ariaLabel: 'Markdown-содержимое заметки',
         onChange: (value) => onChange({ content: value }),
     });
 

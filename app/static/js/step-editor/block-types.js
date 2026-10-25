@@ -2,46 +2,83 @@ const blockTypes = new Map([
     [
         'text',
         {
-            label: 'Text',
-            description: 'Paragraphs and headings',
+            label: 'Текст',
+            description: 'Абзацы и заголовки',
             icon: 'T',
             createData: () => ({ text: '' }),
             summarize: (data) => {
                 const firstLine = data.text?.split(/\r?\n/, 1)[0].trim();
-                return firstLine || 'Empty text block';
+                return firstLine || 'Пустой текстовый блок';
             },
         },
     ],
     [
         'image',
         {
-            label: 'Image',
-            description: 'Uploaded image with caption',
+            label: 'Изображение',
+            description: 'Загруженное изображение с подписью',
             icon: '▧',
             createData: () => ({ file_id: null, width: 100, caption: '' }),
             summarize: (data) =>
                 data.caption?.trim() ||
-                (data.file_id != null ? 'Uploaded image' : 'No image selected'),
+                (data.file_id != null ? 'Загруженное изображение' : 'Изображение не выбрано'),
         },
     ],
     [
         'code',
         {
-            label: 'Code',
-            description: 'Formatted code snippet',
+            label: 'Код',
+            description: 'Форматированный фрагмент кода',
             icon: '</>',
             createData: () => ({ code: '', language: '' }),
             summarize: (data) => {
                 const firstLine = data.code?.split(/\r?\n/, 1)[0].trim();
-                return firstLine || 'Empty code block';
+                return firstLine || 'Пустой блок кода';
+            },
+        },
+    ],
+    [
+        'browser_python',
+        {
+            label: 'Python в браузере',
+            description: 'Python-код с запуском на клиенте',
+            icon: 'Py',
+            createData: () => ({
+                code: 'value = input("Введите значение: ")\nprint(f"Вы ввели: {value}")',
+                stdin: 'пример',
+            }),
+            summarize: (data) => {
+                const firstLine = data.code?.split(/\r?\n/, 1)[0].trim();
+                return firstLine || 'Пустой Python-блок';
+            },
+        },
+    ],
+    [
+        'console',
+        {
+            label: 'Консоль',
+            description: 'Пример ввода и вывода программы',
+            icon: '❯',
+            createData: () => ({
+                lines: [
+                    { type: 'output', text: 'Введите 1-е число' },
+                    { type: 'input', text: '65' },
+                ],
+            }),
+            summarize: (data) => {
+                const firstLine = data.lines
+                    ?.find((line) => line.text?.trim())
+                    ?.text.trim();
+                const lineCount = data.lines?.length ?? 0;
+                return firstLine || `${lineCount} строк в консоли`;
             },
         },
     ],
     [
         'video',
         {
-            label: 'Video',
-            description: 'Kinescope embed',
+            label: 'Видео',
+            description: 'Встраивание Kinescope',
             icon: 'play',
             createData: () => ({
                 provider: 'kinescope',
@@ -54,15 +91,15 @@ const blockTypes = new Map([
                 data.title?.trim() ||
                 data.caption?.trim() ||
                 (data.embed_url?.trim()
-                    ? 'Kinescope video'
-                    : 'No video attached'),
+                    ? 'Видео Kinescope'
+                    : 'Видео не добавлено'),
         },
     ],
     [
         'callout',
         {
-            label: 'Callout',
-            description: 'Highlighted Markdown note',
+            label: 'Заметка',
+            description: 'Выделенная Markdown-заметка',
             icon: '!',
             createData: () => ({
                 variant: 'info',
@@ -72,7 +109,7 @@ const blockTypes = new Map([
             summarize: (data) => {
                 const title = data.title?.trim();
                 const firstLine = data.content?.split(/\r?\n/, 1)[0].trim();
-                return title || firstLine || 'Empty callout';
+                return title || firstLine || 'Пустая заметка';
             },
         },
     ],
@@ -90,7 +127,7 @@ export const createBlock = (type) => {
     const definition = getBlockType(type);
 
     if (!definition) {
-        throw new Error(`Unsupported block type: ${type}`);
+        throw new Error(`Неподдерживаемый тип блока: ${type}`);
     }
 
     return {

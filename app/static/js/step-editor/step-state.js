@@ -39,6 +39,31 @@ const normalizeBlock = (block) => {
         };
     }
 
+    if (block?.type === 'browser_python') {
+        return {
+            ...block,
+            data: {
+                code: block.data?.code ?? '',
+                stdin: block.data?.stdin ?? '',
+            },
+        };
+    }
+
+    if (block?.type === 'console') {
+        const lines = Array.isArray(block.data?.lines)
+            ? block.data.lines
+            : [];
+        return {
+            ...block,
+            data: {
+                lines: lines.map((line) => ({
+                    type: line?.type === 'input' ? 'input' : 'output',
+                    text: line?.text ?? '',
+                })),
+            },
+        };
+    }
+
     return block;
 };
 

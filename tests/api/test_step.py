@@ -60,6 +60,38 @@ CODE_CONTENT = {
     ],
 }
 
+BROWSER_PYTHON_CONTENT = {
+    "version": 1,
+    "layout": "vertical",
+    "blocks": [
+        {
+            "type": "browser_python",
+            "data": {
+                "code": "print('Hello from browser Python')",
+                "stdin": "Musa",
+            },
+        },
+    ],
+}
+
+CONSOLE_CONTENT = {
+    "version": 1,
+    "layout": "vertical",
+    "blocks": [
+        {
+            "type": "console",
+            "data": {
+                "lines": [
+                    {"type": "output", "text": "Введите 1-е число"},
+                    {"type": "input", "text": "65"},
+                    {"type": "output", "text": "Введите 2-е число"},
+                    {"type": "input", "text": "12"},
+                ],
+            },
+        },
+    ],
+}
+
 VIDEO_CONTENT = {
     "version": 1,
     "layout": "vertical",
@@ -773,6 +805,57 @@ async def test_update_step_admin_updates_content_with_code_block(
 
 
 @pytest.mark.asyncio
+async def test_update_step_admin_updates_content_with_browser_python_block(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    step = await create_step_for_course(
+        db,
+        section_factory,
+        is_published=False,
+    )
+
+    response = await client.patch(
+        f"/api/steps/{step.id}/admin",
+        headers=admin_headers,
+        json={"content": BROWSER_PYTHON_CONTENT},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["content"] == BROWSER_PYTHON_CONTENT
+    await db.refresh(step)
+    assert step.content == BROWSER_PYTHON_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_update_step_admin_updates_content_with_console_block(
+    client,
+    admin_headers,
+    section_factory,
+    db,
+):
+    step = await create_step_for_course(
+        db,
+        section_factory,
+        is_published=False,
+    )
+
+    response = await client.patch(
+        f"/api/steps/{step.id}/admin",
+        headers=admin_headers,
+        json={"content": CONSOLE_CONTENT},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["content"] == CONSOLE_CONTENT
+
+    await db.refresh(step)
+    assert step.content == CONSOLE_CONTENT
+
+
+@pytest.mark.asyncio
 async def test_update_step_admin_updates_content_with_video_block(
     client,
     admin_headers,
@@ -878,6 +961,22 @@ async def test_update_step_admin_requires_authentication(
                     {
                         "type": "image",
                         "data": {"width": 100},
+                    }
+                ],
+            }
+        },
+        {
+            "content": {
+                "version": 1,
+                "layout": "vertical",
+                "blocks": [
+                    {
+                        "type": "console",
+                        "data": {
+                            "lines": [
+                                {"type": "prompt", "text": "65"},
+                            ],
+                        },
                     }
                 ],
             }

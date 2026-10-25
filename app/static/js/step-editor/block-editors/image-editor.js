@@ -33,7 +33,7 @@ const addResizeControls = ({ figure, block, onChange }) => {
         figure.style.width = `${nextWidth}%`;
         onChange({ width: nextWidth });
         frame.querySelectorAll('[data-image-resize-handle]').forEach((handle) => {
-            handle.setAttribute('aria-label', `Resize image, currently ${nextWidth}%`);
+            handle.setAttribute('aria-label', `Изменить размер изображения, сейчас ${nextWidth}%`);
         });
     };
 
@@ -45,9 +45,9 @@ const addResizeControls = ({ figure, block, onChange }) => {
         handle.dataset.imageResizeHandle = side;
         handle.setAttribute(
             'aria-label',
-            `Resize image, currently ${getImageWidth(block.data.width)}%`
+            `Изменить размер изображения, сейчас ${getImageWidth(block.data.width)}%`
         );
-        handle.title = 'Drag to resize';
+        handle.title = 'Перетащите, чтобы изменить размер';
 
         handle.addEventListener('pointerdown', (event) => {
             if (event.pointerType === 'mouse' && event.button !== 0) {
@@ -126,9 +126,9 @@ const getErrorMessage = async (response) => {
         if (Array.isArray(data.detail)) {
             return data.detail.map((item) => item.msg).join(' ');
         }
-        return data.detail || 'Image upload failed.';
+        return data.detail || 'Не удалось загрузить изображение.';
     } catch {
-        return 'Image upload failed.';
+        return 'Не удалось загрузить изображение.';
     }
 };
 
@@ -148,8 +148,8 @@ export const renderImageEditor = ({ block, index, onChange }) => {
         caption.id = `image-caption-${index}`;
         caption.type = 'text';
         caption.value = block.data.caption;
-        caption.placeholder = 'Add a caption…';
-        caption.setAttribute('aria-label', 'Image caption');
+        caption.placeholder = 'Добавьте подпись...';
+        caption.setAttribute('aria-label', 'Подпись к изображению');
         caption.dataset.propertiesFirstField = '';
         caption.addEventListener('input', () => {
             figure.querySelector('img')?.setAttribute('alt', caption.value);
@@ -168,7 +168,7 @@ export const renderImageEditor = ({ block, index, onChange }) => {
     const uploadButton = document.createElement('button');
     uploadButton.className = 'inline-image-editor__upload';
     uploadButton.type = 'button';
-    uploadButton.textContent = 'Upload image';
+    uploadButton.textContent = 'Загрузить изображение';
     uploadButton.dataset.propertiesFirstField = '';
 
     const status = document.createElement('p');
@@ -188,7 +188,7 @@ export const renderImageEditor = ({ block, index, onChange }) => {
         formData.append('file', file);
         const token = localStorage.getItem(TOKEN_KEY);
         uploadButton.disabled = true;
-        uploadButton.textContent = 'Uploading…';
+        uploadButton.textContent = 'Загрузка...';
         status.classList.remove('is-error');
         status.textContent = '';
 
@@ -208,16 +208,16 @@ export const renderImageEditor = ({ block, index, onChange }) => {
                 uploadedFile.url ||
                 getUploadedImageUrl(uploadedFile.storage_path);
             if (uploadedFile.id == null || !imageSource) {
-                throw new Error('The upload response did not include image data.');
+                throw new Error('Ответ загрузки не содержит данные изображения.');
             }
 
             registerImageSource(uploadedFile.id, imageSource);
             onChange({ file_id: uploadedFile.id });
         } catch (error) {
             status.classList.add('is-error');
-            status.textContent = error.message || 'Image upload failed.';
+            status.textContent = error.message || 'Не удалось загрузить изображение.';
             uploadButton.disabled = false;
-            uploadButton.textContent = 'Upload image';
+            uploadButton.textContent = 'Загрузить изображение';
             fileInput.value = '';
         }
     });

@@ -106,7 +106,7 @@ export const createCodeEditorView = ({
         EditorState.readOnly.of(!nextEditable),
         EditorView.editable.of(nextEditable),
         EditorView.contentAttributes.of({
-            'aria-label': 'Code',
+            'aria-label': 'Код',
             'aria-readonly': String(!nextEditable),
             spellcheck: 'false',
         }),
@@ -117,7 +117,7 @@ export const createCodeEditorView = ({
         extensions: [
             basicSetup,
             keymap.of([indentWithTab, ...desktopSelectionKeymap]),
-            placeholder('Write or paste code…'),
+            placeholder('Напишите или вставьте код...'),
             languageConfig.of(getLanguageExtension(language)),
             editableConfig.of(editableExtensions(editable)),
             lightTheme,

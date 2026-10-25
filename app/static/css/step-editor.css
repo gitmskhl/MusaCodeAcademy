@@ -1646,6 +1646,121 @@ body {
     display: grid;
 }
 
+.inline-console-editor {
+    display: grid;
+    gap: 12px;
+}
+
+.inline-console-editor__title {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.inline-console-editor__rows {
+    display: grid;
+    gap: 8px;
+}
+
+.inline-console-editor__row {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.34fr) minmax(0, 1fr) repeat(3, 32px);
+    gap: 7px;
+    align-items: center;
+}
+
+.inline-console-editor__select,
+.inline-console-editor__input {
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid #d9dade;
+    border-radius: 8px;
+    color: var(--text);
+    background: #fcfcfd;
+    font-size: 13px;
+}
+
+.inline-console-editor__select {
+    padding: 7px 9px;
+}
+
+.inline-console-editor__input {
+    min-width: 0;
+    padding: 7px 10px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+.inline-console-editor__input::placeholder {
+    color: #a3a6ad;
+}
+
+.inline-console-editor__select:focus,
+.inline-console-editor__input:focus {
+    border-color: #8b84e8;
+    outline: 0;
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(99, 91, 219, 0.09);
+}
+
+.inline-console-editor__icon-button {
+    display: inline-grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 1px solid #d9dade;
+    border-radius: 7px;
+    color: var(--muted);
+    background: var(--surface);
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.inline-console-editor__icon-button:hover:not(:disabled),
+.inline-console-editor__icon-button:focus-visible:not(:disabled) {
+    border-color: #b9b4ee;
+    color: var(--primary);
+    background: #faf9ff;
+}
+
+.inline-console-editor__icon-button:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.inline-console-editor__delete:hover,
+.inline-console-editor__delete:focus-visible {
+    border-color: #f4c7c3;
+    color: var(--danger);
+    background: var(--danger-soft);
+}
+
+.inline-console-editor__add {
+    justify-self: start;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    color: var(--text);
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.inline-console-editor__add:hover,
+.inline-console-editor__add:focus-visible {
+    border-color: #a8a3e8;
+    color: var(--primary);
+    background: #faf9ff;
+}
+
+.inline-console-editor__empty {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
 .image-resize-frame {
     position: relative;
 }
@@ -1780,5 +1895,14 @@ body {
 
     .inline-video-editor__fields {
         grid-template-columns: 1fr;
+    }
+
+    .inline-console-editor__row {
+        grid-template-columns: repeat(3, 32px) minmax(0, 1fr);
+    }
+
+    .inline-console-editor__select,
+    .inline-console-editor__input {
+        grid-column: 1 / -1;
     }
 }

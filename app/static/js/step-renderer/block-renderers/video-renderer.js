@@ -60,10 +60,10 @@ const createPlaceholder = () => {
 
     const icon = document.createElement('span');
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = 'video';
+    icon.textContent = 'видео';
 
     const message = document.createElement('p');
-    message.textContent = 'No video attached';
+    message.textContent = 'Видео не добавлено';
 
     placeholder.append(icon, message);
     return placeholder;
@@ -88,7 +88,7 @@ export const renderVideoBlock = (block) => {
 
     const iframe = document.createElement('iframe');
     iframe.src = embedUrl;
-    iframe.title = block.data.title?.trim() || 'Kinescope video';
+    iframe.title = block.data.title?.trim() || 'Видео Kinescope';
     iframe.allow =
         'autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write; screen-wake-lock';
     iframe.allowFullscreen = true;

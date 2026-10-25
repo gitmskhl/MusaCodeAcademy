@@ -2,7 +2,7 @@ import { createCodeEditorView } from './code-editor-view.js';
 
 const blockEditors = new WeakMap();
 
-const createBlockEditor = (block, onChange) => {
+const createBlockEditor = (block, onChange, language) => {
     const element = document.createElement('div');
     element.className = 'code-editor';
     element.tabIndex = -1;
@@ -10,7 +10,7 @@ const createBlockEditor = (block, onChange) => {
     const controller = createCodeEditorView({
         parent: element,
         document: block.data.code ?? '',
-        language: block.data.language ?? '',
+        language: language ?? block.data.language ?? '',
         onChange,
     });
     element.addEventListener('focus', () => controller.focus());
@@ -21,13 +21,14 @@ const createBlockEditor = (block, onChange) => {
 export const mountCodeEditor = ({
     block,
     index,
+    language = null,
     parent,
     editable,
     onChange,
 }) => {
     let blockEditor = blockEditors.get(block);
     if (!blockEditor) {
-        blockEditor = createBlockEditor(block, onChange);
+        blockEditor = createBlockEditor(block, onChange, language);
         blockEditors.set(block, blockEditor);
     }
 
@@ -38,7 +39,7 @@ export const mountCodeEditor = ({
         top: scroller.scrollTop,
     };
     controller.setOnChange(onChange);
-    controller.setLanguage(block.data.language ?? '');
+    controller.setLanguage(language ?? block.data.language ?? '');
     controller.setEditable(editable);
 
     element.id = `code-block-${index}`;

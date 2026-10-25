@@ -86,6 +86,20 @@ class CodeBlockData(BaseModel):
     code: str = Field(min_length=1)
 
 
+class BrowserPythonBlockData(BaseModel):
+    code: str = Field(min_length=1)
+    stdin: str = ""
+
+
+class ConsoleLineData(BaseModel):
+    type: Literal["output", "input"]
+    text: str
+
+
+class ConsoleBlockData(BaseModel):
+    lines: list[ConsoleLineData] = Field(default_factory=list)
+
+
 class CalloutData(BaseModel):
     variant: Literal["info", "tip", "important", "warning", "error"]
     title: str | None
@@ -123,6 +137,16 @@ class CodeBlock(BaseModel):
     data: CodeBlockData
 
 
+class BrowserPythonBlock(BaseModel):
+    type: Literal["browser_python"]
+    data: BrowserPythonBlockData
+
+
+class ConsoleBlock(BaseModel):
+    type: Literal["console"]
+    data: ConsoleBlockData
+
+
 class CalloutBlock(BaseModel):
     type: Literal["callout"]
     data: CalloutData
@@ -134,6 +158,14 @@ class VideoBlock(BaseModel):
 
 
 StepBlock = Annotated[
-    Union[TextBlock, ImageBlock, CodeBlock, CalloutBlock, VideoBlock],
+    Union[
+        TextBlock,
+        ImageBlock,
+        CodeBlock,
+        BrowserPythonBlock,
+        ConsoleBlock,
+        CalloutBlock,
+        VideoBlock,
+    ],
     Field(discriminator="type")
 ]

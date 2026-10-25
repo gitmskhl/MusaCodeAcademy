@@ -12,13 +12,13 @@ export const renderCodeEditor = ({ block, index, onChange }) => {
 
     const languageText = document.createElement('span');
     languageText.className = 'property-field__label';
-    languageText.textContent = 'Language';
+    languageText.textContent = 'Язык';
 
     const language = document.createElement('input');
     language.className = 'property-field__input property-field__input--language';
     language.id = languageLabel.htmlFor;
     language.type = 'text';
-    language.placeholder = 'e.g. Python';
+    language.placeholder = 'например, Python';
     language.value = block.data.language ?? '';
     languageLabel.append(languageText, language);
 
@@ -27,7 +27,7 @@ export const renderCodeEditor = ({ block, index, onChange }) => {
 
     const codeText = document.createElement('span');
     codeText.className = 'property-field__label';
-    codeText.textContent = 'Code';
+    codeText.textContent = 'Код';
 
     codeField.appendChild(codeText);
     const codeEditor = mountCodeEditor({

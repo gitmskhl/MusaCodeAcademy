@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:17
     container_name: mca-postgres
-    restart: no
+    restart: "no"
 
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -15,8 +15,82 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    container_name: mca-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    image: musacodeacademy-app
+    env_file:
+      - .env
+    environment:
+      SQLALCHEMY_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/openapi.json', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  sandbox:
+    build: ./worker/sandbox
+    image: musa-python-sandbox
+    command: ["python3", "-c", "pass"]
+    network_mode: none
+
+  worker:
+    build: .
+    image: musacodeacademy-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SQLALCHEMY_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+      TMPDIR: ${PWD:?Run Compose from the project directory}/.runner-tmp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Docker on the host must see the same absolute path as the worker.
+      - ${PWD}/.runner-tmp:${PWD}/.runner-tmp
+    depends_on:
+      app:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      sandbox:
+        condition: service_completed_successfully
+    command: ["python", "-m", "worker.main"]
+
 volumes:
   postgres_data:
-
-
-

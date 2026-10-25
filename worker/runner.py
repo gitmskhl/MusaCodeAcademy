@@ -61,6 +61,10 @@ async def run_code(source_code: str, test_input: str, timeout: float) -> RunResu
             test_input,
             encoding="utf-8"
         )
+        # The sandbox runs as a different user and needs read access.
+        temp_path.chmod(0o755)
+        source_file.chmod(0o644)
+        input_file.chmod(0o644)
         container = None
         start = time.perf_counter()
         try:

@@ -217,7 +217,7 @@ const loadTaskButton = async () => {
 
     if (!response.ok) {
         throw new Error(
-            await getResponseErrorMessage(response, 'Failed to load task')
+            await getResponseErrorMessage(response, 'Не удалось загрузить задачу')
         );
     }
 };
@@ -241,7 +241,7 @@ const loadImageSources = async (content, token) => {
     });
     if (!response.ok) {
         throw new Error(
-            await getResponseErrorMessage(response, 'Failed to load images')
+            await getResponseErrorMessage(response, 'Не удалось загрузить изображения')
         );
     }
 
@@ -252,12 +252,12 @@ const loadImageSources = async (content, token) => {
 const loadStep = async () => {
     const stepId = Number(elements.root.dataset.stepId);
     if (!Number.isInteger(stepId) || stepId <= 0) {
-        throw new Error('Invalid step ID.');
+        throw new Error('Некорректный ID шага.');
     }
 
     const token = getToken();
     if (!token) {
-        throw new Error('Sign in again to load the step.');
+        throw new Error('Войдите снова, чтобы загрузить шаг.');
     }
 
     const response = await fetch(
@@ -266,7 +266,7 @@ const loadStep = async () => {
     );
     if (!response.ok) {
         throw new Error(
-            await getResponseErrorMessage(response, 'Failed to load step')
+            await getResponseErrorMessage(response, 'Не удалось загрузить шаг')
         );
     }
 
@@ -289,19 +289,19 @@ const loadStep = async () => {
 const saveStep = async () => {
     const stepId = Number(elements.root.dataset.stepId);
     if (!Number.isInteger(stepId) || stepId <= 0) {
-        setSaveStatus('Invalid step ID.', { error: true });
+        setSaveStatus('Некорректный ID шага.', { error: true });
         return;
     }
 
     const token = getToken();
     if (!token) {
-        setSaveStatus('Sign in again to save the step.', { error: true });
+        setSaveStatus('Войдите снова, чтобы сохранить шаг.', { error: true });
         return;
     }
 
     const savedSnapshot = JSON.stringify(step);
     elements.saveButton.disabled = true;
-    elements.saveButton.textContent = 'Saving…';
+    elements.saveButton.textContent = 'Сохранение...';
     setSaveStatus('');
 
     try {
@@ -318,27 +318,27 @@ const saveStep = async () => {
         );
         if (!response.ok) {
             throw new Error(
-                await getResponseErrorMessage(response, 'Failed to save step')
+                await getResponseErrorMessage(response, 'Не удалось сохранить шаг')
             );
         }
 
         if (JSON.stringify(step) === savedSnapshot) {
-            elements.saveButton.textContent = 'Saved';
-            setSaveStatus('Changes saved.');
+            elements.saveButton.textContent = 'Сохранено';
+            setSaveStatus('Изменения сохранены.');
             saveStatusTimer = window.setTimeout(() => {
-                elements.saveButton.textContent = 'Save';
+                elements.saveButton.textContent = 'Сохранить';
                 elements.saveStatus.textContent = '';
             }, 1800);
         } else {
-            elements.saveButton.textContent = 'Save';
-            setSaveStatus('Saved. There are newer unsaved changes.');
+            elements.saveButton.textContent = 'Сохранить';
+            setSaveStatus('Сохранено. Есть новые несохраненные изменения.');
         }
     } catch (error) {
-        elements.saveButton.textContent = 'Save';
+        elements.saveButton.textContent = 'Сохранить';
         setSaveStatus(
             error instanceof Error && error.message
                 ? error.message
-                : 'Failed to save step.',
+                : 'Не удалось сохранить шаг.',
             { error: true }
         );
     } finally {
@@ -358,7 +358,7 @@ const deleteTask = async () => {
 
     const token = getToken();
     if (!token) {
-        setSaveStatus('Sign in again to delete the task.', { error: true });
+        setSaveStatus('Войдите снова, чтобы удалить задачу.', { error: true });
         return;
     }
 
@@ -377,7 +377,7 @@ const deleteTask = async () => {
         );
         if (!response.ok && response.status !== 404) {
             throw new Error(
-                await getResponseErrorMessage(response, 'Failed to delete task')
+                await getResponseErrorMessage(response, 'Не удалось удалить задачу')
             );
         }
 
@@ -392,7 +392,7 @@ const deleteTask = async () => {
         setSaveStatus(
             error instanceof Error && error.message
                 ? error.message
-                : 'Failed to delete task.',
+                : 'Не удалось удалить задачу.',
             { error: true }
         );
     } finally {
@@ -446,17 +446,20 @@ const activateBlock = (index, { focusEditor = false } = {}) => {
         return;
     }
 
-    const shouldEditText = block.type === 'text' || block.type === 'callout';
+    const shouldEditBlock =
+        block.type === 'text' ||
+        block.type === 'callout' ||
+        block.type === 'console';
     if (
         selectedBlockIndex === index &&
-        editingBlockIndex === (shouldEditText ? index : null)
+        editingBlockIndex === (shouldEditBlock ? index : null)
     ) {
         return;
     }
 
     selectedBlockIndex = index;
-    editingBlockIndex = shouldEditText ? index : null;
-    focusEditorAfterRender = focusEditor || shouldEditText;
+    editingBlockIndex = shouldEditBlock ? index : null;
+    focusEditorAfterRender = focusEditor || shouldEditBlock;
     renderBlocks();
 };
 
@@ -489,7 +492,12 @@ const deleteBlock = (index) => {
 const addNewBlock = (type) => {
     selectedBlockIndex = getBlocks().length;
     editingBlockIndex =
-        type === 'text' || type === 'callout' ? selectedBlockIndex : null;
+        type === 'text' ||
+        type === 'callout' ||
+        type === 'browser_python' ||
+        type === 'console'
+            ? selectedBlockIndex
+            : null;
     focusEditorAfterRender = true;
     addBlock(createBlock(type));
     closeBlockMenu();
@@ -763,7 +771,7 @@ const init = async () => {
     subscribeToStep(renderEditor);
     bindEvents();
     setEditorLoading(true);
-    setSaveStatus('Loading step...');
+    setSaveStatus('Загрузка шага...');
 
     try {
         await loadStep();
@@ -773,7 +781,7 @@ const init = async () => {
         setSaveStatus(
             error instanceof Error && error.message
                 ? error.message
-                : 'Failed to load step.',
+                : 'Не удалось загрузить шаг.',
             { error: true }
         );
     }

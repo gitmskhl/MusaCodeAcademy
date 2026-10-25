@@ -47,7 +47,7 @@ export const renderVideoEditor = ({ block, index, onChange }) => {
     const embedField = createFieldLabel({
         className: 'inline-video-editor__field inline-video-editor__field--embed',
         htmlFor: `video-embed-${index}`,
-        label: 'Kinescope embed',
+        label: 'Встраивание Kinescope',
     });
 
     const embedInput = document.createElement('textarea');
@@ -58,26 +58,26 @@ export const renderVideoEditor = ({ block, index, onChange }) => {
     embedInput.placeholder =
         '<iframe src="https://kinescope.io/embed/..." ...></iframe>';
     embedInput.dataset.propertiesFirstField = '';
-    embedInput.setAttribute('aria-label', 'Kinescope iframe or embed URL');
+    embedInput.setAttribute('aria-label', 'iframe Kinescope или ссылка для встраивания');
     embedField.appendChild(embedInput);
 
     const titleField = createFieldLabel({
         className: 'inline-video-editor__field',
         htmlFor: `video-title-${index}`,
-        label: 'Title',
+        label: 'Заголовок',
     });
     const titleInput = document.createElement('input');
     titleInput.className = 'inline-video-editor__input';
     titleInput.id = titleField.htmlFor;
     titleInput.type = 'text';
     titleInput.value = previewData.title;
-    titleInput.placeholder = 'Optional title';
+    titleInput.placeholder = 'Необязательный заголовок';
     titleField.appendChild(titleInput);
 
     const aspectField = createFieldLabel({
         className: 'inline-video-editor__field',
         htmlFor: `video-aspect-${index}`,
-        label: 'Aspect ratio',
+        label: 'Соотношение сторон',
     });
     const aspectSelect = document.createElement('select');
     aspectSelect.className = 'inline-video-editor__select';
@@ -94,14 +94,14 @@ export const renderVideoEditor = ({ block, index, onChange }) => {
     const captionField = createFieldLabel({
         className: 'inline-video-editor__field inline-video-editor__field--caption',
         htmlFor: `video-caption-${index}`,
-        label: 'Caption',
+        label: 'Подпись',
     });
     const captionInput = document.createElement('input');
     captionInput.className = 'inline-video-editor__input';
     captionInput.id = captionField.htmlFor;
     captionInput.type = 'text';
     captionInput.value = previewData.caption;
-    captionInput.placeholder = 'Optional caption';
+    captionInput.placeholder = 'Необязательная подпись';
     captionField.appendChild(captionInput);
 
     const status = document.createElement('p');
@@ -137,7 +137,7 @@ export const renderVideoEditor = ({ block, index, onChange }) => {
         if (!embedUrl) {
             setStatus(
                 status,
-                'Use a Kinescope iframe or https://kinescope.io/embed/... URL.',
+                'Используйте iframe Kinescope или ссылку https://kinescope.io/embed/...',
                 { error: true }
             );
             applyChange({ embed_url: '' });

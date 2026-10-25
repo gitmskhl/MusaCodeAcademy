@@ -1,7 +1,9 @@
 import { renderBlock } from '../step-renderer/block-renderer.js';
 import { renderStep } from '../step-renderer/step-renderer.js';
+import { renderBrowserPythonEditor } from './block-editors/browser-python-editor.js';
 import { renderCalloutEditor } from './block-editors/callout-editor.js';
 import { renderCodeEditor } from './block-editors/code-editor.js';
+import { renderConsoleEditor } from './block-editors/console-editor.js';
 import { renderImageEditor } from './block-editors/image-editor.js';
 import { renderTextEditor } from './block-editors/text-editor.js';
 import { renderUnavailableEditor } from './block-editors/unavailable-editor.js';
@@ -12,6 +14,8 @@ const blockEditors = new Map([
     ['text', renderTextEditor],
     ['image', renderImageEditor],
     ['code', renderCodeEditor],
+    ['browser_python', renderBrowserPythonEditor],
+    ['console', renderConsoleEditor],
     ['callout', renderCalloutEditor],
     ['video', renderVideoEditor],
 ]);
@@ -22,8 +26,8 @@ const createEmptyState = () => {
     emptyState.innerHTML = `
         <div>
             <span class="block-list__empty-icon" aria-hidden="true">+</span>
-            <strong>Start your document</strong>
-            <p>Add a text, image, code, video, or callout block below.</p>
+            <strong>Начните материал</strong>
+            <p>Добавьте текст, изображение, код, Python-блок, видео или заметку.</p>
         </div>
     `;
     return emptyState;
@@ -34,7 +38,7 @@ const createDeleteButton = (blockLabel) => {
     button.className = 'block-card__delete';
     button.type = 'button';
     button.dataset.blockAction = 'delete';
-    button.setAttribute('aria-label', `Delete ${blockLabel} block`);
+    button.setAttribute('aria-label', `Удалить блок «${blockLabel}»`);
     button.innerHTML = `
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/>
@@ -49,8 +53,8 @@ const createDragHandle = (label) => {
     dragHandle.type = 'button';
     dragHandle.draggable = true;
     dragHandle.dataset.dragHandle = '';
-    dragHandle.title = 'Drag to reorder';
-    dragHandle.setAttribute('aria-label', `Move ${label} block`);
+    dragHandle.title = 'Перетащите, чтобы изменить порядок';
+    dragHandle.setAttribute('aria-label', `Переместить блок «${label}»`);
     dragHandle.innerHTML =
         '<span></span><span></span><span></span><span></span><span></span><span></span>';
     return dragHandle;
@@ -85,7 +89,7 @@ const createBlockCard = ({
     card.className = `block-card block-card--${block.type}`;
     card.dataset.blockIndex = String(index);
     card.tabIndex = isSelected ? -1 : 0;
-    card.setAttribute('aria-label', `${label} block. ${summary}`);
+    card.setAttribute('aria-label', `Блок «${label}». ${summary}`);
     if (isSelected) {
         card.classList.add('is-selected');
         card.setAttribute('aria-current', 'true');
@@ -105,6 +109,8 @@ const createBlockCard = ({
         (isSelected &&
             (block.type === 'image' ||
                 block.type === 'code' ||
+                block.type === 'browser_python' ||
+                block.type === 'console' ||
                 block.type === 'video'));
     if (shouldShowEditor) {
         const editor = blockEditors.get(block.type) ?? renderUnavailableEditor;
