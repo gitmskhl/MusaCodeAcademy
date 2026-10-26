@@ -3,7 +3,7 @@ import { authFetch } from './course-auth.js';
 const messages = Object.freeze({
     loadingError: 'Не удалось загрузить курсы.',
     emptyDescription: 'Описание курса пока не добавлено.',
-    enrolled: 'Вы записаны',
+    enrolled: 'В обучении',
     openCourse: 'Подробнее',
     continueCourse: 'Продолжить',
     fallbackTitle: 'Курс',
@@ -16,7 +16,15 @@ const elements = {
     retry: document.querySelector('[data-courses-retry]'),
     empty: document.querySelector('[data-courses-empty]'),
     list: document.querySelector('[data-courses-list]'),
+    search: document.querySelector('[data-course-search]'),
+    filters: document.querySelectorAll('[data-course-filter]'),
+    results: document.querySelector('[data-catalog-results]'),
+    noResults: document.querySelector('[data-courses-no-results]'),
 };
+
+let allCourses = [];
+let selectedFilter = 'all';
+let coursesLoaded = false;
 
 const getCourseUrl = (course) => `/${encodeURIComponent(course.slug)}`;
 
@@ -44,10 +52,13 @@ const loadEnrollments = async () => {
 };
 
 const setLoading = () => {
+    coursesLoaded = false;
     elements.loading.hidden = false;
     elements.error.hidden = true;
     elements.empty.hidden = true;
     elements.list.replaceChildren();
+    elements.noResults.hidden = true;
+    elements.results.textContent = '';
 };
 
 const setError = (message) => {
@@ -80,7 +91,7 @@ const createMeta = (course) => {
     return meta;
 };
 
-const createCourseCard = (course) => {
+const createCourseCard = (course, index) => {
     const isEnrolled = Boolean(course.is_enrolled);
     const article = document.createElement('article');
     const header = document.createElement('div');
@@ -90,6 +101,14 @@ const createCourseCard = (course) => {
     const link = document.createElement('a');
 
     article.className = 'courses-card';
+    const visual = document.createElement('div');
+    visual.className = `courses-card__visual courses-card__visual--${index % 3}`;
+    visual.setAttribute('aria-hidden', 'true');
+    const symbol = document.createElement('span');
+    symbol.textContent = ['</>', '{ }', '[ ]'][index % 3];
+    const caption = document.createElement('span');
+    caption.textContent = 'LEARN. PRACTICE. GROW.';
+    visual.append(symbol, caption);
     article.classList.toggle('courses-card--enrolled', isEnrolled);
 
     header.className = 'courses-card__header';
@@ -117,18 +136,37 @@ const createCourseCard = (course) => {
         ? messages.continueCourse
         : messages.openCourse;
 
-    article.append(header, description, createMeta(course), link);
+    article.append(visual, header, description, createMeta(course), link);
     return article;
 };
 
 const renderCourses = (courses) => {
     const fragment = document.createDocumentFragment();
-    courses.forEach((course) => {
-        fragment.append(createCourseCard(course));
+    courses.forEach((course, index) => {
+        fragment.append(createCourseCard(course, index));
     });
     elements.list.replaceChildren(fragment);
     setContent();
 };
+
+const applyFilters = () => {
+    if (!coursesLoaded) return;
+    const query = elements.search.value.trim().toLocaleLowerCase('ru');
+    const visible = allCourses.filter((course) =>
+        (selectedFilter !== 'enrolled' || course.is_enrolled) &&
+        [course.title, course.short_description, course.description].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(query)
+    );
+    renderCourses(visible);
+    elements.noResults.hidden = visible.length > 0;
+    elements.results.textContent = `Найдено курсов: ${visible.length}`;
+};
+
+elements.search.addEventListener('input', applyFilters);
+elements.filters.forEach((button) => button.addEventListener('click', () => {
+    selectedFilter = button.dataset.courseFilter;
+    elements.filters.forEach((filter) => filter.setAttribute('aria-pressed', String(filter === button)));
+    applyFilters();
+}));
 
 const loadCourses = async () => {
     setLoading();
@@ -150,12 +188,14 @@ const loadCourses = async () => {
                 }))
             : [];
 
+        allCourses = publishedCourses;
+        coursesLoaded = true;
         if (publishedCourses.length === 0) {
             setEmpty();
             return;
         }
 
-        renderCourses(publishedCourses);
+        applyFilters();
     } catch (error) {
         if (error instanceof Error && error.message === 'authentication-required') {
             return;

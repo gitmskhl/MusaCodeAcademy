@@ -27,6 +27,13 @@ const elements = {
     empty: document.querySelector('[data-dashboard-empty]'),
     courseList: document.querySelector('[data-course-list]'),
     catalog: document.querySelector('[data-dashboard-catalog]'),
+    overview: document.querySelector('[data-dashboard-overview]'),
+    listHeading: document.querySelector('[data-dashboard-list-heading]'),
+    otherCourseCount: document.querySelector('[data-other-course-count]'),
+    activeCount: document.querySelector('[data-active-course-count]'),
+    completedSteps: document.querySelector('[data-completed-step-count]'),
+    completedCourses: document.querySelector('[data-completed-course-count]'),
+    currentUnenroll: document.querySelector('[data-current-course-unenroll]'),
 };
 
 const ENROLLED_COURSES_KEY = 'musa_code_academy_enrolled_courses';
@@ -43,7 +50,8 @@ const loadGreeting = async () => {
         const displayName = getUserDisplayName(await requireCurrentUser());
         if (displayName && elements.greetingTitle) {
             const name = displayName.split(' ')[0] || displayName
-            elements.greetingTitle.textContent = `Добро пожаловать, ${name}! 👋`;
+            elements.greetingTitle.textContent = `С возвращением, ${name}!`;
+            document.querySelector('[data-app-profile-button]').textContent = name.charAt(0).toUpperCase();
         }
     } catch (error) {
         if (error instanceof Error && error.message === 'authentication-required') {
@@ -143,8 +151,8 @@ const applyCoursesProgress = (courses, progressByCourseId) =>
             totalLessonCount: details.totalLessonCount,
             lastStepId: details.lastStepId,
             lastVisitedAt: details.lastVisitedAt,
-            action: details.percent > 0 ? messages.continue : messages.start,
-            href: getCourseContinueUrl({
+            action: details.percent >= 100 ? 'Повторить' : details.percent > 0 ? messages.continue : messages.start,
+            href: details.percent >= 100 ? getCourseUrl(course) : getCourseContinueUrl({
                 ...course,
                 lastStepId: details.lastStepId,
             }),
@@ -156,6 +164,8 @@ const setLoading = () => {
     elements.error.hidden = true;
     elements.empty.hidden = true;
     elements.currentCourse.hidden = true;
+    elements.overview.hidden = true;
+    elements.listHeading.hidden = true;
     elements.catalog.hidden = true;
     elements.courseList.replaceChildren();
 };
@@ -164,6 +174,8 @@ const setError = (message) => {
     elements.loading.hidden = true;
     elements.empty.hidden = true;
     elements.currentCourse.hidden = true;
+    elements.overview.hidden = true;
+    elements.listHeading.hidden = true;
     elements.catalog.hidden = true;
     elements.error.hidden = false;
     elements.errorMessage.textContent = message;
@@ -175,6 +187,8 @@ const setEmpty = () => {
     elements.error.hidden = true;
     elements.empty.hidden = false;
     elements.currentCourse.hidden = true;
+    elements.overview.hidden = true;
+    elements.listHeading.hidden = true;
     elements.catalog.hidden = true;
     elements.courseList.replaceChildren();
 };
@@ -184,12 +198,17 @@ const setContent = () => {
     elements.error.hidden = true;
     elements.empty.hidden = true;
     elements.catalog.hidden = false;
+    elements.overview.hidden = false;
 };
 
 const createCourseCard = (course) => {
     const article = document.createElement('article');
     const header = document.createElement('div');
     const title = document.createElement('h3');
+    const icon = document.createElement('span');
+    icon.className = 'student-course-icon';
+    icon.textContent = '</>';
+    icon.setAttribute('aria-hidden', 'true');
     const description = document.createElement('p');
     const progress = document.createElement('div');
     const meta = document.createElement('div');
@@ -240,7 +259,7 @@ const createCourseCard = (course) => {
     unenroll.setAttribute('aria-label', `Отписаться от курса «${course.title}»`);
     unenroll.addEventListener('click', () => confirmUnenrollment(course, loadDashboard));
     actions.append(link, unenroll);
-    article.append(header, progress, actions);
+    article.append(icon, header, progress, actions);
     return article;
 };
 
@@ -252,16 +271,17 @@ const renderCurrentCourse = (course) => {
         `Прогресс курса ${course.progress} процентов`
     );
     elements.currentCourseProgressBar.style.width = `${course.progress}%`;
-    elements.currentCourseStatus.textContent =
-        course.progress > 0 ? `${course.progress}% завершено` : messages.notStarted;
+    elements.currentCourseProgress.setAttribute('aria-valuenow', String(course.progress));
     elements.currentCourseStatus.textContent =
         `${course.completedStepCount ?? 0} / ` +
         `${course.totalStepCount ?? 0} шагов завершено`;
     elements.currentCourseDescription.textContent = course.description;
     elements.currentCourseLink.href = course.href;
-    elements.currentCourseLink.textContent = course.action === messages.start
-        ? 'Начать обучение'
-        : 'Продолжить обучение';
+    elements.currentCourseLink.textContent = course.progress >= 100
+        ? 'Повторить курс ↗'
+        : course.action === messages.start ? 'Начать обучение ↗' : 'Продолжить обучение ↗';
+    elements.currentUnenroll.setAttribute('aria-label', `Отписаться от курса «${course.title}»`);
+    elements.currentUnenroll.onclick = () => confirmUnenrollment(course, loadDashboard);
     elements.currentCourse.hidden = false;
 };
 
@@ -272,6 +292,8 @@ const getVisitedAtTime = (course) => {
 
 const getCurrentCourse = (courses) =>
     [...courses].sort((first, second) => {
+        const completionDiff = Number(first.progress >= 100) - Number(second.progress >= 100);
+        if (completionDiff) return completionDiff;
         const visitedDiff = getVisitedAtTime(second) - getVisitedAtTime(first);
         if (visitedDiff !== 0) {
             return visitedDiff;
@@ -280,13 +302,20 @@ const getCurrentCourse = (courses) =>
     })[0] ?? courses[0];
 
 const renderCourses = (courses) => {
+    const current = getCurrentCourse(courses);
+    const others = courses.filter((course) => course.id !== current.id);
     const fragment = document.createDocumentFragment();
-    courses.forEach((course) => {
+    others.forEach((course) => {
         fragment.append(createCourseCard(course));
     });
     elements.courseList.replaceChildren(fragment);
-    renderCurrentCourse(getCurrentCourse(courses));
+    renderCurrentCourse(current);
+    elements.activeCount.textContent = courses.filter((course) => course.progress < 100).length;
+    elements.completedCourses.textContent = courses.filter((course) => course.progress >= 100).length;
+    elements.completedSteps.textContent = courses.reduce((total, course) => total + (course.completedStepCount || 0), 0);
+    elements.otherCourseCount.textContent = `Курсов: ${others.length}`;
     setContent();
+    elements.listHeading.hidden = others.length === 0;
 };
 
 const loadDashboard = async () => {

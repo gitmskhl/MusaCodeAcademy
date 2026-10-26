@@ -3,59 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course</title>
+    <title>Моё обучение | Musa Code Academy</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/course-unenroll.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/course.css') }}">
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
     <script type="module" src="{{ url_for('static', path='js/student_course_sections.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/student.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
+    <meta name="theme-color" content="#f7f8f2">
 </head>
-<body>
-    <header class="app-header">
-        <div class="app-header__inner">
-            <a class="app-header__brand" href="/dashboard" aria-label="Musa Code Academy">
-                <span class="app-header__mark" aria-hidden="true">M</span>
-                <span>Musa Code Academy</span>
-            </a>
+<body class="student-app">
+    {% include "components/app_header.html" %}
 
-            <div class="app-header__profile" data-app-profile>
-                <button
-                    class="app-header__profile-button"
-                    type="button"
-                    aria-label="Открыть меню профиля"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    data-app-profile-button
-                >М</button>
-                <div class="app-header__menu" role="menu">
-                    <a class="app-header__menu-item" href="#" role="menuitem">Профиль</a>
-                    <a class="app-header__menu-item" href="#" role="menuitem">Настройки</a>
-                    <button class="app-header__menu-item" type="button" role="menuitem" data-app-logout>Выйти</button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main
+    <main id="app-main"
         class="course-page"
         data-course-page
         data-course-slug="{{ course_slug | default('') }}"
     >
         <header class="course-topbar" aria-label="Навигация курса">
-            <a class="course-back" href="/courses" aria-label="Все курсы">
+            <a class="course-back" href="/dashboard" aria-label="Моё обучение">
                 <span aria-hidden="true">&larr;</span>
-                Все курсы
+                Моё обучение
             </a>
         </header>
 
         <div class="course-state" data-course-loading role="status">
-            Loading course...
+            Загружаем курс…
         </div>
 
         <div class="course-state course-state--error" data-course-error role="alert" hidden>
-            <h1>Course unavailable</h1>
-            <p data-course-error-message>Could not load this course.</p>
-            <button type="button" data-course-retry>Try again</button>
+            <h1>Курс недоступен</h1>
+            <p data-course-error-message>Не удалось загрузить курс.</p>
+            <button type="button" data-course-retry>Попробовать снова</button>
         </div>
 
         <div data-course-content hidden>
@@ -66,14 +46,16 @@
                     <span class="course-progress-summary__track">
                         <span data-course-progress-bar></span>
                     </span>
-                    <strong data-course-progress-percent>43%</strong>
-                    <span data-course-progress-count>15 из 36 уроков</span>
+                    <strong data-course-progress-percent>0%</strong>
+                    <span data-course-progress-count>Загружаем прогресс…</span>
                 </div>
                 <button class="course-unenroll-button" type="button" data-course-unenroll hidden>Отписаться от курса</button>
             </section>
 
+            <div class="student-section-heading"><h2>Программа курса</h2><span>Шаг за шагом, в твоём темпе</span></div>
             <section class="course-sections" aria-label="Разделы курса" data-sections></section>
         </div>
     </main>
+    {% include "components/app_footer.html" %}
 </body>
 </html>

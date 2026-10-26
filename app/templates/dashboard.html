@@ -3,141 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель студента | Musa Code Academy</title>
+    <meta name="theme-color" content="#f7f8f2">
+    <title>Моё обучение | Musa Code Academy</title>
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/course-unenroll.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/student.css') }}">
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
-    <script type="module" src="{{ url_for('static', path='js/dashboard.js') }}?v=4"></script>
+    <script type="module" src="{{ url_for('static', path='js/dashboard.js') }}"></script>
 </head>
-<body>
-    <header class="app-header">
-        <div class="app-header__inner">
-            <a class="app-header__brand" href="/dashboard" aria-label="Musa Code Academy">
-                <span class="app-header__mark" aria-hidden="true">M</span>
-                <span>Musa Code Academy</span>
-            </a>
-
-            <div class="app-header__profile" data-app-profile>
-                <button
-                    class="app-header__profile-button"
-                    type="button"
-                    aria-label="Открыть меню профиля"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    data-app-profile-button
-                >М</button>
-                <div class="app-header__menu" role="menu">
-                    <a class="app-header__menu-item" href="#" role="menuitem">Профиль</a>
-                    <a class="app-header__menu-item" href="#" role="menuitem">Настройки</a>
-                    <button class="app-header__menu-item" type="button" role="menuitem" data-app-logout>Выйти</button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="dashboard">
+<body class="student-app">
+    {% include "components/app_header.html" %}
+    <main class="dashboard" id="app-main">
         <section class="dashboard-greeting" aria-labelledby="dashboard-greeting-title">
-            <h1 id="dashboard-greeting-title" data-dashboard-greeting-title>Добро пожаловать! 👋</h1>
-            <p>Рады видеть вас снова в Musa Code Academy.</p>
-            <div class="dashboard-greeting__actions">
-                <a class="course-card__button dashboard-greeting__browse" href="/courses" data-dashboard-catalog hidden>
-                    Все курсы
-                </a>
-            </div>
+            <div><p class="student-eyebrow">ТВОЁ ПРОСТРАНСТВО ДЛЯ РОСТА</p><h1 id="dashboard-greeting-title" data-dashboard-greeting-title>С возвращением!</h1><p>Следующий шаг к большим идеям — прямо здесь.</p></div>
+            <a class="student-secondary-link" href="/courses" data-dashboard-catalog hidden>Найти новый курс <span aria-hidden="true">↗</span></a>
         </section>
 
-        <section class="learning-hero" aria-labelledby="current-course-title" data-current-course hidden>
-            <div class="learning-hero__content">
-                <div class="current-course" aria-label="Текущий курс">
-                    <div>
-                        <p class="current-course__label">Текущий курс</p>
-                        <h2 id="current-course-title" data-current-course-title></h2>
-                    </div>
-                    <span class="current-course__percent" data-current-course-percent>0%</span>
+        <div class="dashboard-overview" data-dashboard-overview hidden>
+            <section class="learning-hero" aria-labelledby="current-course-title" data-current-course hidden>
+                <div class="learning-hero__content">
+                    <p class="current-course__label"><span class="student-status-dot" aria-hidden="true"></span> ТВОЙ СЛЕДУЮЩИЙ ШАГ</p>
+                    <div class="current-course"><h2 id="current-course-title" data-current-course-title></h2><span class="current-course__percent" data-current-course-percent>0%</span></div>
+                    <p class="current-course__description" data-current-course-description></p>
+                    <div class="progress" data-current-course-progress role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Прогресс курса"><span class="progress__bar"><span class="progress__value" data-current-course-progress-bar></span></span></div>
+                    <p class="current-course__status" data-current-course-status></p>
+                    <div class="current-course__actions"><a class="primary-action" href="#" data-current-course-link>Начать обучение</a><button class="course-unenroll-button" type="button" data-current-course-unenroll>Отписаться</button></div>
                 </div>
-
-                <div class="progress" data-current-course-progress aria-label="Прогресс курса 0 процентов">
-                    <span class="progress__bar">
-                        <span class="progress__value" data-current-course-progress-bar style="width: 0%;"></span>
-                    </span>
-                </div>
-
-                <dl class="lesson-summary">
-                    <div>
-                        <dt>Статус</dt>
-                        <dd data-current-course-status></dd>
-                    </div>
-                    <div>
-                        <dt>Курс</dt>
-                        <dd data-current-course-description></dd>
-                    </div>
-                </dl>
-
-                <a class="primary-action" href="#" data-current-course-link>Начать обучение</a>
-            </div>
-        </section>
+                <span class="learning-hero__decoration" aria-hidden="true">&lt;/&gt;</span>
+            </section>
+            <aside class="learning-summary" aria-labelledby="learning-summary-title">
+                <div class="learning-summary__heading"><h2 id="learning-summary-title">Твой прогресс</h2><span aria-hidden="true">↗</span></div>
+                <dl><div><dt>Курсов в обучении</dt><dd data-active-course-count>0</dd></div><div><dt>Шагов пройдено</dt><dd data-completed-step-count>0</dd></div><div><dt>Курсов завершено</dt><dd data-completed-course-count>0</dd></div></dl>
+                <p><span aria-hidden="true">✳</span> Каждый шаг имеет значение.</p>
+            </aside>
+        </div>
 
         <section class="dashboard-section" aria-labelledby="courses-title">
-            <h2 class="visually-hidden" id="courses-title">Курсы</h2>
-
-            <div class="dashboard-state" data-dashboard-loading role="status">
-                Загружаем ваши курсы...
-            </div>
-
-            <div class="dashboard-state dashboard-state--error" data-dashboard-error role="alert" hidden>
-                <p data-dashboard-error-message>Не удалось загрузить курсы.</p>
-                <button type="button" data-dashboard-retry>Повторить</button>
-            </div>
-
+            <div class="student-section-heading" data-dashboard-list-heading hidden><h2 id="courses-title">Другие твои курсы</h2><span data-other-course-count></span></div>
+            <div class="dashboard-state" data-dashboard-loading role="status">Загружаем твои курсы…</div>
+            <div class="dashboard-state dashboard-state--error" data-dashboard-error role="alert" hidden><p data-dashboard-error-message>Не удалось загрузить курсы.</p><button type="button" data-dashboard-retry>Попробовать снова</button></div>
             <div class="dashboard-state dashboard-state--empty" data-dashboard-empty hidden>
-                <div class="empty-state__icon" aria-hidden="true">📚</div>
-                <div class="empty-state__content">
-                    <p class="empty-state__title">У вас пока нет активных курсов.</p>
-                    <p class="empty-state__text">Выберите первый курс и начните учиться уже сегодня.</p>
-                </div>
-                <a class="empty-state__browse" href="/courses">
-                    <span aria-hidden="true">📖</span>
-                    <span>Выбрать курс</span>
-                </a>
-
-                <section class="journey" aria-labelledby="journey-title">
-                    <h3 id="journey-title">Ваш путь</h3>
-                    <ol class="journey__steps">
-                        <li class="journey__step">
-                            <span class="journey__number" aria-hidden="true">1</span>
-                            <div>
-                                <h4>Выберите курс</h4>
-                                <p>Найдите курс, который вам интересен.</p>
-                            </div>
-                        </li>
-                        <li class="journey__step">
-                            <span class="journey__number" aria-hidden="true">2</span>
-                            <div>
-                                <h4>Изучайте уроки</h4>
-                                <p>Двигайтесь шаг за шагом.</p>
-                            </div>
-                        </li>
-                        <li class="journey__step">
-                            <span class="journey__number" aria-hidden="true">3</span>
-                            <div>
-                                <h4>Создайте проект</h4>
-                                <p>Закрепите знания на практике.</p>
-                            </div>
-                        </li>
-                        <li class="journey__step">
-                            <span class="journey__number" aria-hidden="true">4</span>
-                            <div>
-                                <h4>Подготовьтесь к первым собеседованиям</h4>
-                                <p>Создайте портфолио и будьте готовы к поиску первой работы.</p>
-                            </div>
-                        </li>
-                    </ol>
-                </section>
+                <span class="empty-state__icon" aria-hidden="true">&lt;/&gt;</span>
+                <p class="empty-state__title">Большие идеи начинаются с первого урока.</p>
+                <p class="empty-state__text">Выбери то, что интересно. Мы поможем разобраться с остальным.</p>
+                <a class="empty-state__browse" href="/courses">Выбрать первый курс <span aria-hidden="true">↗</span></a>
+                <ol class="journey__steps"><li><span>01</span><div><h3>Найди свой курс</h3><p>Начни с темы, которая вызывает любопытство.</p></div></li><li><span>02</span><div><h3>Пройди первый урок</h3><p>Разбирайся в новом шаг за шагом.</p></div></li><li><span>03</span><div><h3>Попробуй на практике</h3><p>Напиши код и проверь свою первую идею.</p></div></li></ol>
             </div>
-
             <div class="course-grid" data-course-list></div>
         </section>
+        <div class="learning-note"><span aria-hidden="true">✦</span><p>Не обязательно знать всё. Достаточно сегодня узнать чуть больше.</p><a href="/courses">К новым открытиям <span aria-hidden="true">↗</span></a></div>
     </main>
+    {% include "components/app_footer.html" %}
 </body>
 </html>

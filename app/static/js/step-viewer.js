@@ -13,16 +13,16 @@ const locales = Object.freeze({
         documentTitle: 'Материал урока',
         stepDocumentTitle: '{title} — Материал урока',
         backToLesson: '← К списку уроков',
-        stepTitle: 'Название шага',
-        progress: '{current} / {total}',
+        stepTitle: 'Загружаем урок…',
+        progress: 'Шаг {current} из {total}',
         contentLoading: 'Загружаем материал…',
         contentEmpty: 'В этом шаге пока нет материалов.',
         contentLoadError: 'Не удалось загрузить материал шага.',
         accessDeniedTitle: 'Доступ закрыт',
-        accessDeniedMessage: 'Вы не записаны на этот курс. Запишитесь на курс, чтобы открыть материалы урока.',
+        accessDeniedMessage: 'Запишись на курс, чтобы открыть материалы урока.',
         navigationLabel: 'Навигация по шагам',
-        previousStep: 'Предыдущий',
-        nextStep: 'Следующий',
+        previousStep: '← Предыдущий шаг',
+        nextStep: 'Следующий шаг →',
     },
 });
 
@@ -64,6 +64,11 @@ const elements = {
     drawerTitle: document.querySelector('[data-step-drawer-title]'),
     drawerList: document.querySelector('[data-step-drawer-list]'),
     drawerMessage: document.querySelector('[data-step-drawer-message]'),
+    drawerClose: document.querySelector('[data-step-drawer-close]'),
+    lessonProgressLabel: document.querySelector('[data-lesson-progress-label]'),
+    lessonProgress: document.querySelector('[data-lesson-progress]'),
+    lessonProgressBar: document.querySelector('[data-lesson-progress-bar]'),
+    progressError: document.querySelector('[data-step-progress-error]'),
 };
 
 const state = {
@@ -74,45 +79,85 @@ const state = {
     isProgressSaving: false,
 };
 
-const setDrawerOpen = (isOpen) => {
-    document.body.classList.toggle('is-step-drawer-open', isOpen);
-    elements.drawerToggle.setAttribute('aria-expanded', String(isOpen));
-    elements.drawerToggle.setAttribute(
-        'aria-label',
-        isOpen ? 'Закрыть навигацию по шагам' : 'Открыть навигацию по шагам'
-    );
-    elements.drawer.setAttribute('aria-hidden', String(!isOpen));
+const desktopDrawer = window.matchMedia('(min-width: 1100px)');
+const DRAWER_PREFERENCE_KEY = 'musa_code_academy_lesson_sidebar';
+let desktopDrawerOpen = true;
+try {
+    desktopDrawerOpen = localStorage.getItem(DRAWER_PREFERENCE_KEY) !== 'closed';
+} catch {
+    // Keep navigation available when browser storage is disabled.
+}
 
-    if (isOpen) {
-        elements.drawer.setAttribute('tabindex', '-1');
-        elements.drawer.focus();
-    } else {
-        elements.drawer.removeAttribute('tabindex');
+const setDrawerOpen = (isOpen, { focus = true, remember = false } = {}) => {
+    const mobileOpen = isOpen && !desktopDrawer.matches;
+    const visible = isOpen;
+    if (desktopDrawer.matches && remember) {
+        desktopDrawerOpen = visible;
+        try {
+            localStorage.setItem(DRAWER_PREFERENCE_KEY, visible ? 'open' : 'closed');
+        } catch {
+            // The panel still works when the preference cannot be persisted.
+        }
     }
+    document.body.classList.toggle('is-step-drawer-open', mobileOpen);
+    document.body.classList.toggle('is-desktop-drawer-collapsed', desktopDrawer.matches && !visible);
+    elements.drawerToggle.setAttribute('aria-expanded', String(visible));
+    elements.drawerToggle.setAttribute('aria-label', visible ? 'Закрыть навигацию по шагам' : 'Открыть навигацию по шагам');
+    elements.drawer.setAttribute('aria-hidden', String(!visible));
+    elements.drawer.inert = !visible;
+    elements.drawerClose.textContent = desktopDrawer.matches ? '‹' : '×';
+    elements.drawerClose.setAttribute('aria-label', desktopDrawer.matches ? 'Скрыть панель шагов' : 'Закрыть навигацию по шагам');
+    elements.drawerClose.title = desktopDrawer.matches ? 'Скрыть панель шагов' : 'Закрыть';
+    if (mobileOpen) {
+        elements.drawer.setAttribute('role', 'dialog');
+        elements.drawer.setAttribute('aria-modal', 'true');
+    } else {
+        elements.drawer.removeAttribute('role');
+        elements.drawer.removeAttribute('aria-modal');
+    }
+    [document.querySelector('.app-header'), elements.root, document.querySelector('.app-footer'), elements.drawerToggle].forEach((element) => {
+        if (element) element.inert = mobileOpen;
+    });
+    if (focus && visible) elements.drawerClose.focus();
 };
 
 const initDrawer = () => {
-    if (!elements.drawer || !elements.drawerToggle || !elements.drawerBackdrop) {
-        return;
-    }
-
-    elements.drawerToggle.addEventListener('click', () => {
-        const isOpen = elements.drawerToggle.getAttribute('aria-expanded') === 'true';
-        setDrawerOpen(!isOpen);
-    });
-    elements.drawerBackdrop.addEventListener('click', () => {
-        setDrawerOpen(false);
+    if (!elements.drawer || !elements.drawerToggle || !elements.drawerBackdrop) return;
+    const close = () => {
+        setDrawerOpen(false, { remember: true });
         elements.drawerToggle.focus();
-    });
+    };
+    elements.drawerToggle.addEventListener('click', () => setDrawerOpen(true, { remember: true }));
+    elements.drawerClose.addEventListener('click', close);
+    elements.drawerBackdrop.addEventListener('click', close);
     document.addEventListener('keydown', (event) => {
-        if (
-            event.key === 'Escape' &&
-            elements.drawerToggle.getAttribute('aria-expanded') === 'true'
-        ) {
-            setDrawerOpen(false);
-            elements.drawerToggle.focus();
+        if (desktopDrawer.matches && event.key === 'Escape' && elements.drawer.contains(document.activeElement)) {
+            close();
+            return;
+        }
+        if (!document.body.classList.contains('is-step-drawer-open')) return;
+        if (event.key === 'Escape') close();
+        if (event.key === 'Tab') {
+            const items = [...elements.drawer.querySelectorAll('button, a[href]')].filter((item) => !item.hidden && !item.disabled);
+            const first = items[0];
+            const last = items.at(-1);
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         }
     });
+    desktopDrawer.addEventListener('change', () => {
+        const drawerHadFocus = elements.drawer.contains(document.activeElement);
+        const toggleHadFocus = document.activeElement === elements.drawerToggle;
+        setDrawerOpen(desktopDrawer.matches && desktopDrawerOpen, { focus: false });
+        if (drawerHadFocus && elements.drawer.inert) elements.drawerToggle.focus();
+        if (toggleHadFocus && desktopDrawer.matches && desktopDrawerOpen) elements.drawerClose.focus();
+    });
+    setDrawerOpen(desktopDrawer.matches && desktopDrawerOpen, { focus: false });
 };
 
 const showDrawerMessage = (message, { error = false } = {}) => {
@@ -189,6 +234,8 @@ const renderDrawerSteps = (steps, currentStepId) => {
 const renderDrawer = (lesson, currentStepId) => {
     setLessonListLink(lesson.section_id);
     elements.drawerTitle.textContent = lesson.title;
+    document.querySelector('[data-step-lesson-name]').textContent = lesson.title;
+    document.querySelector('[data-step-course-link]').href = `/${encodeURIComponent(elements.root.dataset.courseSlug)}/sections`;
     renderDrawerSteps(
         Array.isArray(lesson.steps) ? lesson.steps : [],
         currentStepId
@@ -205,9 +252,16 @@ const renderProgressState = () => {
     elements.completeToggle.hidden = state.hasTask;
     elements.completeToggle.disabled = state.isProgressSaving;
     elements.completeToggle.classList.toggle('is-completed', isCompleted);
-    elements.completeToggle.textContent = isCompleted
-        ? 'Шаг завершен'
-        : 'Завершить шаг';
+    elements.completeToggle.textContent = isCompleted ? 'Шаг пройден ✓' : 'Отметить шаг как пройденный';
+    elements.completeToggle.setAttribute('aria-pressed', String(isCompleted));
+    if (state.progress) {
+        const percent = Math.max(0, Math.min(100, Number(state.progress.percent) || 0));
+        elements.lessonProgressLabel.textContent = `Пройдено ${state.progress.completed_count} из ${state.progress.total_count} шагов`;
+        elements.lessonProgress.setAttribute('aria-valuenow', String(percent));
+        elements.lessonProgressBar.style.width = `${percent}%`;
+    } else {
+        elements.lessonProgressLabel.textContent = 'Прогресс временно недоступен';
+    }
 
     if (state.lesson) {
         renderDrawer(state.lesson, state.currentStepId);
@@ -259,6 +313,7 @@ const toggleCurrentStepProgress = async () => {
 
     const isCompleted = getCompletedStepIds().has(state.currentStepId);
     state.isProgressSaving = true;
+    elements.progressError.hidden = true;
     renderProgressState();
 
     try {
@@ -271,6 +326,11 @@ const toggleCurrentStepProgress = async () => {
         }
 
         updateLocalProgress(state.currentStepId, !isCompleted);
+    } catch (error) {
+        if (error.message !== 'authentication-required') {
+            elements.progressError.textContent = 'Не удалось сохранить прогресс. Попробуй ещё раз.';
+            elements.progressError.hidden = false;
+        }
     } finally {
         state.isProgressSaving = false;
         renderProgressState();
@@ -287,6 +347,7 @@ const completeCurrentStep = async () => {
     }
 
     state.isProgressSaving = true;
+    elements.progressError.hidden = true;
     renderProgressState();
 
     try {
@@ -299,6 +360,11 @@ const completeCurrentStep = async () => {
         }
 
         updateLocalProgress(state.currentStepId, true);
+    } catch (error) {
+        if (error.message !== 'authentication-required') {
+            elements.progressError.textContent = 'Не удалось сохранить прогресс. Обнови страницу, чтобы попробовать снова.';
+            elements.progressError.hidden = false;
+        }
     } finally {
         state.isProgressSaving = false;
         renderProgressState();
@@ -320,7 +386,7 @@ const handleDrawerNavigation = (event) => {
         });
     link.setAttribute('aria-current', 'step');
     link.querySelector('.step-drawer__status').textContent = '●';
-    setDrawerOpen(false);
+    if (!desktopDrawer.matches) setDrawerOpen(false);
     window.location.assign(link.href);
 };
 

@@ -97,18 +97,6 @@ import { authFetch, requireToken } from './course-auth.js';
         return Number.isFinite(order) ? order + 1 : null;
     };
 
-    const formatCourseTitle = (courseSlug) => {
-        if (courseSlug === 'python-basics') {
-            return 'Python для начинающих';
-        }
-
-        return courseSlug
-            .split('-')
-            .filter(Boolean)
-            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-            .join(' ') || 'Курс';
-    };
-
     const createLessonCard = (lesson, index, courseSlug) => {
         const status = getStatus(lesson);
         const card = document.createElement('a');
@@ -183,8 +171,6 @@ import { authFetch, requireToken } from './course-auth.js';
 
         elements.progressPercent.textContent = `${percentage}%`;
         elements.progressLabel.textContent =
-            `${completed} из ${lessons.length} уроков завершено`;
-        elements.progressLabel.textContent =
             `${completed} / ${total} шагов завершено`;
         elements.progressTrack.setAttribute('aria-valuenow', String(percentage));
         elements.progressBar.style.width = `${percentage}%`;
@@ -241,10 +227,10 @@ import { authFetch, requireToken } from './course-auth.js';
             : 'Раздел';
         elements.title.textContent = section.title;
         elements.description.textContent =
-            section.description || 'Изучите материалы раздела по порядку.';
+            section.description || 'Проходи уроки по порядку и закрепляй знания на практике.';
         elements.lessonCount.textContent = pluralizeLessons(orderedLessons.length);
         elements.backLink.href = `/${encodeURIComponent(courseSlug)}/sections`;
-        elements.backLink.lastChild.textContent = ` ${formatCourseTitle(courseSlug)}`;
+        elements.backLink.lastChild.textContent = ' К программе курса';
         elements.lessonList.replaceChildren();
         elements.emptyState.hidden = orderedLessons.length !== 0;
 
@@ -273,7 +259,7 @@ import { authFetch, requireToken } from './course-auth.js';
 
     const showAccessDenied = () => {
         showError(
-            'Вы не записаны на этот курс. Запишитесь на курс, чтобы открыть уроки.',
+            'Запишись на курс, чтобы открыть уроки.',
             {
                 title: 'Доступ закрыт',
                 retry: false,
@@ -323,7 +309,7 @@ import { authFetch, requireToken } from './course-auth.js';
             if (error instanceof AccessDeniedError) {
                 showAccessDenied();
             } else {
-                showError('Не удалось загрузить уроки. Попробуйте обновить страницу.');
+                showError('Не удалось загрузить уроки. Обнови страницу или попробуй ещё раз.');
             }
         }
     };

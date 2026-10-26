@@ -8,34 +8,14 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/section-lessons.css') }}">
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
     <script type="module" src="{{ url_for('static', path='js/section-lessons.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/student.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
+    <meta name="theme-color" content="#f7f8f2">
 </head>
-<body>
-    <header class="app-header">
-        <div class="app-header__inner">
-            <a class="app-header__brand" href="/dashboard" aria-label="Musa Code Academy">
-                <span class="app-header__mark" aria-hidden="true">M</span>
-                <span>Musa Code Academy</span>
-            </a>
+<body class="student-app">
+    {% include "components/app_header.html" %}
 
-            <div class="app-header__profile" data-app-profile>
-                <button
-                    class="app-header__profile-button"
-                    type="button"
-                    aria-label="Открыть меню профиля"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    data-app-profile-button
-                >М</button>
-                <div class="app-header__menu" role="menu">
-                    <a class="app-header__menu-item" href="#" role="menuitem">Профиль</a>
-                    <a class="app-header__menu-item" href="#" role="menuitem">Настройки</a>
-                    <button class="app-header__menu-item" type="button" role="menuitem" data-app-logout>Выйти</button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main
+    <main id="app-main"
         class="lesson-page"
         data-lesson-page
         data-section-id="{{ section_id | default('') }}"
@@ -47,7 +27,7 @@
 
         <div class="lesson-page__error" data-page-error role="alert" hidden>
             <h1>Не удалось загрузить раздел</h1>
-            <p data-error-message>Попробуйте обновить страницу.</p>
+            <p data-error-message>Обнови страницу или попробуй ещё раз.</p>
             <button type="button" data-retry>Попробовать снова</button>
         </div>
 
@@ -55,7 +35,7 @@
             <header class="section-hero">
                 <a class="lesson-page__back" href="/dashboard" data-back-link>
                     <span aria-hidden="true">←</span>
-                    Python для начинающих
+                    К программе курса
                 </a>
 
                 <div class="section-hero__info">
@@ -95,5 +75,6 @@
             </section>
         </div>
     </main>
+    {% include "components/app_footer.html" %}
 </body>
 </html>

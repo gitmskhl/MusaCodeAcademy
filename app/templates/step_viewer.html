@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Урок | Musa Code Academy</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/step-renderer.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/step-viewer.css') }}">
     <script
         type="module"
         src="{{ url_for('static', path='js/step-viewer.js') }}"
     ></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/student.css') }}">
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
+    <meta name="theme-color" content="#f7f8f2">
+    <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
 </head>
-<body>
+<body class="student-app student-app--lesson">
+    {% include "components/app_header.html" %}
     <button
         class="step-drawer-toggle"
         type="button"
@@ -20,7 +26,7 @@
         aria-expanded="false"
         data-step-drawer-toggle
     >
-        <span aria-hidden="true">☰</span>
+        <span aria-hidden="true">☰</span><span>Шаги урока</span>
     </button>
 
     <div class="step-drawer-backdrop" data-step-drawer-backdrop></div>
@@ -29,9 +35,11 @@
         class="step-drawer"
         id="step-navigation-drawer"
         aria-hidden="true"
+        inert
         aria-labelledby="step-drawer-title"
         data-step-drawer
     >
+        <button class="step-drawer__close" type="button" aria-label="Закрыть навигацию по шагам" data-step-drawer-close>×</button>
         <header class="step-drawer__header">
             <p class="step-drawer__eyebrow">Урок</p>
             <h2
@@ -41,6 +49,7 @@
             >Загрузка…</h2>
         </header>
 
+        <div class="lesson-progress"><p data-lesson-progress-label>Загружаем прогресс…</p><div role="progressbar" aria-label="Прогресс урока" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-lesson-progress><span data-lesson-progress-bar></span></div></div>
         <nav aria-label="Шаги урока">
             <ol class="step-drawer__list" data-step-drawer-list></ol>
             <p class="step-drawer__message" data-step-drawer-message>
@@ -49,13 +58,14 @@
         </nav>
     </aside>
 
-    <main
+    <main id="app-main"
         class="step-viewer"
         data-step-viewer
         data-step-id="{{ step_id }}"
         data-course-slug="{{ course_slug }}"
     >
         <header class="step-viewer__header">
+            <nav class="lesson-breadcrumbs" aria-label="Путь обучения"><a data-step-course-link href="/dashboard">Программа курса</a><span aria-hidden="true">/</span><span data-step-lesson-name>Урок</span></nav>
             <a
                 class="step-viewer__back-link"
                 role="link"
@@ -64,12 +74,7 @@
             ></a>
             <h1 class="step-viewer__title" data-step-title></h1>
             <p class="step-viewer__progress" data-step-progress></p>
-            <button
-                class="step-viewer__complete-button"
-                type="button"
-                data-step-complete-toggle
-                hidden
-            ></button>
+
         </header>
 
         <section
@@ -88,6 +93,16 @@
             hidden
         ></section>
 
+        <div class="step-completion">
+            <button
+                class="step-viewer__complete-button"
+                type="button"
+                data-step-complete-toggle
+                hidden
+            ></button>
+            <p class="step-progress-error" data-step-progress-error role="alert" hidden></p>
+        </div>
+
         <nav class="step-viewer__navigation" data-step-navigation hidden>
             <button
                 class="step-viewer__navigation-button"
@@ -103,5 +118,6 @@
             ></button>
         </nav>
     </main>
+    {% include "components/app_footer.html" %}
 </body>
 </html>
