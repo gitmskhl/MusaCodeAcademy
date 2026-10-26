@@ -1,6 +1,6 @@
 const form = document.querySelector("#login-form");
 const message = document.querySelector("#form-message");
-const button = form.querySelector("button");
+const button = form.querySelector('button[type="submit"]');
 const TOKEN_KEY = "musa_code_academy_token";
 
 async function redirectAuthenticatedUser() {

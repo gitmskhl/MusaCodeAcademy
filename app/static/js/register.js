@@ -1,6 +1,6 @@
 const form = document.querySelector("#register-form");
 const message = document.querySelector("#form-message");
-const button = form.querySelector("button");
+const button = form.querySelector('button[type="submit"]');
 
 function showMessage(text, type) {
     message.textContent = text;
