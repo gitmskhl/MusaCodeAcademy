@@ -1,4 +1,5 @@
 import { authFetch, requireCurrentUser } from './course-auth.js';
+import { confirmUnenrollment } from './course-unenroll.js';
 
 const messages = Object.freeze({
     loadingError: 'Не удалось загрузить ваши курсы.',
@@ -95,15 +96,6 @@ const getCourseContinueUrl = (course) =>
             ? getCourseUrl(course)
             : '#';
 
-const getStoredEnrolledCourses = () => {
-    try {
-        const stored = JSON.parse(localStorage.getItem(ENROLLED_COURSES_KEY) || '[]');
-        return Array.isArray(stored) ? stored : [];
-    } catch {
-        return [];
-    }
-};
-
 const rememberEnrolledCourses = (courses) => {
     const storableCourses = courses
         .filter((course) => course.id)
@@ -118,30 +110,6 @@ const rememberEnrolledCourses = (courses) => {
 
     localStorage.setItem(ENROLLED_COURSES_KEY, JSON.stringify(storableCourses));
 };
-
-const mapStoredCourseToDashboardCourse = (course) => ({
-    id: course.id,
-    slug: course.slug,
-    title: course.title ?? '\u041a\u0443\u0440\u0441',
-    short_description: course.short_description,
-    description: course.short_description || course.description || messages.emptyDescription,
-    progress: getProgressDetails(course.progress).percent,
-    progressData: course.progress,
-    action: messages.start,
-    href: course.slug ? getCourseUrl(course) : '#',
-});
-
-const mapCourseInfoToDashboardCourse = (course) => ({
-    id: course.id,
-    slug: course.slug,
-    title: course.title ?? '\u041a\u0443\u0440\u0441',
-    short_description: course.short_description,
-    description: course.short_description || course.description || messages.emptyDescription,
-    progress: getProgressDetails(course.progress).percent,
-    progressData: course.progress,
-    action: messages.start,
-    href: course.slug ? getCourseUrl(course) : '#',
-});
 
 const mapEnrollmentToCourse = (enrollment) => {
     const course = enrollment.course ?? {};
@@ -263,7 +231,16 @@ const createCourseCard = (course) => {
     link.href = course.href;
     link.textContent = course.action;
 
-    article.append(header, progress, link);
+    const actions = document.createElement('div');
+    actions.className = 'course-card__actions';
+    const unenroll = document.createElement('button');
+    unenroll.type = 'button';
+    unenroll.className = 'course-unenroll-button';
+    unenroll.textContent = 'Отписаться';
+    unenroll.setAttribute('aria-label', `Отписаться от курса «${course.title}»`);
+    unenroll.addEventListener('click', () => confirmUnenrollment(course, loadDashboard));
+    actions.append(link, unenroll);
+    article.append(header, progress, actions);
     return article;
 };
 
@@ -312,38 +289,6 @@ const renderCourses = (courses) => {
     setContent();
 };
 
-const loadEnrolledCoursesFromCoursePages = async () => {
-    const coursesResponse = await authFetch('/api/courses');
-    if (!coursesResponse.ok) {
-        return [];
-    }
-
-    const publishedCourses = await coursesResponse.json();
-    if (!Array.isArray(publishedCourses) || publishedCourses.length === 0) {
-        return [];
-    }
-
-    const coursePages = await Promise.all(
-        publishedCourses
-            .filter((course) => course.slug)
-            .map(async (course) => {
-                try {
-                    const response = await authFetch(
-                        `/api/courses/slug/${encodeURIComponent(course.slug)}`
-                    );
-                    return response.ok ? response.json() : null;
-                } catch {
-                    return null;
-                }
-            })
-    );
-
-    return coursePages
-        .filter((course) => course?.is_enrolled)
-        .map(mapCourseInfoToDashboardCourse)
-        .filter((course) => course.id);
-};
-
 const loadDashboard = async () => {
     setLoading();
 
@@ -358,22 +303,10 @@ const loadDashboard = async () => {
             ? enrollments.map(mapEnrollmentToCourse).filter((course) => course.id)
             : [];
 
-        if (courses.length === 0) {
-            courses = await loadEnrolledCoursesFromCoursePages();
-        }
-
-        if (courses.length === 0) {
-            courses = getStoredEnrolledCourses()
-                .map(mapStoredCourseToDashboardCourse)
-                .filter((course) => course.id);
-        }
-
         const progressByCourseId = await loadCoursesProgress();
         courses = applyCoursesProgress(courses, progressByCourseId);
 
-        if (courses.length > 0) {
-            rememberEnrolledCourses(courses);
-        }
+        rememberEnrolledCourses(courses);
 
         if (courses.length === 0) {
             setEmpty();

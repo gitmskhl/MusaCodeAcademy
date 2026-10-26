@@ -84,6 +84,15 @@ async def enroll_course(
 ):
     return await service_enrollment.enroll(course_id, currentUser.id, db)
 
+
+@router.delete('/{course_id}/enroll', status_code=status.HTTP_204_NO_CONTENT)
+async def unenroll_course(
+    course_id: int,
+    currentUser: CurrentUser,
+    db: DBSession,
+):
+    await service_enrollment.unenroll(course_id, currentUser.id, db)
+
 # ---------------------------------- /api/courses/{id}/sections --------------------------------
 
 @router.get('/{course_id}/sections', response_model=list[SectionPublic])

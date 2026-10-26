@@ -199,3 +199,98 @@ async def test_get_my_enrollments_requires_authentication(client):
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {"detail": "Not authenticated"}
+
+
+@pytest.mark.asyncio
+async def test_unenroll_removes_only_current_users_enrollment(
+    client, auth_headers, course_factory, db, user_data,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    other_user = await create_user(db)
+    course = await course_factory(slug="leave-course", is_published=True)
+    another_course = await course_factory(slug="keep-course", is_published=True)
+    removed = await create_enrollment(db, user_id=user.id, course_id=course.id)
+    other = await create_enrollment(db, user_id=other_user.id, course_id=course.id)
+    kept = await create_enrollment(db, user_id=user.id, course_id=another_course.id)
+
+    response = await client.delete(
+        f"/api/courses/{course.id}/enroll", headers=auth_headers,
+    )
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert response.content == b""
+    ids = set((await db.scalars(select(Enrollment.id))).all())
+    assert removed.id not in ids
+    assert ids == {other.id, kept.id}
+    response = await client.get("/api/enrollments/me", headers=auth_headers)
+    assert [item["course_id"] for item in response.json()] == [another_course.id]
+    response = await client.get(f"/api/courses/slug/{course.slug}", headers=auth_headers)
+    assert response.json()["is_enrolled"] is False
+    response = await client.get(f"/api/courses/{course.id}/sections", headers=auth_headers)
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.asyncio
+async def test_unenroll_requires_authentication(client, course_factory):
+    course = await course_factory(slug="protected-course", is_published=True)
+    response = await client.delete(f"/api/courses/{course.id}/enroll")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_unenroll_cannot_remove_another_users_enrollment(
+    client, auth_headers, course_factory, db,
+):
+    other_user = await create_user(db)
+    course = await course_factory(slug="other-enrollment", is_published=True)
+    other = await create_enrollment(db, user_id=other_user.id, course_id=course.id)
+    response = await client.delete(f"/api/courses/{course.id}/enroll", headers=auth_headers)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert await db.scalar(select(Enrollment.id).where(Enrollment.id == other.id)) == other.id
+
+
+@pytest.mark.asyncio
+async def test_unenroll_allows_leaving_unpublished_course(
+    client, auth_headers, course_factory, db, user_data,
+):
+    user = await get_user_by_email(db, user_data["email"])
+    course = await course_factory(slug="unpublished-enrollment", is_published=False)
+    await create_enrollment(db, user_id=user.id, course_id=course.id)
+    response = await client.delete(f"/api/courses/{course.id}/enroll", headers=auth_headers)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_unenroll_preserves_progress_for_reenrollment(
+    client, auth_headers, section_factory, db, user_data,
+):
+    from app.models import CourseActivity, Lesson, Step, StepProgress
+
+    user = await get_user_by_email(db, user_data["email"])
+    section = await section_factory(course_id=None, is_published=True, order=0)
+    lesson = Lesson(section_id=section.id, title="First lesson", order=0)
+    db.add(lesson)
+    await db.flush()
+    step = Step(lesson_id=lesson.id, title="First step", order=0, content={"blocks": []})
+    db.add(step)
+    await db.flush()
+    progress = StepProgress(user_id=user.id, step_id=step.id)
+    activity = CourseActivity(user_id=user.id, course_id=section.course_id, last_step_id=step.id)
+    db.add_all([progress, activity])
+    await db.commit()
+    await create_enrollment(db, user_id=user.id, course_id=section.course_id)
+
+    response = await client.delete(f"/api/courses/{section.course_id}/enroll", headers=auth_headers)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    assert await db.scalar(select(StepProgress.id).where(StepProgress.id == progress.id)) == progress.id
+    assert await db.scalar(select(CourseActivity.last_step_id).where(CourseActivity.id == activity.id)) == step.id
+    # Repeating a delete cannot affect anything else.
+    response = await client.delete(f"/api/courses/{section.course_id}/enroll", headers=auth_headers)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    response = await client.post(f"/api/courses/{section.course_id}/enroll", headers=auth_headers)
+    assert response.status_code == status.HTTP_201_CREATED
+    response = await client.get("/api/progress/me/courses", headers=auth_headers)
+    assert response.status_code == status.HTTP_200_OK
+    restored = next(item for item in response.json() if item["course_id"] == section.course_id)
+    assert restored["completed_step_count"] == 1
+    assert restored["last_step_id"] == step.id

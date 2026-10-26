@@ -1,4 +1,5 @@
 import { authFetch } from './course-auth.js';
+import { confirmUnenrollment } from './course-unenroll.js';
 
 const elements = {
     root: document.querySelector('[data-course-page]'),
@@ -12,6 +13,7 @@ const elements = {
     level: document.querySelector('[data-course-level]'),
     price: document.querySelector('[data-course-price]'),
     enrollButton: document.querySelector('.course-enroll-button'),
+    unenrollButton: document.querySelector('[data-course-unenroll]'),
 };
 
 const state = {
@@ -274,6 +276,7 @@ const renderCourse = (course) => {
             : 'Записаться на курс';
     }
 
+    elements.unenrollButton.hidden = !course.is_enrolled;
     setEnrollmentButton();
     renderMeta(course, stats);
     renderOutcomes(course.outcomes);
@@ -366,4 +369,12 @@ const loadCourse = async () => {
 };
 
 elements.enrollButton?.addEventListener('click', enrollInCourse);
+elements.unenrollButton?.addEventListener('click', () => {
+    if (!state.course?.is_enrolled || state.isSubmittingEnrollment) return;
+    confirmUnenrollment(state.course, () => {
+        state.course.is_enrolled = false;
+        elements.unenrollButton.hidden = true;
+        setEnrollmentButton();
+    });
+});
 document.addEventListener('DOMContentLoaded', loadCourse);

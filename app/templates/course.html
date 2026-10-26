@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Курс | Musa Code Academy</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/course-unenroll.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/course.css') }}">
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
     <script type="module" src="{{ url_for('static', path='js/course.js') }}"></script>
@@ -86,6 +87,7 @@
                     </dl>
 
                     <button class="course-enroll-button" type="button">Записаться на курс</button>
+                    <button class="course-unenroll-button" type="button" data-course-unenroll hidden>Отписаться от курса</button>
                     <p class="course-note">
                         После записи станет доступно прохождение всех уроков и сохранение прогресса.
                     </p>

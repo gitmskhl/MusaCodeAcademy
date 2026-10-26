@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, delete
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Course, Enrollment
@@ -56,3 +56,17 @@ async def is_user_enrolled(course_id: int, user_id: int, db: AsyncSession) -> bo
         ))
     )
     return result.scalar_one_or_none() is not None
+
+
+async def unenroll(course_id: int, user_id: int, db: AsyncSession) -> None:
+    result = await db.execute(
+        delete(Enrollment)
+        .where(Enrollment.course_id == course_id, Enrollment.user_id == user_id)
+        .returning(Enrollment.id)
+    )
+    if result.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Enrollment not found",
+        )
+    await db.commit()

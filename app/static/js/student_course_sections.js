@@ -1,4 +1,5 @@
 import { authFetch } from './course-auth.js';
+import { confirmUnenrollment } from './course-unenroll.js';
 
 const elements = {
     root: document.querySelector('[data-course-page]'),
@@ -237,6 +238,11 @@ const renderCourse = (course, progressBySectionId = new Map()) => {
         progressBySectionId
     );
 
+    const unenroll = document.querySelector('[data-course-unenroll]');
+    unenroll.hidden = !course.is_enrolled;
+    unenroll.onclick = () => confirmUnenrollment(course, () => {
+        window.location.assign('/dashboard');
+    });
     document.title = `${course.title} | Musa Code Academy`;
     elements.title.textContent = course.title;
     elements.description.textContent = course.short_description || course.description || '';
