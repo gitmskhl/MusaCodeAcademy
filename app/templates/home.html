@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Musa Code Academy — платформа для изучения программирования. Понятные уроки, практика в браузере и ваш прогресс на одном экране.">
+    <meta name="theme-color" content="#f7f8f2">
+    <title>Musa Code Academy — от первой строки кода к большим идеям</title>
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/home.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/home.js') }}"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <header class="site-header container">
+        <a class="brand" href="/" aria-label="Musa Code Academy — главная">
+            <span class="brand-mark" aria-hidden="true">m<span>.</span></span>
+            <span class="brand-name">musa<span>code academy</span></span>
+        </a>
+        <nav class="desktop-nav" aria-label="Основная навигация">
+            <a href="#about">О платформе</a>
+            <a href="#learning">Как это работает</a>
+            <a href="/courses">Курсы <span aria-hidden="true">↗</span></a>
+        </nav>
+        <div class="header-actions"><a class="login-link" href="/login">Войти</a><a class="button button-small" href="/register">Начать учиться <span aria-hidden="true">↗</span></a></div>
+    </header>
+
+    <main id="main">
+        <section class="hero container" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <div class="eyebrow"><span class="status-dot"></span> ТВОЯ ТОЧКА ВХОДА В IT</div>
+                <h1 id="hero-title">Большие идеи<br>начинаются<br>с <span class="highlight">первой строки<span class="handline" aria-hidden="true"></span></span></h1>
+                <p class="hero-description">Учись программировать, создавай своё и двигайся<br class="desktop-break"> вперёд. От «ничего не понимаю» до «у меня получилось»<br class="desktop-break"> — шаг за шагом, в своём темпе.</p>
+                <div class="hero-actions"><a class="button" href="/register">Написать свою историю <span aria-hidden="true">↗</span></a><a class="text-link" href="/courses">Посмотреть курсы <span aria-hidden="true">→</span></a></div>
+                <div class="hero-note"><span class="note-icon" aria-hidden="true">✓</span> Можно с нуля <span class="note-divider">/</span> Практика с первого урока</div>
+            </div>
+            <div class="hero-visual">
+                <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
+                <span class="visual-star star-one" aria-hidden="true">✳</span><span class="visual-star star-two" aria-hidden="true">✳</span>
+                <div class="floating-label"><span aria-hidden="true">✦</span> Здесь начинается магия</div>
+                <div class="code-window">
+                    <div class="window-bar"><div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div><span>your_first_step.py</span><span class="window-language">Python</span></div>
+                    <div class="editor-label"><span aria-hidden="true">⌘</span> ТВОЙ ПЕРВЫЙ КОД</div>
+                    <div class="code-content" aria-label="Пример программы на Python">
+                        <div><span class="line-number">1</span><code class="code-comment"># Всё начинается с любопытства</code></div>
+                        <div><span class="line-number">2</span><code>dream = <span class="code-string">"Создать что-то своё"</span></code></div>
+                        <div><span class="line-number">3</span><code>skills = <span class="code-purple">0</span></code></div>
+                        <div><span class="line-number">4</span><code> </code></div>
+                        <div><span class="line-number">5</span><code><span class="code-purple">while</span> dream:</code></div>
+                        <div><span class="line-number">6</span><code>    learn<span class="code-yellow">()</span></code></div>
+                        <div><span class="line-number">7</span><code>    practice<span class="code-yellow">()</span></code></div>
+                        <div><span class="line-number">8</span><code>    skills += <span class="code-purple">1</span></code></div>
+                        <div><span class="line-number">9</span><code>    <span class="code-blue">print</span>(<span class="code-string">"Я могу больше!"</span>)<span class="code-cursor" aria-hidden="true"></span></code></div>
+                    </div>
+                    <div class="console"><div class="console-heading"><span>КОНСОЛЬ <span class="demo-label">/ демо</span></span><button type="button" class="run-button" data-run-demo><span aria-hidden="true">▶</span> Запустить</button></div><p data-demo-output role="status" aria-live="polite"><span class="console-arrow" aria-hidden="true">›</span> Твой следующий шаг — попробовать<span class="console-cursor" aria-hidden="true">_</span></p></div>
+                    <div class="editor-footer"><span><i class="status-dot"></i> Готов к новым открытиям</span><span>UTF-8</span></div>
+                </div>
+                <div class="achievement"><span class="achievement-icon" aria-hidden="true">✓</span><div><strong>У тебя получится.</strong><span>Даже если пока не верится</span></div><span class="achievement-star" aria-hidden="true">✧</span></div>
+                <span class="visual-caption">&lt; / &gt; &nbsp; меньше сомнений, больше кода</span>
+            </div>
+        </section>
+
+        <div class="technology-strip" aria-label="От идеи к результату"><div class="container technology-inner"><span>ТВОИ ИДЕИ. ТВОИ ВОЗМОЖНОСТИ.</span><span class="technology">Python</span><span class="strip-star" aria-hidden="true">✳</span><span class="technology">Алгоритмы</span><span class="strip-star" aria-hidden="true">✳</span><span class="technology">Веб-разработка</span><span class="strip-star" aria-hidden="true">✳</span><span class="technology">Твой следующий проект <span aria-hidden="true">↗</span></span></div></div>
+
+        <section class="about-section container" id="about" aria-labelledby="about-title">
+            <div class="section-heading"><div><p class="eyebrow">НЕ ПРОСТО СМОТРЕТЬ. ПОЛУЧАЕТСЯ ДЕЛАТЬ.</p><h2 id="about-title">Место, где знания<br>становятся навыками<span class="lime-dot">.</span></h2></div><p>Всё, что нужно для твоего следующего шага.<br>Без десятка вкладок и сложных настроек.</p></div>
+            <div class="feature-grid">
+                <article class="feature-card feature-practice"><div class="feature-top"><span class="feature-icon" aria-hidden="true">&lt;/&gt;</span><span class="card-index">01 / ПРАКТИКА</span></div><div class="mini-terminal" aria-hidden="true"><span><i>›</i> write. run. repeat.</span><span class="terminal-success">✓ Все тесты пройдены <b>↗</b></span></div><h3>Пиши код, а не конспекты</h3><p>Решай задачи прямо в браузере. Запускай код и получай результат автоматической проверки.</p><a class="card-link" href="#learning">Как устроена практика <span aria-hidden="true">↗</span></a></article>
+                <article class="feature-card"><div class="feature-top"><span class="feature-icon icon-lessons" aria-hidden="true">▤</span><span class="card-index">02 / ПОНЯТНЫЙ ПУТЬ</span></div><div class="mini-lessons" aria-hidden="true"><span><i>✓</i> Разобраться в основах</span><span><i>02</i> Попробовать на практике <b>→</b></span><span><i>03</i> Собрать всё вместе</span></div><h3>Сложное — по полочкам</h3><p>Курсы, разделы и короткие уроки. Каждый шаг продолжает предыдущий и приближает к цели.</p><a class="card-link" href="/courses">Найти свой курс <span aria-hidden="true">↗</span></a></article>
+                <article class="feature-card"><div class="feature-top"><span class="feature-icon icon-progress" aria-hidden="true">↗</span><span class="card-index">03 / ТВОЙ РИТМ</span></div><div class="mini-progress" aria-hidden="true"><span>Каждый шаг имеет значение <b>↗</b></span><div class="progress-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="progress-caption">Сегодня ты знаешь чуть больше, чем вчера</span></div><h3>Твой темп. Твой прогресс.</h3><p>Возвращайся к урокам, когда удобно. Отмечай пройденные шаги и наблюдай, как растут твои навыки.</p><a class="card-link" href="/dashboard">В личный кабинет <span aria-hidden="true">↗</span></a></article>
+            </div>
+        </section>
+
+        <section class="learning-section container" id="learning" aria-labelledby="learning-title"><div class="learning-intro"><p class="eyebrow">ВСЁ ПРОЩЕ, ЧЕМ КАЖЕТСЯ</p><h2 id="learning-title">От «хочу»<br>к первой победе<span class="lime-dot">.</span></h2><p>Не нужно знать всё, чтобы начать.<br>Достаточно сделать первый шаг.</p><a class="text-link" href="/register">Сделать первый шаг <span aria-hidden="true">↗</span></a></div><ol class="learning-steps"><li><span class="step-number">01</span><div><h3>Выбери, что тебе интересно</h3><p>Загляни в каталог и найди курс, с которого захочется начать.</p></div><span aria-hidden="true">↗</span></li><li><span class="step-number">02</span><div><h3>Разберись и попробуй</h3><p>Изучай материал, пиши код и проверяй решения на задачах.</p></div><span aria-hidden="true">↗</span></li><li><span class="step-number">03</span><div><h3>Двигайся дальше</h3><p>Следи за прогрессом в личном кабинете и открывай новые темы.</p></div><span aria-hidden="true">↗</span></li></ol></section>
+
+        <section class="cta-section container" aria-labelledby="cta-title"><div class="cta-decoration" aria-hidden="true">✳</div><p class="eyebrow">СЛЕДУЮЩАЯ СТРОКА — ТВОЯ</p><h2 id="cta-title">А что создашь ты?</h2><p>Первая программа, новый навык или дело всей жизни.<br>Начни с маленького шага сегодня.</p><a class="button button-dark" href="/register">Начать учиться <span aria-hidden="true">↗</span></a><span class="cta-code" aria-hidden="true">&lt;your_future /&gt;</span></section>
+    </main>
+
+    <footer class="site-footer container"><a class="brand" href="/" aria-label="Musa Code Academy — главная"><span class="brand-mark" aria-hidden="true">m<span>.</span></span><span class="brand-name">musa<span>code academy</span></span></a><p>С любопытством к коду. С верой в тебя.</p><nav aria-label="Навигация в подвале"><a href="/courses">Курсы</a><a href="/login">Войти</a><a href="#main">Наверх ↑</a></nav><span class="copyright">© Musa Code Academy</span></footer>
+</body>
+</html>
