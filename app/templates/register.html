@@ -1,83 +1,66 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация | Musa Code Academy</title>
-    <link rel="stylesheet" href="{{url_for('static', path='css/register.css')}}">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/password-toggle.css') }}">
-    <script type="module" src="{{ url_for('static', path='js/password-toggle.js') }}"></script>
-    <script defer src="{{url_for('static', path='js/register.js')}}"></script>
-</head>
-<body>
-    <main class="page">
-        <section class="panel" aria-labelledby="register-title">
-            <div class="brand" aria-label="Musa Code Academy">
-                <span class="brand-mark">MC</span>
-                <span>Musa Code Academy</span>
-            </div>
+{% extends "auth_base.html" %}
+{% block title %}Регистрация{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static', path='js/register.js') }}"></script>{% endblock %}
+{% block story_title %}Большие идеи<br>начинаются<br><span class="highlight">с первого шага.</span>{% endblock %}
+{% block story_description %}Не нужно знать всё, чтобы начать.<br>Разбирайся, пробуй и замечай, как растут твои навыки.{% endblock %}
+{% block form_content %}
+<p class="eyebrow panel-eyebrow">ДАВАЙ НАЧНЁМ</p>
+<h1 id="auth-title">Здесь начинается<br>твой путь в код.</h1>
+<p class="lead">Создай аккаунт — и сделай первый шаг<br class="wide-break"> в программировании.</p>
+<div class="message" id="form-message" role="status" aria-live="polite"></div>
 
-            <p class="eyebrow">Старт обучения</p>
-            <h1 id="register-title">Создать аккаунт</h1>
-            <p class="lead">Зарегистрируйтесь, чтобы сохранять прогресс и проходить курсы.</p>
+<form class="form" id="register-form" action="/api/auth/register" method="post">
+    <div class="field-group">
+        <div class="field">
+            <label for="first_name">Имя</label>
+            <input id="first_name" type="text" name="first_name" placeholder="Имя" autocomplete="given-name" minlength="2" maxlength="20" required>
+        </div>
 
-            <div class="message" id="form-message" role="status" aria-live="polite"></div>
+        <div class="field">
+            <label for="last_name">Фамилия</label>
+            <input id="last_name" type="text" name="last_name" placeholder="Фамилия" autocomplete="family-name" minlength="2" maxlength="20" required>
+        </div>
+    </div>
 
-            <form class="form" id="register-form" action="/api/auth/register" method="post">
-                <div class="field-group">
-                    <div class="field">
-                        <label for="first_name">Имя</label>
-                        <input id="first_name" type="text" name="first_name" placeholder="Имя" autocomplete="given-name" minlength="2" maxlength="20" required>
-                    </div>
+    <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" placeholder="you@example.com" autocapitalize="none" spellcheck="false" autocomplete="email" required>
+    </div>
 
-                    <div class="field">
-                        <label for="last_name">Фамилия</label>
-                        <input id="last_name" type="text" name="last_name" placeholder="Фамилия" autocomplete="family-name" minlength="2" maxlength="20" required>
-                    </div>
-                </div>
+    <div class="field">
+        <label for="password">Пароль</label>
+        <div class="password-field">
+            <input id="password" type="password" name="password" placeholder="Придумай пароль" autocomplete="new-password" aria-describedby="password-hint" minlength="8" required>
+            <button class="password-toggle" type="button" aria-label="Показать пароль" aria-controls="password" aria-pressed="false" data-password-toggle>
+                <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path class="password-toggle__slash" d="m3 3 18 18"/>
+                </svg>
+            </button>
+        </div>
+        <p class="field-hint" id="password-hint">Не меньше 8 символов. Можно использовать фразу.</p>
+    </div>
 
-                <div class="field">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" name="email" placeholder="Введите email" autocomplete="email" required>
-                </div>
+    <div class="field">
+        <label for="password_confirm">Повтори пароль</label>
+        <div class="password-field">
+            <input id="password_confirm" type="password" name="password_confirm" placeholder="Ещё раз, чтобы не ошибиться" autocomplete="new-password" minlength="8" required>
+            <button class="password-toggle" type="button" aria-label="Показать повтор пароля" aria-controls="password_confirm" aria-pressed="false" data-password-toggle>
+                <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path class="password-toggle__slash" d="m3 3 18 18"/>
+                </svg>
+            </button>
+        </div>
+    </div>
 
-                <div class="field">
-                    <label for="password">Пароль</label>
-                    <div class="password-field">
-                        <input id="password" type="password" name="password" placeholder="Минимум 8 символов" autocomplete="new-password" minlength="8" required>
-                        <button class="password-toggle" type="button" aria-label="Показать пароль" aria-controls="password" aria-pressed="false" data-password-toggle>
-                            <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                                <path class="password-toggle__slash" d="m3 3 18 18"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+    <button type="submit">Создать аккаунт <span aria-hidden="true">↗</span></button>
+</form>
 
-                <div class="field">
-                    <label for="password_confirm">Повторите пароль</label>
-                    <div class="password-field">
-                        <input id="password_confirm" type="password" name="password_confirm" placeholder="Повторите пароль" autocomplete="new-password" minlength="8" required>
-                        <button class="password-toggle" type="button" aria-label="Показать повтор пароля" aria-controls="password_confirm" aria-pressed="false" data-password-toggle>
-                            <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                                <path class="password-toggle__slash" d="m3 3 18 18"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit">Зарегистрироваться</button>
-            </form>
-
-            <p class="switch-link">
-                Уже есть аккаунт?
-                <a href="/login">Войти</a>
-            </p>
-        </section>
-    </main>
-
-</body>
-</html>
+<p class="switch-link">
+    Уже есть аккаунт?
+    <a href="/login">Войти</a>
+</p>
+{% endblock %}
