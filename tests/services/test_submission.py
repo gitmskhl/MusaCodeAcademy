@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
-from app.enums import SubmissionStatus
+from app.enums import SubmissionStatus, TaskCheckingMode
 from app.models import Lesson, Step, Task, Submission, User
 from app.schemas.submission import SubmissionCreate as CreateSubmissionSchema
 from app.services import submission as submission_service
@@ -46,6 +46,7 @@ async def create_step(db, section_factory, *, is_published: bool) -> Step:
 async def create_task(db, step_id: int) -> Task:
     task = Task(
         step_id=step_id,
+        checking_mode=TaskCheckingMode.SERVER,
         starter_code="print('hello')",
         time_limit_ms=1000,
         memory_limit_mb=128,

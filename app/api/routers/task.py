@@ -1,12 +1,18 @@
-from fastapi import APIRouter, status, UploadFile
-from app.schemas.task import TaskPublic, TaskCreate, TaskUpdate
-from app.api.dependencies import OnlyAdmin, DBSession, CurrentUser
+from fastapi import APIRouter, status, UploadFile, Response
+from app.schemas.task import TaskPublic, TaskCreate, TaskUpdate, LocalTaskTests
+from app.api.dependencies import OnlyAdmin, DBSession, CurrentUser, TaskPathEnrolledUser
 from app.services import task as service_task
 from app.services import submission as submission_service
 from app.services import testCase as service_test
 from app.schemas.submission import SubmissionListItem, SubmissionDetail
 
 router = APIRouter()
+
+
+@router.get('/{task_id}/local-tests', response_model=LocalTaskTests)
+async def get_local_tests(task_id: int, _: TaskPathEnrolledUser, db: DBSession, response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    return await service_task.get_local_tests(task_id=task_id, db=db)
 
 
 @router.post('/admin', response_model=TaskPublic, status_code=status.HTTP_201_CREATED)

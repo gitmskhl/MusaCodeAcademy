@@ -47,6 +47,23 @@
                     <div class="task-code-editor" data-starter-code-editor></div>
                 </section>
 
+                <section class="task-card">
+                    <div class="task-card__heading">
+                        <h2>Проверка решения</h2>
+                    </div>
+                    <label class="task-field">
+                        <span class="task-field__label">Способ проверки</span>
+                        <select class="property-field__input" name="checking_mode" data-checking-mode>
+                            <option value="local">Локально в браузере (по умолчанию)</option>
+                            <option value="server">На сервере</option>
+                        </select>
+                    </label>
+                    <p class="task-checking-hint">
+                        При локальной проверке Python выполняется в браузере ученика, результат и прогресс сохраняются на сервере.
+                        Все тесты, включая скрытые, загружаются в браузер. Ограничение памяти действует только при серверной проверке.
+                    </p>
+                </section>
+
                 <section class="task-card task-card--limits">
                     <div class="task-card__heading">
                         <div>

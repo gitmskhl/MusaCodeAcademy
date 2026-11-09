@@ -1,6 +1,7 @@
 import { createCodeEditorView } from '../step-renderer/codemirror/code-editor-view.js';
 import { authFetch } from '../course-auth.js';
 import { createSubmissionStatusPanel } from './submission-status-panel.js';
+import { runLocalPythonTests } from './local-python-runner.js';
 
 const SUBMIT_LABEL = 'Отправить решение';
 const SUBMITTING_LABEL = 'Отправляем решение...';
@@ -72,6 +73,9 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     let isPollingRequest = false;
     let isSubmitting = false;
     let isDestroyed = false;
+    let isHistoryLoading = true;
+    const abortController = new AbortController();
+    const isLocal = task.checking_mode === 'local';
 
     const card = document.createElement('article');
     card.className = 'task-viewer__card';
@@ -85,10 +89,8 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
 
     const meta = document.createElement('div');
     meta.className = 'task-viewer__meta';
-    meta.append(
-        createMetaItem('⏱', 'Время', `${task.time_limit_ms} мс`),
-        createMetaItem('💾', 'Память', `${task.memory_limit_mb} МБ`)
-    );
+    meta.append(createMetaItem('⏱', 'Время на тест', `${task.time_limit_ms} мс`));
+    if (!isLocal) meta.append(createMetaItem('💾', 'Память', `${task.memory_limit_mb} МБ`));
     header.append(title, meta);
 
     const editorHost = document.createElement('div');
@@ -103,6 +105,7 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     submitStatus.setAttribute('aria-live', 'polite');
 
     const submitButton = createSubmitButton();
+    submitButton.disabled = true;
     actions.append(submitStatus, submitButton);
     const statusPanel = createSubmissionStatusPanel({ fetcher: authFetch });
     card.append(
@@ -169,7 +172,8 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
 
     const getLastSubmission = async () => {
         const response = await authFetch(
-            `/api/tasks/${encodeURIComponent(task.id)}/submissions/last`
+            `/api/tasks/${encodeURIComponent(task.id)}/submissions/last`,
+            { signal: abortController.signal }
         );
         if (!response.ok) {
             throw new Error('last-submission-request-failed');
@@ -211,11 +215,16 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
             }
         } catch {
             // The editor stays usable if submission history is unavailable.
+        } finally {
+            isHistoryLoading = false;
+            if (!isDestroyed && !isSubmitting) {
+                submitButton.disabled = ACTIVE_SUBMISSION_STATUSES.has(latestSubmissionStatus);
+            }
         }
     };
 
     submitButton.addEventListener('click', async () => {
-        if (isSubmitting) {
+        if (isSubmitting || isHistoryLoading || isDestroyed) {
             return;
         }
 
@@ -226,18 +235,48 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
         }
 
         isSubmitting = true;
+        const submittedSource = sourceCode;
+        editor.setEditable(false);
         submitButton.disabled = true;
         submitButton.textContent = SUBMITTING_LABEL;
         submitStatus.textContent = '';
         submitStatus.classList.remove('is-error');
 
+        let localResult = null;
         try {
+            if (isLocal) {
+                submitButton.textContent = 'Проверяем решение…';
+                const testsResponse = await authFetch(
+                    `/api/tasks/${encodeURIComponent(task.id)}/local-tests`,
+                    { signal: abortController.signal }
+                );
+                if (!testsResponse.ok) {
+                    const detail = await getErrorDetail(testsResponse);
+                    throw new Error(detail || 'Не удалось загрузить тесты. Обновите страницу и попробуйте снова.');
+                }
+                localResult = await runLocalPythonTests({
+                    sourceCode: submittedSource,
+                    testBundle: await testsResponse.json(),
+                    signal: abortController.signal,
+                    onProgress: (message) => { submitStatus.textContent = message; },
+                });
+                if (isDestroyed) return;
+                statusPanel.render(localResult);
+                submitStatus.textContent = 'Сохраняем результат проверки…';
+            }
             const response = await authFetch('/api/submissions', {
                 method: 'POST',
+                signal: abortController.signal,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     task_id: task.id,
-                    source_code: sourceCode,
+                    source_code: submittedSource,
+                    ...(localResult ? { local_result: {
+                        status: localResult.status,
+                        passed_tests: localResult.passed_tests,
+                        failed_test_id: localResult.failed_test_id,
+                        actual_output: localResult.actual_output,
+                    } } : {}),
                 }),
             });
 
@@ -247,21 +286,28 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
             }
 
             const submission = await response.json();
+            if (isDestroyed) return;
             if (displaySubmission(submission)) {
                 startPolling();
             }
         } catch (error) {
+            if (isDestroyed) return;
             latestSubmissionStatus = null;
             if (error.message !== 'authentication-required') {
-                submitStatus.textContent = error.message || 'Не удалось отправить решение.';
+                submitStatus.textContent = localResult
+                    ? `Проверка завершена, но результат не сохранён. ${error.message || 'Попробуйте отправить решение ещё раз.'}`
+                    : error.message || 'Не удалось отправить решение.';
                 submitStatus.classList.add('is-error');
             }
         } finally {
             isSubmitting = false;
-            if (!ACTIVE_SUBMISSION_STATUSES.has(latestSubmissionStatus)) {
-                submitButton.disabled = false;
+            if (!isDestroyed) {
+                editor.setEditable(true);
+                if (!ACTIVE_SUBMISSION_STATUSES.has(latestSubmissionStatus)) {
+                    submitButton.disabled = false;
+                }
+                submitButton.textContent = SUBMIT_LABEL;
             }
-            submitButton.textContent = SUBMIT_LABEL;
         }
     });
 
@@ -270,6 +316,7 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
             return;
         }
         isDestroyed = true;
+        abortController.abort();
         stopPolling();
         editor.destroy();
         window.removeEventListener('pagehide', cleanup);

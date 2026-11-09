@@ -2,8 +2,9 @@ from fastapi import status, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.task import TaskCreate, TaskUpdate
-from app.models import Task, Step
+from app.schemas.task import TaskCreate, TaskUpdate, LocalTaskTests
+from app.models import Task, Step, TestCase
+from app.enums import TaskCheckingMode
 
 
 async def create_task(taskInfo: TaskCreate, db: AsyncSession) -> Task:
@@ -27,6 +28,7 @@ async def create_task(taskInfo: TaskCreate, db: AsyncSession) -> Task:
 
     new_task = Task(
         step_id=taskInfo.step_id,
+        checking_mode=taskInfo.checking_mode,
         starter_code=taskInfo.starter_code,
         time_limit_ms=taskInfo.time_limit_ms,
         memory_limit_mb=taskInfo.memory_limit_mb
@@ -53,6 +55,22 @@ async def get_task(task_id: int, db: AsyncSession) -> Task:
             detail="Task not found"
         )
     return task
+
+
+async def get_local_tests(task_id: int, db: AsyncSession) -> LocalTaskTests:
+    task = await get_task(task_id=task_id, db=db)
+    if task.checking_mode != TaskCheckingMode.LOCAL:
+        raise HTTPException(status_code=409, detail="Task requires server checking")
+    # Hidden tests are also required in the browser for local checking.
+    tests = (await db.scalars(
+        select(TestCase).where(TestCase.task_id == task_id)
+        .order_by(TestCase.order, TestCase.id)
+    )).all()
+    if not tests:
+        raise HTTPException(status_code=409, detail="Task has no tests")
+    return LocalTaskTests(
+        task_id=task.id, time_limit_ms=task.time_limit_ms, test_cases=tests
+    )
 
 
 async def get_task_by_step(step_id: int, db: AsyncSession) -> Task:

@@ -19,6 +19,7 @@ const elements = {
     starterCodeEditor: document.querySelector('[data-starter-code-editor]'),
     timeLimit: document.querySelector('[data-time-limit]'),
     memoryLimit: document.querySelector('[data-memory-limit]'),
+    checkingMode: document.querySelector('[data-checking-mode]'),
     testZip: document.querySelector('[data-test-zip]'),
     uploadTestsButton: document.querySelector('[data-upload-tests]'),
     testUploadStatus: document.querySelector('[data-test-upload-status]'),
@@ -105,6 +106,7 @@ const setEditorLoading = (loading) => {
     elements.saveButton.disabled = loading;
     elements.timeLimit.disabled = loading;
     elements.memoryLimit.disabled = loading;
+    elements.checkingMode.disabled = loading;
     elements.testZip.disabled = loading || !state.task?.id;
     elements.uploadTestsButton.disabled = loading || !state.task?.id;
     state.codeEditor?.setEditable(!loading);
@@ -115,6 +117,7 @@ const setTaskValues = (task) => {
     state.starterCode = task?.starter_code ?? '';
     elements.timeLimit.value = String(task?.time_limit_ms ?? 1000);
     elements.memoryLimit.value = String(task?.memory_limit_mb ?? 128);
+    elements.checkingMode.value = task?.checking_mode ?? 'local';
 };
 
 const mountCodeEditor = () => {
@@ -134,12 +137,9 @@ const loadTask = async () => {
         throw new Error('Invalid step ID.');
     }
 
-    let response = await authFetch(`/api/steps/${encodeURIComponent(stepId)}/task`);
-    if (response.status >= 500) {
-        response = await authFetch(
-            `/api/tasks/admin/by-step/${encodeURIComponent(stepId)}`
-        );
-    }
+    const response = await authFetch(
+        `/api/tasks/admin/by-step/${encodeURIComponent(stepId)}`
+    );
     if (response.status === 404) {
         setTaskValues(null);
         return;
@@ -288,6 +288,7 @@ const getNumberFieldValue = (input, fallback) => {
 };
 
 const buildPayload = () => ({
+    checking_mode: elements.checkingMode.value,
     starter_code: state.starterCode || null,
     time_limit_ms: getNumberFieldValue(elements.timeLimit, 1000),
     memory_limit_mb: getNumberFieldValue(elements.memoryLimit, 128),

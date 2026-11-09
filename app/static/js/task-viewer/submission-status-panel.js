@@ -232,6 +232,7 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
             runResult.execution_time_ms,
             runResult.timed_out,
             runResult.oom_killed,
+            submission.actual_output,
         ]);
         if (renderKey === currentRenderKey) return;
         currentRenderKey = renderKey;
@@ -278,6 +279,13 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
         }
         if (!hasRuntimeResultDetails) {
             appendExecutionTime(content, runResult);
+        }
+        if (!hasRuntimeResultDetails && hasOutput(submission.actual_output)) {
+            content.append(createResultSection(
+                status === 'RUNTIME_ERROR' ? 'Ошибка выполнения' : 'Вывод программы',
+                submission.actual_output,
+                { code: true }
+            ));
         }
 
         const testCaseId = submission.test_case_id ?? submission.failed_test_id;

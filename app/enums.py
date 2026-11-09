@@ -13,6 +13,11 @@ class FileType(str, Enum):
     ARCHIVE = "archive"
 
 
+class TaskCheckingMode(str, Enum):
+    LOCAL = "local"
+    SERVER = "server"
+
+
 class SubmissionStatus(str, Enum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"

@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from datetime import datetime, UTC
 from app.models.base import Base
-from sqlalchemy import DateTime, Integer, ForeignKey, Text
+from sqlalchemy import DateTime, Integer, ForeignKey, Text, Enum
+from app.enums import TaskCheckingMode
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -22,6 +23,19 @@ class Task(Base):
     )
 
     starter_code: Mapped[str | None] = mapped_column(Text, default=None)
+
+    checking_mode: Mapped[TaskCheckingMode] = mapped_column(
+        Enum(
+            TaskCheckingMode,
+            values_callable=lambda modes: [mode.value for mode in modes],
+            native_enum=False,
+            create_constraint=True,
+            name="task_checking_mode",
+        ),
+        default=TaskCheckingMode.LOCAL,
+        server_default="local",
+        nullable=False,
+    )
 
     time_limit_ms: Mapped[int] = mapped_column(Integer, default=1000, nullable=False)
     memory_limit_mb: Mapped[int] = mapped_column(Integer, default=128, nullable=False)

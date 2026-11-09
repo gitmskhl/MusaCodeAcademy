@@ -189,6 +189,14 @@ async def require_task_enrollment(
     current_user: CurrentUser,
     db: DBSession,
 ) -> models.User:
+    return await require_task_path_enrollment(submissionInfo.task_id, current_user, db)
+
+
+async def require_task_path_enrollment(
+    task_id: int,
+    current_user: CurrentUser,
+    db: DBSession,
+) -> models.User:
     result = await db.execute(
         select(models.Course.id)
             .join(models.Section, models.Section.course_id == models.Course.id)
@@ -196,7 +204,7 @@ async def require_task_enrollment(
             .join(models.Step, models.Step.lesson_id == models.Lesson.id)
             .join(models.Task, models.Task.step_id == models.Step.id)
             .where(
-                models.Task.id == submissionInfo.task_id,
+                models.Task.id == task_id,
                 models.Course.is_published.is_(True)
             )
     )
@@ -211,6 +219,7 @@ async def require_task_enrollment(
 
 
 TaskEnrolledUser = Annotated[models.User, Depends(require_task_enrollment)]
+TaskPathEnrolledUser = Annotated[models.User, Depends(require_task_path_enrollment)]
 
 
 async def require_lesson_enrollment(lesson_id: int, current_user: CurrentUser, db: DBSession) -> models.User:

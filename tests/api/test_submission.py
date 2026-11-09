@@ -1,13 +1,14 @@
 from datetime import datetime
 
 import pytest
+import pytest_asyncio
 from fastapi import status
 from sqlalchemy import select
 from unittest.mock import AsyncMock
 from app.services import submission as service_submission
-from app.enums import SubmissionStatus
+from app.enums import SubmissionStatus, TaskCheckingMode
 from app.main import app
-from app.models import Enrollment, Lesson, Section, Step, Submission, Task, User
+from app.models import Enrollment, Lesson, Section, Step, Submission, Task, User, TestCase as TaskTestCase, StepProgress
 
 
 SUBMISSION_DETAIL_FIELDS = {
@@ -80,9 +81,10 @@ async def create_step(db, section_factory, *, is_published: bool = True) -> Step
     return step
 
 
-async def create_task(db, step_id: int) -> Task:
+async def create_task(db, step_id: int, checking_mode=TaskCheckingMode.SERVER) -> Task:
     task = Task(
         step_id=step_id,
+        checking_mode=checking_mode,
         starter_code="print('hello')",
         time_limit_ms=1000,
         memory_limit_mb=128,
@@ -694,3 +696,154 @@ async def test_get_last_submission_requires_authentication(client):
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {"detail": "Not authenticated"}
+
+
+# Local Python checking: the browser executes tests; the API only stores results.
+
+@pytest_asyncio.fixture
+async def local_task_context(client, auth_headers, user_data, section_factory, db):
+    user = await get_user_by_email(db, user_data['email'])
+    step = await create_step(db, section_factory, is_published=True)
+    task = await create_task(db, step.id, checking_mode=TaskCheckingMode.LOCAL)
+    await create_enrollment(db, user_id=user.id, course_id=await get_course_id_for_task(db, task.id))
+    tests = [
+        TaskTestCase(task_id=task.id, input='2\n', expected_output='4\n', order=1, is_hidden=False),
+        TaskTestCase(task_id=task.id, input='3\n', expected_output='6\n', order=2, is_hidden=True),
+    ]
+    db.add_all(tests)
+    await db.commit()
+    return task, tests, user
+
+
+def local_payload(task, **result):
+    return {
+        'task_id': task.id,
+        'source_code': 'print(int(input()) * 2)',
+        'local_result': {'status': 'ACCEPTED', 'passed_tests': 2, **result},
+    }
+
+
+@pytest.mark.asyncio
+async def test_local_tests_include_hidden_tests_in_order(client, auth_headers, local_task_context):
+    task, tests, _ = local_task_context
+    response = await client.get(f'/api/tasks/{task.id}/local-tests', headers=auth_headers)
+    assert response.status_code == 200
+    assert response.headers['cache-control'] == 'no-store'
+    body = response.json()
+    assert body['task_id'] == task.id
+    assert body['time_limit_ms'] == task.time_limit_ms
+    assert [test['id'] for test in body['test_cases']] == [test.id for test in tests]
+    assert body['test_cases'][1]['expected_output'] == '6\n'
+    assert body['test_cases'][1]['is_hidden'] is True
+
+
+@pytest.mark.asyncio
+async def test_local_success_saves_submission_and_progress_without_queue(
+    client, auth_headers, local_task_context, db, monkeypatch,
+):
+    task, _, user = local_task_context
+    enqueue = AsyncMock(side_effect=AssertionError('Local checking must not use Redis'))
+    monkeypatch.setattr(service_submission, 'enqueu', enqueue)
+    for _ in range(2):
+        response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(task))
+        assert response.status_code == 201
+        body = response.json()
+        assert body['status'] == 'ACCEPTED'
+        assert body['passed_tests'] == body['total_tests'] == 2
+        assert body['failed_test_id'] is None
+        saved = await db.get(Submission, body['id'])
+        assert saved.user_id == user.id
+    progress = (await db.scalars(select(StepProgress).where(
+        StepProgress.user_id == user.id, StepProgress.step_id == task.step_id,
+    ))).all()
+    assert len(progress) == 1
+    enqueue.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('result_status', [
+    'WRONG ANSWER', 'RUNTIME_ERROR', 'TIME_LIMIT_EXCEEDED', 'MEMORY_LIMIT_EXCEEDED',
+])
+async def test_local_failure_is_saved_without_completing_step(
+    client, auth_headers, local_task_context, db, monkeypatch, result_status,
+):
+    task, tests, _ = local_task_context
+    enqueue = AsyncMock()
+    monkeypatch.setattr(service_submission, 'enqueu', enqueue)
+    response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(
+        task, status=result_status, passed_tests=1, failed_test_id=tests[1].id, actual_output='oops',
+    ))
+    assert response.status_code == 201
+    assert response.json()['status'] == result_status
+    assert response.json()['failed_test_id'] == tests[1].id
+    assert response.json()['actual_output'] == 'oops'
+    assert (await db.scalars(select(StepProgress))).all() == []
+    enqueue.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('result', [
+    {'passed_tests': 0},
+    {'passed_tests': 3},
+    {'failed_test_id': 999999},
+    {'status': 'WRONG ANSWER', 'passed_tests': 2},
+    {'status': 'RUNTIME_ERROR', 'passed_tests': 0, 'failed_test_id': 999999},
+])
+async def test_local_result_must_match_task_tests(client, auth_headers, local_task_context, result):
+    task, _, _ = local_task_context
+    response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(task, **result))
+    assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_local_task_requires_local_result(client, auth_headers, local_task_context, monkeypatch):
+    task, _, _ = local_task_context
+    enqueue = AsyncMock()
+    monkeypatch.setattr(service_submission, 'enqueu', enqueue)
+    response = await client.post('/api/submissions', headers=auth_headers, json={
+        'task_id': task.id, 'source_code': 'print(42)',
+    })
+    assert response.status_code == 409
+    enqueue.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_server_task_rejects_local_tests_and_local_result(client, auth_headers, local_task_context, db):
+    task, _, _ = local_task_context
+    task.checking_mode = TaskCheckingMode.SERVER
+    await db.commit()
+    response = await client.get(f'/api/tasks/{task.id}/local-tests', headers=auth_headers)
+    assert response.status_code == 409
+    response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(task))
+    assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_local_tests_and_results_require_enrollment(client, auth_headers, local_task_context, db):
+    task, _, user = local_task_context
+    enrollment = await db.scalar(select(Enrollment).where(Enrollment.user_id == user.id))
+    await db.delete(enrollment)
+    await db.commit()
+    response = await client.get(f'/api/tasks/{task.id}/local-tests', headers=auth_headers)
+    assert response.status_code == 403
+    response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(task))
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_local_tests_require_authentication(client, local_task_context):
+    task, _, _ = local_task_context
+    response = await client.get(f'/api/tasks/{task.id}/local-tests')
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_task_without_tests_cannot_be_accepted(client, auth_headers, local_task_context, db):
+    task, tests, _ = local_task_context
+    for test in tests:
+        await db.delete(test)
+    await db.commit()
+    response = await client.get(f'/api/tasks/{task.id}/local-tests', headers=auth_headers)
+    assert response.status_code == 409
+    response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(task, passed_tests=0))
+    assert response.status_code == 409

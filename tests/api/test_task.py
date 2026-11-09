@@ -11,6 +11,7 @@ TASK_FIELDS = {
     "starter_code",
     "time_limit_ms",
     "memory_limit_mb",
+    "checking_mode",
 }
 
 
@@ -66,6 +67,7 @@ def assert_task_response(data: dict, task: Task) -> None:
     assert data["starter_code"] == task.starter_code
     assert data["time_limit_ms"] == task.time_limit_ms
     assert data["memory_limit_mb"] == task.memory_limit_mb
+    assert data["checking_mode"] == task.checking_mode
 
 
 def delete_task_url(task_id: int | str) -> str:
@@ -114,6 +116,7 @@ async def test_create_task_admin_success(
     assert data["starter_code"] == "print('start')"
     assert data["time_limit_ms"] == 2000
     assert data["memory_limit_mb"] == 256
+    assert data["checking_mode"] == "local"
 
 
 @pytest.mark.asyncio
@@ -582,3 +585,39 @@ async def test_update_task_admin_rejects_invalid_id(client, admin_headers):
 
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
     assert response.json()["detail"][0]["loc"] == ["path", "task_id"]
+
+
+@pytest.mark.asyncio
+async def test_admin_can_switch_task_checking_mode(client, admin_headers, section_factory, db):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    assert task.checking_mode == 'local'
+    for mode in ('server', 'local'):
+        response = await client.patch(update_task_url(task.id), headers=admin_headers, json={'checking_mode': mode})
+        assert response.status_code == 200
+        assert response.json()['checking_mode'] == mode
+        await db.refresh(task)
+        assert task.checking_mode == mode
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('mode', ['invalid', None])
+async def test_admin_cannot_set_invalid_checking_mode(client, admin_headers, section_factory, db, mode):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    response = await client.patch(update_task_url(task.id), headers=admin_headers, json={'checking_mode': mode})
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_updating_task_keeps_server_mode_if_omitted(client, admin_headers, section_factory, db):
+    step = await create_step(db, section_factory)
+    response = await client.post(create_task_url(), headers=admin_headers, json={
+        'step_id': step.id, 'checking_mode': 'server',
+    })
+    assert response.status_code == 201
+    response = await client.patch(update_task_url(response.json()['id']), headers=admin_headers, json={
+        'starter_code': 'print(42)',
+    })
+    assert response.status_code == 200
+    assert response.json()['checking_mode'] == 'server'

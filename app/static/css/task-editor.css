@@ -97,6 +97,13 @@
     font-weight: 700;
 }
 
+.task-checking-hint {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 12px;
+}
+
 .test-upload {
     display: flex;
     align-items: flex-end;
