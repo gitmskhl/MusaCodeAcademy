@@ -39,7 +39,14 @@
         aria-labelledby="step-drawer-title"
         data-step-drawer
     >
-        <button class="step-drawer__close" type="button" aria-label="Закрыть навигацию по шагам" data-step-drawer-close>×</button>
+        <button class="step-drawer__close" type="button" aria-label="Закрыть навигацию по шагам" data-step-drawer-close>
+            <svg class="step-drawer__close-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="m15 6-6 6 6 6" />
+            </svg>
+            <svg class="step-drawer__close-cross" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+                <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+        </button>
         <header class="step-drawer__header">
             <p class="step-drawer__eyebrow">Урок</p>
             <h2

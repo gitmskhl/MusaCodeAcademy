@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8f2">
+    <title>{% block title %}{% endblock %} | Musa Code Academy</title>
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/password-toggle.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/password-toggle.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</head>
+<body>
+    <a class="skip-link" href="#auth-form">Перейти к форме</a>
+    <header class="auth-header">
+        <a class="brand" href="/" aria-label="Musa Code Academy — главная">
+            <img class="brand-mark" src="{{ url_for('static', path='images/academy-mark.svg') }}" width="48" height="48" alt="" aria-hidden="true">
+            <span class="brand-name">musa<span>code academy</span></span>
+        </a>
+        <a class="back-link" href="/">На главную <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main class="auth-layout">
+        <aside class="auth-story" aria-labelledby="story-title">
+            <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> ТВОЯ ТОЧКА ВХОДА В IT</p>
+            <h2 id="story-title">{% block story_title %}{% endblock %}</h2>
+            <p class="story-description">{% block story_description %}{% endblock %}</p>
+            <div class="story-code" aria-hidden="true">
+                <div class="code-heading"><div class="window-dots"><i></i><i></i><i></i></div><span>your_next_step.py</span><span>✦</span></div>
+                <div class="code-lines"><span><i>01</i><span class="code-comment"># Всё начинается с любопытства</span></span><span><i>02</i>you.<span class="code-lime">learn</span>()</span><span><i>03</i>you.<span class="code-lime">practice</span>()</span><span><i>04</i>you.<span class="code-lime">grow</span>()<b class="code-cursor"></b></span></div>
+                <div class="code-result"><span>✓</span> Сегодня ты можешь чуть больше, чем вчера</div>
+            </div>
+            <div class="story-note"><span aria-hidden="true">✳</span><p>В своём темпе.<br><strong>С верой в свои возможности.</strong></p></div>
+        </aside>
+
+        <section class="panel" id="auth-form" aria-labelledby="auth-title">
+            {% block form_content %}{% endblock %}
+        </section>
+    </main>
+
+    <footer class="auth-footer"><span>© Musa Code Academy</span><span>С любопытством к коду. С верой в тебя.</span><a href="/courses">Посмотреть курсы <span aria-hidden="true">↗</span></a></footer>
+</body>
+</html>

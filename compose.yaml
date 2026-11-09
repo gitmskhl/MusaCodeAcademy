@@ -2,16 +2,13 @@ services:
   postgres:
     image: postgres:17
     container_name: mca-postgres
-    restart: "no"
+    restart: unless-stopped
 
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     
-    ports:
-      - "5432:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -25,8 +22,6 @@ services:
     image: redis:7
     restart: unless-stopped
     container_name: mca-redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -36,6 +31,7 @@ services:
   app:
     build: .
     image: musacodeacademy-app
+    restart: unless-stopped
     env_file:
       - .env
     environment:

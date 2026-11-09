@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Перейти к содержимому</a>
     <header class="site-header container">
         <a class="brand" href="/" aria-label="Musa Code Academy — главная">
-            <span class="brand-mark" aria-hidden="true">m<span>.</span></span>
+            <img class="brand-mark" src="{{ url_for('static', path='images/academy-mark.svg') }}" width="48" height="48" alt="" aria-hidden="true">
             <span class="brand-name">musa<span>code academy</span></span>
         </a>
         <nav class="desktop-nav" aria-label="Основная навигация">
@@ -76,6 +76,6 @@
         <section class="cta-section container" aria-labelledby="cta-title"><div class="cta-decoration" aria-hidden="true">✳</div><p class="eyebrow">СЛЕДУЮЩАЯ СТРОКА — ТВОЯ</p><h2 id="cta-title">А что создашь ты?</h2><p>Первая программа, новый навык или дело всей жизни.<br>Начни с маленького шага сегодня.</p><a class="button button-dark" href="/register" data-home-start>Начать учиться <span aria-hidden="true">↗</span></a><span class="cta-code" aria-hidden="true">&lt;your_future /&gt;</span></section>
     </main>
 
-    <footer class="site-footer container"><a class="brand" href="/" aria-label="Musa Code Academy — главная"><span class="brand-mark" aria-hidden="true">m<span>.</span></span><span class="brand-name">musa<span>code academy</span></span></a><p>С любопытством к коду. С верой в тебя.</p><nav aria-label="Навигация в подвале"><a href="/courses">Курсы</a><a href="/login" data-home-account>Войти</a><a href="#main">Наверх ↑</a></nav><span class="copyright">© Musa Code Academy</span></footer>
+    <footer class="site-footer container"><a class="brand" href="/" aria-label="Musa Code Academy — главная"><img class="brand-mark" src="{{ url_for('static', path='images/academy-mark.svg') }}" width="48" height="48" alt="" aria-hidden="true"><span class="brand-name">musa<span>code academy</span></span></a><p>С любопытством к коду. С верой в тебя.</p><nav aria-label="Навигация в подвале"><a href="/courses">Курсы</a><a href="/login" data-home-account>Войти</a><a href="#main">Наверх ↑</a></nav><span class="copyright">© Musa Code Academy</span></footer>
 </body>
 </html>

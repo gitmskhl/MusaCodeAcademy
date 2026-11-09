@@ -9,7 +9,7 @@
 .app-header { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #dfe4d6; background: #f7f8f2f2; backdrop-filter: blur(18px); }
 .app-header__inner { display: flex; align-items: center; justify-content: space-between; width: min(100% - 80px, 1200px); min-height: var(--app-header-height); margin-inline: auto; gap: 25px; }
 .app-header__brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; color: var(--app-header-text); font-size: 15px; font-weight: 750; text-decoration: none; }
-.app-header__mark { display: block; width: 38px; height: 38px; padding-right: 4px; border-radius: 10px; color: #d4f478; background: #242820; font-size: 29px; font-weight: 850; letter-spacing: -4px; line-height: 35px; text-align: center; }
+.app-header__mark { display: block; flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; }
 .app-header__brand-name { font-size: 24px; letter-spacing: -1px; line-height: 1; font-weight: 800; }
 .app-header__brand-name > span { display: block; margin-top: 5px; font-size: 9px; font-weight: 500; letter-spacing: 1.1px; }
 .app-header__nav { display: flex; align-items: center; gap: 9px; }

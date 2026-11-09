@@ -1,0 +1,21 @@
+.course-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.course-unenroll-button { min-height: 40px; padding: 8px 4px; border: 0; border-radius: 5px; color: #7b6258; background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
+.course-unenroll-button:hover { color: #a23c26; text-decoration: underline; text-underline-offset: 4px; }
+.course-unenroll-button:focus-visible { outline: 2px solid #769746; outline-offset: 3px; }
+.course-info-card .course-unenroll-button { display: block; width: 100%; margin-top: 8px; }
+.course-unenroll-button[hidden], .unenroll-dialog [hidden] { display: none !important; }
+.unenroll-dialog { width: min(440px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; margin: auto; padding: 30px; border: 1px solid #dce1d2; border-radius: 15px; color: #242820; background: #fffefa; box-shadow: 0 25px 80px #18201133; font-family: Inter, "Segoe UI", Arial, sans-serif; }
+.unenroll-dialog::backdrop { background: #20271e80; backdrop-filter: blur(3px); }
+.unenroll-dialog__icon { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 19px; border-radius: 10px; color: #687e42; background: #edf3df; font-size: 23px; }
+.unenroll-dialog h2 { margin: 0 0 12px; font-size: 24px; font-weight: 650; letter-spacing: -.6px; line-height: 1.2; }
+.unenroll-dialog p { color: #69715f; font-size: 13px; line-height: 1.8; margin: 0 0 20px; overflow-wrap: anywhere; }
+.unenroll-dialog .unenroll-dialog__course { color: #3e4a32; font-weight: 600; margin-bottom: 10px; }
+.unenroll-dialog .unenroll-dialog__error { padding: 10px 12px; border: 1px solid #eed4ca; border-radius: 7px; color: #a23c26; background: #fcf1eb; font-size: 12px; }
+.unenroll-dialog__actions { display: flex; gap: 12px; margin-top: 26px; }
+.unenroll-dialog button { flex: 1; min-height: 44px; border: 1px solid #dce1d2; border-radius: 7px; padding: 10px; color: #3e4a32; background: #f7f8f2; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.unenroll-dialog button:hover { background: #edf3df; }
+.unenroll-dialog [data-unenroll-confirm] { border-color: #efd6ca; color: #963e29; background: #faeee7; }
+.unenroll-dialog [data-unenroll-confirm]:hover { background: #f5e2d7; }
+.unenroll-dialog button:focus-visible { outline: 3px solid #769746; outline-offset: 3px; }
+.unenroll-dialog button:disabled { opacity: .65; cursor: wait; }
+@media (max-width: 420px) { .unenroll-dialog { padding: 24px; }.unenroll-dialog h2 { font-size: 22px; } }

@@ -127,7 +127,6 @@ export const renderBrowserPythonBlock = (
 
     const status = document.createElement('span');
     status.className = 'browser-code__status';
-    status.textContent = 'Python выполняется в вашем браузере';
 
     toolbar.append(runButton, stopButton, status);
 

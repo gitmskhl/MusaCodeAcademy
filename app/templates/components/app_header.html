@@ -1,0 +1,22 @@
+<a class="app-skip-link" href="#app-main">Перейти к содержимому</a>
+<header class="app-header">
+    <div class="app-header__inner">
+        <a class="app-header__brand" href="/dashboard" aria-label="Musa Code Academy — моё обучение">
+            <img class="app-header__mark" src="{{ url_for('static', path='images/academy-mark.svg') }}" width="48" height="48" alt="" aria-hidden="true">
+            <span class="app-header__brand-name">musa<span>code academy</span></span>
+        </a>
+        <nav class="app-header__nav" aria-label="Основная навигация">
+            <a href="/dashboard"{% if request.url.path == '/dashboard' or '/sections' in request.url.path or '/steps/' in request.url.path %} aria-current="page"{% endif %}>Моё обучение</a>
+            <a href="/courses"{% if request.url.path != '/dashboard' and '/sections' not in request.url.path and '/steps/' not in request.url.path %} aria-current="page"{% endif %}>Все курсы <span aria-hidden="true">↗</span></a>
+        </nav>
+        <div class="app-header__profile" data-app-profile>
+            <button class="app-header__profile-button" type="button" aria-label="Открыть меню аккаунта" aria-haspopup="true" aria-expanded="false" data-app-profile-button>М</button>
+            <div class="app-header__menu" role="menu" aria-label="Аккаунт">
+                <p class="app-header__menu-label">ТВОЁ ПРОСТРАНСТВО</p>
+                <a class="app-header__menu-item" href="/dashboard" role="menuitem">Моё обучение</a>
+                <a class="app-header__menu-item" href="/" role="menuitem">О платформе <span aria-hidden="true">↗</span></a>
+                <button class="app-header__menu-item app-header__menu-item--logout" type="button" role="menuitem" data-app-logout>Выйти из аккаунта</button>
+            </div>
+        </div>
+    </div>
+</header>

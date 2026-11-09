@@ -105,7 +105,6 @@ const setDrawerOpen = (isOpen, { focus = true, remember = false } = {}) => {
     elements.drawerToggle.setAttribute('aria-label', visible ? 'Закрыть навигацию по шагам' : 'Открыть навигацию по шагам');
     elements.drawer.setAttribute('aria-hidden', String(!visible));
     elements.drawer.inert = !visible;
-    elements.drawerClose.textContent = desktopDrawer.matches ? '‹' : '×';
     elements.drawerClose.setAttribute('aria-label', desktopDrawer.matches ? 'Скрыть панель шагов' : 'Закрыть навигацию по шагам');
     elements.drawerClose.title = desktopDrawer.matches ? 'Скрыть панель шагов' : 'Закрыть';
     if (mobileOpen) {
