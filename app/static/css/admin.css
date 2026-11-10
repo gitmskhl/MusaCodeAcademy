@@ -198,6 +198,26 @@ button {
     justify-content: space-between;
 }
 
+.database-backup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.database-backup > div {
+    flex: 1 1 300px;
+}
+
+.database-backup h2 {
+    margin-bottom: 8px;
+}
+
+.database-backup [role="status"] {
+    flex-basis: 100%;
+}
+
 h1,
 h2,
 h3,

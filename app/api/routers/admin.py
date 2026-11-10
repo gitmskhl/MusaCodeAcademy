@@ -2,6 +2,7 @@ from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 
 from app.api.dependencies import DBSession, OnlyAdmin, require_role
@@ -12,6 +13,7 @@ from app.schemas.admin import (
     AdminUser, AdminUserDetail, AdminUserPage, UserBlockUpdate,
 )
 from app.services import admin as service
+from app.services.database_backup import DatabaseBackupResponse, create_database_backup
 
 router = APIRouter(dependencies=[Depends(require_role(UserRole.ADMIN))])
 Page = Annotated[int, Query(ge=1, le=1_000_000)]
@@ -19,6 +21,15 @@ PageSize = Annotated[int, Query(ge=1, le=100)]
 OptionalId = Annotated[int | None, Query(gt=0, le=2_147_483_647)]
 RecordId = Annotated[int, Path(gt=0, le=2_147_483_647)]
 Search = Annotated[str | None, Query(max_length=255)]
+
+
+@router.post("/database/export", response_class=FileResponse)
+async def export_database():
+    path = await create_database_backup()
+    return DatabaseBackupResponse(
+        path, filename=path.name, media_type="application/octet-stream",
+        headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"},
+    )
 
 
 @router.get("/courses", response_model=list[AdminCourseOption])

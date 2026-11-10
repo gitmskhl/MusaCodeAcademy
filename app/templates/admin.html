@@ -20,6 +20,15 @@
                 <a class="button button--primary" href="/admin/courses/create">Создать курс</a>
             </header>
 
+            <section class="section-block database-backup" aria-labelledby="database-backup-title">
+                <div>
+                    <h2 id="database-backup-title">Резервная копия БД</h2>
+                    <p class="lead">Скачать всю базу: курсы, пользователей, решения и прогресс. Изображения из uploads сохраняются отдельно.</p>
+                </div>
+                <button class="button button--ghost" type="button" data-database-export>Экспорт БД</button>
+                <p class="lead" role="status" aria-live="polite" data-database-export-status></p>
+            </section>
+
             <section class="section-block" aria-labelledby="my-courses-title">
                 <h2 id="my-courses-title">Мои курсы</h2>
 

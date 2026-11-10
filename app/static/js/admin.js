@@ -1,4 +1,5 @@
 import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/video-renderer.js';
+import { initDatabaseExport } from './admin-database-export.js';
 
 (function () {
     const TOKEN_KEY = 'musa_code_academy_token';
@@ -932,6 +933,8 @@ import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/vide
             if (!access) {
                 return;
             }
+
+            initDatabaseExport();
 
             if (state.courseList) {
                 await loadCourses();
