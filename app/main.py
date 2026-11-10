@@ -26,6 +26,7 @@ from app.api.routers import (
     submissionRouter,
 )
 from app.core.database import engine
+from app.api.routers.admin import router as admin_router
 from app.core.redis import redis
 from app.models import Base
 
@@ -128,6 +129,7 @@ app.include_router(
     tags=['submissions']
 )
 
+app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
 app.include_router(pagesRouter)
 
 

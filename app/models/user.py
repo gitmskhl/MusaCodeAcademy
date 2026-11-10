@@ -27,6 +27,9 @@ class User(Base):
         default=UserRole.STUDENT,
         nullable=False
     )
+
+    blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    block_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
     
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),

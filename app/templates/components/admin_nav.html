@@ -1,0 +1,6 @@
+<nav class="admin-nav" aria-label="Администрирование">
+    <a class="button button--ghost" href="/admin"{% if request.url.path == '/admin' %} aria-current="page"{% endif %}>Курсы</a>
+    <a class="button button--ghost" href="/admin/users"{% if request.url.path.startswith('/admin/users') %} aria-current="page"{% endif %}>Пользователи</a>
+    <a class="button button--ghost" href="/admin/submissions"{% if request.url.path.startswith('/admin/submissions') %} aria-current="page"{% endif %}>Отправки</a>
+    <a class="button button--ghost" href="/dashboard">Моё обучение ↗</a>
+</nav>

@@ -29,6 +29,8 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User not found"
             )
+        if user.blocked_at is not None:
+            raise HTTPException(status_code=403, detail="Аккаунт заблокирован. Обратитесь к администратору.")
         return user
     
     except InvalidTokenError:

@@ -45,6 +45,9 @@ async def get_user_id(
     )
     if not password_is_valid:
         return None
+
+    if user.blocked_at is not None:
+        raise HTTPException(status_code=403, detail="Аккаунт заблокирован. Обратитесь к администратору.")
     
     if refresh_last_login_at:
         user.last_login_at = datetime.now(UTC)

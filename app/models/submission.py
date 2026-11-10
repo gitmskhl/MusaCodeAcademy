@@ -13,6 +13,8 @@ class Submission(Base):
     __tablename__ = "submissions"
 
     __table_args__ = (
+        Index("ix_submissions_submitted_at_id", "submitted_at", "id"),
+        Index("ix_submissions_user_submitted_at", "user_id", "submitted_at"),
         Index(
             "ix_submission_task_user_submitted_at",
             "task_id",

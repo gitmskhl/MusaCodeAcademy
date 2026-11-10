@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Администрирование — Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin-monitoring.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/admin-monitoring.js') }}"></script>
+</head>
+<body data-view="{{ view }}" data-record-id="{{ record_id }}">
+<div class="admin-page">
+    <div class="admin-loading" data-loading role="status">Проверка доступа…</div>
+    <main class="admin-shell monitoring-shell" data-shell hidden>
+        {% include 'components/admin_nav.html' %}
+        <header class="admin-header">
+            <div class="monitoring-heading"><p class="monitoring-eyebrow">MUSA CODE ACADEMY / АДМИНИСТРИРОВАНИЕ</p><h1 data-title>Загрузка…</h1></div>
+        </header>
+        <div class="admin-error" data-error role="alert" hidden></div>
+        <div class="monitoring-notice" data-notice role="status" hidden></div>
+        <section class="section-block" data-filters hidden aria-label="Фильтры">
+            <form class="monitoring-filters" data-filter-form></form>
+        </section>
+        <div data-content aria-live="polite" aria-busy="true"></div>
+    </main>
+</div>
+<dialog class="block-dialog" data-block-dialog aria-labelledby="block-title">
+    <form data-block-form class="admin-form">
+        <h2 id="block-title" data-block-title>Блокировка пользователя</h2>
+        <p data-block-description></p>
+        <label class="field" data-reason-field>Причина блокировки
+            <textarea name="reason" maxlength="500" required rows="3"></textarea>
+        </label>
+        <p class="field-error" data-block-error role="alert"></p>
+        <div class="form-actions">
+            <button type="button" class="button button--ghost" data-block-cancel>Отмена</button>
+            <button type="submit" class="button button--danger" data-block-submit>Заблокировать</button>
+        </div>
+    </form>
+</dialog>
+</body>
+</html>

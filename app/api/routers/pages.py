@@ -69,6 +69,23 @@ async def admin_create_course_page(request: Request):
         request,
         "create_course.html"
     )
+
+
+@router.get("/admin/users", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/admin/submissions", response_class=HTMLResponse, include_in_schema=False)
+async def admin_monitoring_page(request: Request):
+    view = "users" if request.url.path.endswith("/users") else "submissions"
+    return templates.TemplateResponse(request, "admin_monitoring.html", {"view": view, "record_id": ""})
+
+
+@router.get("/admin/users/{user_id}", response_class=HTMLResponse, include_in_schema=False)
+async def admin_user_page(request: Request, user_id: int):
+    return templates.TemplateResponse(request, "admin_monitoring.html", {"view": "user", "record_id": user_id})
+
+
+@router.get("/admin/submissions/{submission_id}", response_class=HTMLResponse, include_in_schema=False)
+async def admin_submission_page(request: Request, submission_id: int):
+    return templates.TemplateResponse(request, "admin_monitoring.html", {"view": "submission", "record_id": submission_id})
   
 @router.get("/admin/courses/{course_id}/edit", response_class=HTMLResponse, include_in_schema=False)
 async def admin_edit_course_page(request: Request, course_id: int):
