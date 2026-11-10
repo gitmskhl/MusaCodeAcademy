@@ -640,3 +640,111 @@ a {
         transition-duration: 0.01ms !important;
     }
 }
+
+.course-video {
+    position: relative;
+    margin-bottom: 24px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: #17202d;
+    aspect-ratio: 16 / 9;
+}
+
+.course-video .rendered-video,
+.course-video-dialog .rendered-video {
+    margin: 0;
+}
+
+.course-video .rendered-video__frame,
+.course-video-dialog .rendered-video__frame {
+    aspect-ratio: var(--video-aspect-ratio, 16 / 9);
+    background: #111;
+}
+
+.course-video iframe,
+.course-video-dialog iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: inherit;
+    border: 0;
+}
+
+.course-video__preview {
+    pointer-events: none;
+}
+
+.course-video__open {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    color: #fff;
+    background: linear-gradient(transparent, rgb(0 0 0 / 65%));
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.course-video__play {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    padding-left: 3px;
+    border-radius: 50%;
+    color: var(--text);
+    background: #fff;
+    font-size: 20px;
+}
+
+.course-video__open:hover {
+    background: rgb(0 0 0 / 35%);
+}
+
+.course-video__open:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: -5px;
+}
+
+.course-video-dialog {
+    width: min(960px, calc(100% - 24px));
+    max-width: none;
+    max-height: calc(100dvh - 24px);
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.course-video-dialog::backdrop {
+    background: rgb(0 0 0 / 75%);
+}
+
+.course-video-dialog__header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.course-video-dialog__header h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 18px;
+}
+
+.course-video-dialog__close {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-size: 28px;
+    cursor: pointer;
+}

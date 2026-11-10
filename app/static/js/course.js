@@ -1,5 +1,8 @@
 import { authFetch } from './course-auth.js';
 import { confirmUnenrollment } from './course-unenroll.js';
+import { initCourseVideo } from './course-video.js';
+
+const renderCourseVideo = initCourseVideo();
 
 const elements = {
     root: document.querySelector('[data-course-page]'),
@@ -278,12 +281,14 @@ const renderCourse = (course) => {
 
     elements.unenrollButton.hidden = !course.is_enrolled;
     setEnrollmentButton();
+    renderCourseVideo(course);
     renderMeta(course, stats);
     renderOutcomes(course.outcomes);
     renderProgram(course.sections);
 };
 
 const setError = (message) => {
+    renderCourseVideo(null);
     elements.title.textContent = 'Курс недоступен';
     elements.description.textContent = message;
     elements.meta.replaceChildren();

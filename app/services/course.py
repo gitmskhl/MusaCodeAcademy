@@ -40,6 +40,7 @@ async def create_course(courseInfo: CourseCreate, db: DBSession) -> Course:
         level=courseInfo.level,
         price_label=courseInfo.price_label,
         outcomes=courseInfo.outcomes,
+        promo_video_url=courseInfo.promo_video_url,
     )
     db.add(new_course)
     

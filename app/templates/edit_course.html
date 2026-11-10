@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактировать курс</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
-    <script defer src="{{ url_for('static', path='js/edit_course.js') }}"></script>
+    <script type="module" src="{{ url_for('static', path='js/edit_course.js') }}"></script>
 </head>
 <body>
     <div class="admin-page">
@@ -80,6 +80,14 @@
                             maxlength="5000"
                         ></textarea>
                         <p class="field-error" data-error-for="description" aria-live="polite"></p>
+                    </div>
+
+                    <div class="field">
+                        <label for="course-promo-video">Видео о курсе (необязательно)</label>
+                        <textarea id="course-promo-video" name="promo_video_url" rows="3" maxlength="10000"
+                            placeholder='&lt;iframe src="https://kinescope.io/embed/..." ...&gt;&lt;/iframe&gt;'></textarea>
+                        <p class="field-hint">Вставьте код встраивания Kinescope или ссылку https://kinescope.io/embed/… Оставьте поле пустым, чтобы убрать видео.</p>
+                        <p class="field-error" data-error-for="promo_video_url" aria-live="polite"></p>
                     </div>
 
                     <div class="field">

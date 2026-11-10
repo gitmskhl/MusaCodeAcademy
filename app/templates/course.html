@@ -47,6 +47,13 @@
 
             <aside class="course-sidebar" aria-label="Информация о курсе">
                 <div class="course-info-card">
+                    <div class="course-video" data-course-video hidden>
+                        <div class="course-video__preview" data-course-video-preview aria-hidden="true" inert></div>
+                        <button class="course-video__open" type="button" data-course-video-open aria-haspopup="dialog" aria-controls="course-video-dialog">
+                            <span class="course-video__play" aria-hidden="true">▶</span>
+                            <span>Смотреть видео о курсе</span>
+                        </button>
+                    </div>
                     <dl class="course-facts">
                         <div>
                             <dt>Занятий:</dt>
@@ -75,6 +82,13 @@
             </aside>
         </div>
     </main>
+    <dialog id="course-video-dialog" class="course-video-dialog" data-course-video-dialog aria-labelledby="course-video-title">
+        <div class="course-video-dialog__header">
+            <h2 id="course-video-title" data-course-video-title>Видео о курсе</h2>
+            <button type="button" class="course-video-dialog__close" data-course-video-close aria-label="Закрыть видео" autofocus>×</button>
+        </div>
+        <div data-course-video-player></div>
+    </dialog>
     {% include "components/app_footer.html" %}
 </body>
 </html>

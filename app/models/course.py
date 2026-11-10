@@ -22,6 +22,8 @@ class Course(Base):
     short_description: Mapped[str] = mapped_column(Text, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
+    promo_video_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     level: Mapped[str] = mapped_column(String(80), default="Начинающий", nullable=False)
     price_label: Mapped[str] = mapped_column(String(120), default="Бесплатно", nullable=False)
     outcomes: Mapped[list[str]] = mapped_column(

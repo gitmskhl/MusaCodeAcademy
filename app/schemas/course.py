@@ -3,9 +3,22 @@ from typing import Any
 
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from .section import SectionShortInfo
+from .video import normalize_kinescope_embed_url
+
+
+def normalize_course_video(value: str | None) -> str | None:
+    if value is None or not value.strip():
+        return None
+    try:
+        return normalize_kinescope_embed_url(value)
+    except ValueError as exc:
+        raise ValueError("Вставьте код iframe Kinescope или ссылку https://kinescope.io/embed/...") from exc
 
 
 class CourseEditableFields(BaseModel):
+    promo_video_url: str | None = Field(default=None, max_length=10000)
+    _normalize_video = field_validator("promo_video_url")(normalize_course_video)
+
     level: str = Field(default="Начинающий", min_length=2, max_length=80)
     price_label: str = Field(default="Бесплатно", min_length=2, max_length=120)
     outcomes: list[str] = Field(default_factory=list, max_length=12)
@@ -62,6 +75,7 @@ class CoursePublic(BaseModel):
     level: str
     price_label: str
     outcomes: list[str] = Field(default_factory=list)
+    promo_video_url: str | None = None
     
     
 class CourseAdmin(BaseModel):
@@ -76,6 +90,7 @@ class CourseAdmin(BaseModel):
     level: str
     price_label: str
     outcomes: list[str] = Field(default_factory=list)
+    promo_video_url: str | None = None
     
     is_published: bool
     created_at: datetime
@@ -83,6 +98,9 @@ class CourseAdmin(BaseModel):
     
     
 class CourseUpdate(BaseModel):
+    promo_video_url: str | None = Field(default=None, max_length=10000)
+    _normalize_video = field_validator("promo_video_url")(normalize_course_video)
+
     title: str | None = Field(default=None, min_length=5, max_length=255)
     slug: str | None = Field(default=None, min_length=2, max_length=255)
     
@@ -124,6 +142,7 @@ class CourseInfo(BaseModel):
     level: str
     price_label: str
     outcomes: list[str] = Field(default_factory=list)
+    promo_video_url: str | None = None
     lessons_count: int = 0
     sections_count: int = 0
 

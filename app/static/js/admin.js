@@ -1,3 +1,5 @@
+import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/video-renderer.js';
+
 (function () {
     const TOKEN_KEY = 'musa_code_academy_token';
 
@@ -622,6 +624,7 @@
         const title = form.querySelector('#course-title');
         const shortDescription = form.querySelector('#course-short-description');
         const description = form.querySelector('#course-description');
+        const promoVideo = form.querySelector('#course-promo-video');
         const level = form.querySelector('#course-level');
         const priceLabel = form.querySelector('#course-price-label');
         const outcomes = form.querySelector('#course-outcomes');
@@ -630,6 +633,7 @@
         clearFieldError(form, 'title');
         clearFieldError(form, 'short_description');
         clearFieldError(form, 'description');
+        clearFieldError(form, 'promo_video_url');
         clearFieldError(form, 'level');
         clearFieldError(form, 'price_label');
         clearFieldError(form, 'outcomes');
@@ -642,10 +646,15 @@
             level: level ? level.value.trim() : '',
             price_label: priceLabel ? priceLabel.value.trim() : '',
             outcomes: parseOutcomesInput(outcomes),
+            promo_video_url: normalizeKinescopeEmbedUrl(promoVideo?.value) || null,
             slug: slug ? slug.value.trim() : '',
         };
 
         let firstInvalid = null;
+        if (promoVideo?.value.trim() && !normalizeKinescopeEmbedUrl(promoVideo.value)) {
+            setFieldError(form, 'promo_video_url', 'Вставьте код iframe Kinescope или ссылку https://kinescope.io/embed/...');
+            firstInvalid = promoVideo;
+        }
 
         if (!values.title) {
             setFieldError(form, 'title', 'Название курса обязательно.');
@@ -726,6 +735,7 @@
         const title = form.querySelector('#course-title');
         const shortDescription = form.querySelector('#course-short-description');
         const description = form.querySelector('#course-description');
+        const promoVideo = form.querySelector('#course-promo-video');
         const level = form.querySelector('#course-level');
         const priceLabel = form.querySelector('#course-price-label');
         const outcomes = form.querySelector('#course-outcomes');
@@ -790,7 +800,7 @@
             });
         }
 
-        ['title', 'short_description', 'description', 'level', 'price_label', 'outcomes', 'slug'].forEach((fieldName) => {
+        ['title', 'short_description', 'description', 'promo_video_url', 'level', 'price_label', 'outcomes', 'slug'].forEach((fieldName) => {
             const field = form.querySelector(`[name="${fieldName}"]`);
             if (!field) return;
 
@@ -833,6 +843,7 @@
                 level: level ? level.value.trim() : '',
                 price_label: priceLabel ? priceLabel.value.trim() : '',
                 outcomes: parseOutcomesInput(outcomes),
+                promo_video_url: normalizeKinescopeEmbedUrl(promoVideo?.value) || null,
             };
 
             isSubmitting = true;

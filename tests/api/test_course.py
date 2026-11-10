@@ -13,6 +13,7 @@ PUBLIC_COURSE_FIELDS = {
     "level",
     "price_label",
     "outcomes",
+    "promo_video_url",
 }
 ADMIN_COURSE_FIELDS = PUBLIC_COURSE_FIELDS | {
     "is_published",
@@ -1156,3 +1157,37 @@ async def test_get_course_sections_admin_requires_authentication(
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.asyncio
+async def test_course_promo_video_lifecycle(client, admin_headers, course_data):
+    url = "https://kinescope.io/embed/mmmLhAmqMPRxgfuLqW9Z91"
+    response = await client.post(
+        "/api/courses", headers=admin_headers,
+        json={**course_data, "promo_video_url": f'<iframe src="{url}" onload="alert(1)"></iframe>'},
+    )
+    assert response.status_code == 201
+    course_id = response.json()["id"]
+    assert response.json()["promo_video_url"] == url
+    response = await client.patch(
+        f"/api/courses/{course_id}", headers=admin_headers,
+        json={"is_published": True},
+    )
+    assert response.status_code == 200
+    assert response.json()["promo_video_url"] == url
+    response = await client.get(f"/api/courses/slug/{course_data['slug']}", headers=admin_headers)
+    assert response.status_code == 200
+    assert response.json()["promo_video_url"] == url
+    for invalid in ['https://example.com/embed/123', 'javascript:alert(1)', '<iframe></iframe>']:
+        response = await client.patch(
+            f"/api/courses/{course_id}", headers=admin_headers,
+            json={"promo_video_url": invalid},
+        )
+        assert response.status_code == 422
+    for empty in ["", None]:
+        response = await client.patch(
+            f"/api/courses/{course_id}", headers=admin_headers,
+            json={"promo_video_url": empty},
+        )
+        assert response.status_code == 200
+        assert response.json()["promo_video_url"] is None
