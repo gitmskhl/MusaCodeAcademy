@@ -1,7 +1,11 @@
+from pathlib import Path
+
 import pytest
 from fastapi import status
 
 from app.models import Lesson, Section
+from app.api.routers import file as file_router
+from app.services.storage import StorageService
 
 
 PUBLIC_COURSE_FIELDS = {
@@ -14,6 +18,7 @@ PUBLIC_COURSE_FIELDS = {
     "price_label",
     "outcomes",
     "promo_video_url",
+    "icon_url",
 }
 ADMIN_COURSE_FIELDS = PUBLIC_COURSE_FIELDS | {
     "is_published",
@@ -69,6 +74,7 @@ def assert_public_course(data, course):
     assert data["level"] == course.level
     assert data["price_label"] == course.price_label
     assert data["outcomes"] == course.outcomes
+    assert data["icon_url"] == course.icon_url
 
 
 async def create_section(
@@ -1191,3 +1197,80 @@ async def test_course_promo_video_lifecycle(client, admin_headers, course_data):
         )
         assert response.status_code == 200
         assert response.json()["promo_video_url"] is None
+
+
+@pytest.mark.asyncio
+async def test_course_icon_upload_lifecycle(
+    client, admin_headers, user_data, course_data, monkeypatch, tmp_path,
+):
+    storage = StorageService(tmp_path)
+    monkeypatch.setattr(file_router, "storage_service", storage)
+    upload = await client.post(
+        "/api/files/images", headers=admin_headers,
+        files={"file": ("icon.png", Path("tests/assets/valid.png").read_bytes(), "image/png")},
+    )
+    assert upload.status_code == 201
+    storage_path = upload.json()["storage_path"]
+    assert (tmp_path / storage_path).is_file()
+    icon_url = storage.make_url(storage_path)
+
+    created = await client.post(
+        "/api/courses", headers=admin_headers, json={**course_data, "icon_url": icon_url},
+    )
+    assert created.status_code == 201
+    assert created.json()["icon_url"] == icon_url
+    course_id = created.json()["id"]
+    endpoint = f"/api/courses/{course_id}"
+
+    # Saving unrelated course fields must preserve the icon.
+    published = await client.patch(endpoint, headers=admin_headers, json={"is_published": True})
+    assert published.status_code == 200
+    assert published.json()["icon_url"] == icon_url
+    for url in [f"{endpoint}/admin", f"/api/courses/slug/{course_data['slug']}"]:
+        loaded = await client.get(url, headers=admin_headers)
+        assert loaded.status_code == 200
+        assert loaded.json()["icon_url"] == icon_url
+    student = await client.post(
+        "/api/auth/register", json={**user_data, "email": "icon-student@example.com"},
+    )
+    assert student.status_code == 201
+    student_headers = {"Authorization": f"Bearer {student.json()['token']['access_token']}"}
+    catalog = await client.get("/api/courses", headers=student_headers)
+    assert catalog.status_code == 200
+    assert next(course for course in catalog.json() if course["id"] == course_id)["icon_url"] == icon_url
+
+    rejected = await client.patch(endpoint, headers=student_headers, json={"icon_url": None})
+    assert rejected.status_code == 403
+    replacement = await client.post(
+        "/api/files/images", headers=admin_headers,
+        files={"file": ("replacement.png", Path("tests/assets/valid.png").read_bytes(), "image/png")},
+    )
+    assert replacement.status_code == 201
+    next_url = storage.make_url(replacement.json()["storage_path"])
+    updated = await client.patch(endpoint, headers=admin_headers, json={"icon_url": next_url})
+    assert updated.status_code == 200
+    assert updated.json()["icon_url"] == next_url
+    cleared = await client.patch(endpoint, headers=admin_headers, json={"icon_url": None})
+    assert cleared.status_code == 200
+    assert cleared.json()["icon_url"] is None
+    reloaded = await client.get(f"{endpoint}/admin", headers=admin_headers)
+    assert reloaded.json()["icon_url"] is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("icon_url", [
+    "https://example.com/icon.png", "javascript:alert(1)",
+    "/uploads/images/../icon.png", "/uploads/images/icon.svg",
+])
+async def test_course_icon_rejects_invalid_paths(client, admin_headers, course_data, icon_url):
+    rejected = await client.post(
+        "/api/courses", headers=admin_headers, json={**course_data, "icon_url": icon_url},
+    )
+    assert rejected.status_code == 422
+    created = await client.post("/api/courses", headers=admin_headers, json=course_data)
+    assert created.status_code == 201
+    assert created.json()["icon_url"] is None
+    rejected = await client.patch(
+        f"/api/courses/{created.json()['id']}", headers=admin_headers, json={"icon_url": icon_url},
+    )
+    assert rejected.status_code == 422

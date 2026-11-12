@@ -888,6 +888,14 @@ textarea:focus-visible {
     font-weight: 700;
 }
 
+.course-icon-preview img {
+    display: block;
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
 .field-hint {
     color: var(--muted);
     font-size: 13px;

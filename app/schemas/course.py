@@ -1,9 +1,19 @@
 from datetime import datetime
+import re
 from typing import Any
 
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from .section import SectionShortInfo
 from .video import normalize_kinescope_embed_url
+
+
+def normalize_course_icon(value: str | None) -> str | None:
+    if value is None or not value.strip():
+        return None
+    value = value.strip()
+    if not re.fullmatch(r"/uploads/images/[a-zA-Z0-9_-]+\.(?:png|jpe?g|webp|gif)", value):
+        raise ValueError("Выберите изображение, загруженное на сайт")
+    return value
 
 
 def normalize_course_video(value: str | None) -> str | None:
@@ -16,6 +26,8 @@ def normalize_course_video(value: str | None) -> str | None:
 
 
 class CourseEditableFields(BaseModel):
+    icon_url: str | None = Field(default=None, max_length=500)
+    _normalize_icon = field_validator("icon_url")(normalize_course_icon)
     promo_video_url: str | None = Field(default=None, max_length=10000)
     _normalize_video = field_validator("promo_video_url")(normalize_course_video)
 
@@ -76,6 +88,7 @@ class CoursePublic(BaseModel):
     price_label: str
     outcomes: list[str] = Field(default_factory=list)
     promo_video_url: str | None = None
+    icon_url: str | None = None
     
     
 class CourseAdmin(BaseModel):
@@ -91,6 +104,7 @@ class CourseAdmin(BaseModel):
     price_label: str
     outcomes: list[str] = Field(default_factory=list)
     promo_video_url: str | None = None
+    icon_url: str | None = None
     
     is_published: bool
     created_at: datetime
@@ -98,6 +112,8 @@ class CourseAdmin(BaseModel):
     
     
 class CourseUpdate(BaseModel):
+    icon_url: str | None = Field(default=None, max_length=500)
+    _normalize_icon = field_validator("icon_url")(normalize_course_icon)
     promo_video_url: str | None = Field(default=None, max_length=10000)
     _normalize_video = field_validator("promo_video_url")(normalize_course_video)
 
@@ -143,6 +159,7 @@ class CourseInfo(BaseModel):
     price_label: str
     outcomes: list[str] = Field(default_factory=list)
     promo_video_url: str | None = None
+    icon_url: str | None = None
     lessons_count: int = 0
     sections_count: int = 0
 

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактировать курс</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
-    <script type="module" src="{{ url_for('static', path='js/edit_course.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}?v=course-icons-1">
+    <script type="module" src="{{ url_for('static', path='js/edit_course.js') }}?v=course-icons-1"></script>
 </head>
 <body>
     <div class="admin-page">
@@ -27,6 +27,7 @@
                 </div>
 
                 <form class="admin-form" data-course-edit-form novalidate>
+                    {% include "components/course_icon_field.html" %}
                     <div class="field">
                         <label for="course-title">Название курса</label>
                         <input

@@ -1,4 +1,5 @@
 import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/video-renderer.js';
+import { initCourseIconUpload } from './course-icon-upload.js';
 
 (function () {
     const TOKEN_KEY = 'musa_code_academy_token';
@@ -494,6 +495,7 @@ import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/vide
             }
 
             populateForm(form, course);
+            const iconUpload = initCourseIconUpload(form, course.icon_url);
             hideLoading();
             showContent();
 
@@ -537,7 +539,9 @@ import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/vide
 
                 isSubmitting = true;
                 setFormBusy(form, true);
+                iconUpload.setBusy(true);
                 try {
+                    payload.icon_url = await iconUpload.upload(token);
                     const response = await fetch(`/api/courses/${courseId}`, {
                         method: 'PATCH',
                         headers: {
@@ -574,6 +578,7 @@ import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/vide
                 } finally {
                     isSubmitting = false;
                     setFormBusy(form, false);
+                    iconUpload.setBusy(false);
                 }
             });
         } catch (error) {

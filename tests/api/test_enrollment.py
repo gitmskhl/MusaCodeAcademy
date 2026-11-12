@@ -20,6 +20,8 @@ COURSE_FIELDS = {
     "level",
     "price_label",
     "outcomes",
+    "promo_video_url",
+    "icon_url",
 }
 ENROLLMENT_WITH_COURSE_FIELDS = ENROLLMENT_FIELDS | {"course"}
 

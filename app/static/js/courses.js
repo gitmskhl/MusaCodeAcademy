@@ -109,6 +109,19 @@ const createCourseCard = (course, index) => {
     const caption = document.createElement('span');
     caption.textContent = 'LEARN. PRACTICE. GROW.';
     visual.append(symbol, caption);
+    if (course.icon_url) {
+        const icon = document.createElement('img');
+        icon.className = 'courses-card__icon';
+        icon.alt = '';
+        icon.loading = 'lazy';
+        icon.addEventListener('error', () => {
+            visual.classList.remove('courses-card__visual--image');
+            visual.replaceChildren(symbol, caption);
+        }, { once: true });
+        visual.classList.add('courses-card__visual--image');
+        visual.replaceChildren(icon);
+        icon.src = course.icon_url;
+    }
     article.classList.toggle('courses-card--enrolled', isEnrolled);
 
     header.className = 'courses-card__header';

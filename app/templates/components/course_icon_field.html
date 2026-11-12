@@ -1,0 +1,12 @@
+<div class="field">
+    <label for="course-icon">Иконка курса (необязательно)</label>
+    <input id="course-icon" name="icon" type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif"
+        aria-describedby="course-icon-hint course-icon-error">
+    <p class="field-hint" id="course-icon-hint">PNG, JPEG, WebP или GIF до 10 МБ. Иконка появится в карточке курса после сохранения.</p>
+    <div class="course-icon-preview" data-course-icon-preview hidden>
+        <img data-course-icon-image alt="Предпросмотр иконки курса" width="96" height="96">
+    </div>
+    <button class="button button--ghost" type="button" data-course-icon-remove hidden>Убрать иконку</button>
+    <p class="field-error" id="course-icon-error" data-error-for="icon" aria-live="polite"></p>
+</div>

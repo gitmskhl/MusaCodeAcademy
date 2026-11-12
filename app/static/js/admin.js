@@ -1,5 +1,6 @@
 import { normalizeKinescopeEmbedUrl } from './step-renderer/block-renderers/video-renderer.js';
 import { initDatabaseExport } from './admin-database-export.js';
+import { initCourseIconUpload } from './course-icon-upload.js';
 
 (function () {
     const TOKEN_KEY = 'musa_code_academy_token';
@@ -733,6 +734,8 @@ import { initDatabaseExport } from './admin-database-export.js';
             return;
         }
 
+        const iconUpload = initCourseIconUpload(form);
+
         const title = form.querySelector('#course-title');
         const shortDescription = form.querySelector('#course-short-description');
         const description = form.querySelector('#course-description');
@@ -849,8 +852,10 @@ import { initDatabaseExport } from './admin-database-export.js';
 
             isSubmitting = true;
             setFormBusy(form, true);
+            iconUpload.setBusy(true);
 
             try {
+                payload.icon_url = await iconUpload.upload(token);
                 const response = await fetch('/api/courses', {
                     method: 'POST',
                     headers: {
@@ -886,6 +891,7 @@ import { initDatabaseExport } from './admin-database-export.js';
             } finally {
                 isSubmitting = false;
                 setFormBusy(form, false);
+                iconUpload.setBusy(false);
             }
         });
     };

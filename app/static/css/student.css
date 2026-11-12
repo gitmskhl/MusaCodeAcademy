@@ -86,6 +86,8 @@ body.student-app { display: flex; flex-direction: column; min-height: 100svh; ma
 .courses-card--enrolled { border-color: #c6d7ae; }
 .courses-card__visual { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; width: 100%; height: 133px; background: #e8f0d9; border: 1px solid #dce7c9; border-radius: 7px; margin-bottom: 22px; color: #718b4f; }
 .courses-card__visual > span:first-child { font: 44px var(--student-mono); letter-spacing: -4px; }
+.courses-card__visual--image { overflow: hidden; }
+.courses-card__icon { display: block; width: 100%; height: 100%; object-fit: cover; }
 .courses-card__visual > span:last-child { font: 7px var(--student-mono); letter-spacing: 1.8px; opacity: .9; }
 .courses-card__visual--1 { background: #ecebe2; border-color: #e1dfd1; color: #8c8b64; }
 .courses-card__visual--2 { background: #e9eceb; border-color: #dce2e0; color: #718b80; }
