@@ -1,0 +1,22 @@
+{
+  "window-800x600.png": {
+    "file_id": 8,
+    "storage_path": "images/6cb4a62761ee46b8aa88eddb34640690.png",
+    "sha256": "50184238a83ccd39c28a58ff9034352802f9924fba23bb9ef15f7b3a78737ffc"
+  },
+  "window-1000x400.png": {
+    "file_id": 9,
+    "storage_path": "images/f840ab6c58f74135a785374e5f035930.png",
+    "sha256": "96c2560de301143a3fd6954d0228682f47b5edd89c25900122d09f81154b5bad"
+  },
+  "blue-background.png": {
+    "file_id": 10,
+    "storage_path": "images/b171de5f1c664d14950189a7d75d7cc0.png",
+    "sha256": "02f1899306c9b2452d4f83c93333d9040e8864063d9b9239323e0bf0e2979863"
+  },
+  "practice-result.png": {
+    "file_id": 11,
+    "storage_path": "images/24041aae0955494d900bdd6ec628fc76.png",
+    "sha256": "05cfc945b418be382d1fa0e8d1a7d4a115f299a44c2c1baccf249b8da6588368"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "still.gif": {
+    "file_id": 18,
+    "storage_path": "images/7cb5e172df7f4fdf8344ec70f39acf3b.gif",
+    "sha256": "1e4ecca08dafb0bc07e221c6a6fda7efcdb870426beeda551e1ec4a24ac2eacd"
+  },
+  "right.gif": {
+    "file_id": 19,
+    "storage_path": "images/b80fbb57ecd446f19d16477c41c37025.gif",
+    "sha256": "50d3cf4e4c630fc5b37398491900804de7fd283968c8c68ed42509cfbbedd60e"
+  },
+  "slow.gif": {
+    "file_id": 20,
+    "storage_path": "images/e4a4c71e3a00476883de9335d232f148.gif",
+    "sha256": "08911469e156e1c72ba2df2f45447a94022fb996f510d2741ba421fa9c49ed5a"
+  },
+  "wrap.gif": {
+    "file_id": 21,
+    "storage_path": "images/3d0a0f72af9349baa23daf55e204b1a0.gif",
+    "sha256": "459a52587fc40d342853e3fca085eae677002d4678a8b188abec5e6ffd3fc093"
+  },
+  "left.gif": {
+    "file_id": 22,
+    "storage_path": "images/ffdd0045f5154dc4b00e0fc791996563.gif",
+    "sha256": "1253a414725d7a372c9e4cb72ea6842dab4cc37346f7f90491dc41cef89b2ad5"
+  },
+  "down.gif": {
+    "file_id": 23,
+    "storage_path": "images/0d05d687d0c94576a99bc59ac8fa122d.gif",
+    "sha256": "54eac11623c8d69631e692596a7fe46157a5c45d00d594048a2f0e1e5dd08ad6"
+  },
+  "up.gif": {
+    "file_id": 24,
+    "storage_path": "images/1561d2b1204f45788acb6064720658d3.gif",
+    "sha256": "b8f6af835a3fcba04091f237bf1ce8b19a35abd4a89dc797066a47aa3790b4c7"
+  },
+  "diagonal.gif": {
+    "file_id": 25,
+    "storage_path": "images/e85545338bc542109a3c71afd1d273e0.gif",
+    "sha256": "7df0fe5af3d1f5242e0bb03357d70fd0a88047d80b6d52268d8c00f0eb05d59d"
+  },
+  "up-right.gif": {
+    "file_id": 26,
+    "storage_path": "images/c6ec1adcfaf34a5e93a85ac1ceada56c.gif",
+    "sha256": "14eadbb25fb5a75989b1ce6ceb30007e03d1cccbdcbf59599e14c69c3057eb7e"
+  },
+  "bounce.gif": {
+    "file_id": 27,
+    "storage_path": "images/7af3ca3aff22467580829e297cb85089.gif",
+    "sha256": "96e3352e2cbcf482cce99f52f655305674e0282606f95de3e41b69643485fd3d"
+  },
+  "trail.gif": {
+    "file_id": 28,
+    "storage_path": "images/327a04f41bdd4abcafb006455304e193.gif",
+    "sha256": "b1dc8983413fa985d88cbfb8051bee386dc377084d6a865f3c40a5a45e8d306d"
+  },
+  "jump.gif": {
+    "file_id": 29,
+    "storage_path": "images/8e8c72900f194ec39ba9897161f874bd.gif",
+    "sha256": "034c6f4392fb8b726335b59007228afd1f5d413b403ed605767155ff04665bd0"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "coordinates.png": {
+    "file_id": 12,
+    "storage_path": "images/bb7ce012548843e18f99b0263855bd4b.png",
+    "sha256": "ba3a072b604e793fbf9352f0e297d6fdbd0ebd1df32ec7f80193f1a5cf795ffc"
+  },
+  "extreme-points.png": {
+    "file_id": 17,
+    "storage_path": "images/524a3c89dba84d7da95421682ad555a3.png",
+    "sha256": "6ef6953ff3e86631265ebbb61913cf9555d7663ae52e6ecd3e84e6dcd71797bb"
+  },
+  "left-wall.png": {
+    "file_id": 13,
+    "storage_path": "images/c28cce8fb8334e0e90fef4c345387b93.png",
+    "sha256": "968b0b8772dcaa853f786e9025f635616ad93482251fb4a221cc7ad6a5733e4c"
+  },
+  "right-wall.png": {
+    "file_id": 14,
+    "storage_path": "images/e812a126e7dc44d98f37a362b3910d05.png",
+    "sha256": "f2eda78b5fd04073b7ed794d24bd98f4938b95a056c567d7a7263c5b93d0bc9e"
+  },
+  "bottom-right.png": {
+    "file_id": 15,
+    "storage_path": "images/549fb650b641498e9dbaede0bd258944.png",
+    "sha256": "49a4ddaf637b5b211c13331868187728aa64511476dc86cdb29b252731852493"
+  },
+  "snowman-reference.png": {
+    "file_id": 16,
+    "storage_path": "images/d8317e79c01f4dbbba60c352eb609ca2.png",
+    "sha256": "6ad183833f34d84088e1b4ef5f13fcbd689f8aa2a501e6a9dc65cee8088e5344"
+  }
+}

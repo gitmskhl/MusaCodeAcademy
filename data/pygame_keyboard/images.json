@@ -1,0 +1,22 @@
+{
+  "colors.gif": {
+    "file_id": 30,
+    "storage_path": "images/505d293e4c1b4ca992360118e10fec37.gif",
+    "sha256": "c7f5f49afc15420cc786e0fd2672d07fd63d53656bc461b1c08a307d2d218af6"
+  },
+  "right.gif": {
+    "file_id": 31,
+    "storage_path": "images/6132b98c29a540368ea9f066fdff040d.gif",
+    "sha256": "93869f5eb7b93dd0a5989a5fee8c548380f6eab2c000c60f5e8a6ccf9c1406c3"
+  },
+  "movement.gif": {
+    "file_id": 32,
+    "storage_path": "images/ec97e2f4e5e248bebd028d5b1e851f28.gif",
+    "sha256": "3cc650b3c5c79a85a604bb9a46c200e20738af461cff83af2f3e87008d35eb21"
+  },
+  "homework.gif": {
+    "file_id": 33,
+    "storage_path": "images/175dcdd5f3a74a6bae5344caae52ba6b.gif",
+    "sha256": "462e0f034d85a54fac65633f083ab0f58459a72cad576632258f51651c6c19e8"
+  }
+}
