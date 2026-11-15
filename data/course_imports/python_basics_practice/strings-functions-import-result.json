@@ -1,0 +1,138 @@
+{
+  "environment": "development",
+  "database": "mca",
+  "course_id": 4,
+  "admin_url": "http://localhost:8000/admin/courses/4",
+  "is_published": true,
+  "update": {
+    "status": "updated",
+    "course_id": 4,
+    "is_published": true,
+    "counts": {
+      "sections": 6,
+      "lessons": 39,
+      "tasks": 103,
+      "steps": 126,
+      "theory_steps": 23,
+      "tests": 505,
+      "public_tests": 106,
+      "hidden_tests": 399,
+      "source_tasks": 109,
+      "duplicates": 4,
+      "deferred": 2
+    },
+    "reference_tests_passed": 505,
+    "environment": "development"
+  },
+  "repeat_update": {
+    "status": "unchanged",
+    "course_id": 4,
+    "is_published": true,
+    "counts": {
+      "sections": 6,
+      "lessons": 39,
+      "tasks": 103,
+      "steps": 126,
+      "theory_steps": 23,
+      "tests": 505,
+      "public_tests": 106,
+      "hidden_tests": 399,
+      "source_tasks": 109,
+      "duplicates": 4,
+      "deferred": 2
+    },
+    "reference_tests_passed": 505,
+    "environment": "development"
+  },
+  "existing_ids_preserved": true,
+  "student_data_unchanged": true,
+  "all_other_rows_unchanged": true,
+  "schema_revision_before": "e06a4c9d532b",
+  "schema_revision_after": "e06a4c9d532b",
+  "unchanged_tables": {
+    "courses": {
+      "unchanged_rows": 2,
+      "sha256": "5fb269412228dc8938d016c94368c7c5b3649c586513363269f806d35721de7b"
+    },
+    "files": {
+      "unchanged_rows": 32,
+      "sha256": "85862459935e1d387735e6fb09c7e960d37011afd7f59902fa8cac998ee1e343"
+    },
+    "users": {
+      "unchanged_rows": 7,
+      "sha256": "ebb384ffaf650968a93a22f5721c4ecefc6299e33bd9db3d37bb57839b6b9ed1"
+    },
+    "enrollments": {
+      "unchanged_rows": 9,
+      "sha256": "90d91cb83e319cb252f23b3bf2133a51981b16800f568a5d433886dda4b4481a"
+    },
+    "password_reset_tokens": {
+      "unchanged_rows": 0,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "sections": {
+      "unchanged_rows": 13,
+      "sha256": "3239ed2a81048b1007e7eaa4286a67e5155251567b7466d6403fea79a73b800a"
+    },
+    "lessons": {
+      "unchanged_rows": 82,
+      "sha256": "b193e857bf0c4ae328a9ab33e4ab52cac7fd8c131f45b74e14948d23543ad902"
+    },
+    "steps": {
+      "unchanged_rows": 491,
+      "sha256": "e62f7908e5ca0241e895ca5923a26cd644ca3fd47244825d515e3b1790ca0101"
+    },
+    "course_activity": {
+      "unchanged_rows": 8,
+      "sha256": "3b0227c71834a28f5e62825d6dbb98591563c85e9f17da0f9eda7f6b826a89d3"
+    },
+    "step_progress": {
+      "unchanged_rows": 41,
+      "sha256": "6aa828e23ac082ca73cbe0790f643fc35666f4ccd5d5e4d66ff6e5506b1f6b9c"
+    },
+    "tasks": {
+      "unchanged_rows": 326,
+      "sha256": "17a5a264fa4bb8e02ddff84618fd2238191a25c042f19a1ef6a20b69ddadb20e"
+    },
+    "submissions": {
+      "unchanged_rows": 79,
+      "sha256": "dac5be11aab1a2dacb824d6bdc957c059496c0d2d61e7d5057e20b4d8f2f8aeb"
+    },
+    "test_cases": {
+      "unchanged_rows": 1531,
+      "sha256": "f1097a50d0b6e2dd58eadebbb6a1a1ca90112cd0cc294dfadae2a3378f5ab6c2"
+    }
+  },
+  "changed_existing_rows": {
+    "courses": 1
+  },
+  "row_count_changes": {
+    "sections": 2,
+    "lessons": 10,
+    "steps": 37,
+    "tasks": 27,
+    "test_cases": 128
+  },
+  "preview_update": {
+    "status": "updated",
+    "course_id": 1,
+    "is_published": false,
+    "counts": {
+      "sections": 6,
+      "lessons": 39,
+      "tasks": 103,
+      "steps": 126,
+      "theory_steps": 23,
+      "tests": 505,
+      "public_tests": 106,
+      "hidden_tests": 399,
+      "source_tasks": 109,
+      "duplicates": 4,
+      "deferred": 2
+    },
+    "reference_tests_passed": 505,
+    "environment": "development"
+  },
+  "exact_new_outputs_verified": 128,
+  "theory_examples_executed": 10
+}

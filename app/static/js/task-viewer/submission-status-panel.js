@@ -1,3 +1,5 @@
+import { describeFunctionTest } from './function-test-display.js';
+
 const STATUS_CONFIG = {
     PENDING: {
         tone: 'pending', icon: '\u23f3', title: 'Ожидание в очереди…', progress: 25,
@@ -180,22 +182,24 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
             details.open = true;
             details.append(createElement('summary', 'submission-status__test-summary', 'Детали непройденного теста'));
             const content = createElement('div', 'submission-status__test-content');
-            const input = testCase.input ?? '';
-            const copyButton = createElement('button', 'submission-status__copy', 'Копировать входные данные');
+            const functionCall = describeFunctionTest(testCase.input ?? '');
+            const input = functionCall ?? testCase.input ?? '';
+            const copyLabel = functionCall === null ? 'Копировать входные данные' : 'Копировать вызов';
+            const copyButton = createElement('button', 'submission-status__copy', copyLabel);
             copyButton.type = 'button';
             copyButton.addEventListener('click', async () => {
                 try {
                     await copyText(input);
                     copyButton.textContent = 'Скопировано';
                     window.setTimeout(() => {
-                        if (copyButton.isConnected) copyButton.textContent = 'Копировать входные данные';
+                        if (copyButton.isConnected) copyButton.textContent = copyLabel;
                     }, 1500);
                 } catch {
                     copyButton.textContent = 'Не удалось скопировать';
                 }
             });
             content.append(
-                createTestValue('Входные данные', input),
+                createTestValue(functionCall === null ? 'Входные данные' : 'Вызов функции', input),
                 copyButton,
                 createTestValue('Ожидаемый результат', testCase.expected_output ?? '')
             );

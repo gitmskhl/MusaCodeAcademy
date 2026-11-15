@@ -12,3 +12,4 @@ from .task import Task
 from .testCase import TestCase
 from .submission import Submission
 from .password_reset_token import PasswordResetToken
+from .ai_hint_usage import AIHintUsage, AIModelHintUsage

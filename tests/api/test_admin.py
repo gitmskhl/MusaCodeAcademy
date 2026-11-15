@@ -147,15 +147,18 @@ async def test_user_card_with_legacy_timestamps(client, db, admin_headers, learn
         await db.commit()
 
 
-async def test_submission_filters_detail_and_stable_order(client, db, admin_headers, learning_data):
+@pytest.mark.parametrize("ai_hint", [None, "Проверь тип данных после input(). <b>Подсказка</b>"])
+async def test_submission_filters_detail_and_stable_order(client, db, admin_headers, learning_data, ai_hint):
     user, course, tasks, attempts = learning_data
     # Equal timestamps must still produce stable pagination.
     attempts[1].submitted_at = attempts[0].submitted_at
+    attempts[2].ai_hint = ai_hint
     await db.commit()
     data = (await client.get("/api/admin/submissions?page_size=2", headers=admin_headers)).json()
     assert data["total"] == 3
     assert [item["id"] for item in data["items"]] == [attempts[2].id, attempts[1].id]
     assert "source_code" not in data["items"][0]
+    assert "ai_hint" not in data["items"][0]
     params = {"user_id": user.id, "course_id": course.id, "task_id": tasks[0].id,
               "status": "ACCEPTED", "q": "Иван", "date_from": "2026-11-02", "date_to": "2026-11-02"}
     response = await client.get("/api/admin/submissions", headers=admin_headers, params=params)
@@ -169,6 +172,7 @@ async def test_submission_filters_detail_and_stable_order(client, db, admin_head
     detail = (await client.get(f"/api/admin/submissions/{attempts[2].id}", headers=admin_headers)).json()
     assert detail["source_code"] == attempts[2].source_code
     assert detail["actual_output"] == "<b>error</b>"
+    assert detail["ai_hint"] == ai_hint
     assert detail["user_email"] == user.email and detail["failed_test_id"] == 123
     assert "password_hash" not in detail
 

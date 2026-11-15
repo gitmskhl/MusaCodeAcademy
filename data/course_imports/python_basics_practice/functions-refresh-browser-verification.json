@@ -1,0 +1,208 @@
+{
+  "rendered_tasks": [
+    {
+      "id": 512,
+      "title": "Функция, которая выводит максимум"
+    },
+    {
+      "id": 513,
+      "title": "Функция для вывода положительных чисел"
+    },
+    {
+      "id": 515,
+      "title": "Возвращаем максимум двух чисел"
+    },
+    {
+      "id": 516,
+      "title": "Разворот строки или списка"
+    },
+    {
+      "id": 517,
+      "title": "Новый список положительных чисел"
+    },
+    {
+      "id": 519,
+      "title": "Минимум трёх чисел"
+    },
+    {
+      "id": 520,
+      "title": "Функция подсчёта буквы"
+    },
+    {
+      "id": 521,
+      "title": "Склеиваем части двух слов"
+    },
+    {
+      "id": 523,
+      "title": "Ровно две буквы «а»"
+    },
+    {
+      "id": 524,
+      "title": "Среднее арифметическое в функции"
+    },
+    {
+      "id": 525,
+      "title": "Числа выше среднего"
+    },
+    {
+      "id": 527,
+      "title": "Слова на букву «а»"
+    },
+    {
+      "id": 528,
+      "title": "Слова с последней буквой «с»"
+    },
+    {
+      "id": 529,
+      "title": "Объединяем две функции"
+    },
+    {
+      "id": 556,
+      "title": "Угадай учебный пароль"
+    }
+  ],
+  "mobile": {
+    "width": 390,
+    "scroll": 390
+  },
+  "python_browser_tests": {
+    "state": "done",
+    "results": [
+      {
+        "title": "Функция, которая выводит максимум",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 12
+      },
+      {
+        "title": "Функция для вывода положительных чисел",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 11
+      },
+      {
+        "title": "Возвращаем максимум двух чисел",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 10
+      },
+      {
+        "title": "Разворот строки или списка",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 13
+      },
+      {
+        "title": "Новый список положительных чисел",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 16
+      },
+      {
+        "title": "Минимум трёх чисел",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 12
+      },
+      {
+        "title": "Функция подсчёта буквы",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 11
+      },
+      {
+        "title": "Склеиваем части двух слов",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 11
+      },
+      {
+        "title": "Ровно две буквы «а»",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 11
+      },
+      {
+        "title": "Среднее арифметическое в функции",
+        "status": "ACCEPTED",
+        "passed_tests": 4,
+        "total_tests": 4,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 10
+      },
+      {
+        "title": "Числа выше среднего",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 13
+      },
+      {
+        "title": "Слова на букву «а»",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 13
+      },
+      {
+        "title": "Слова с последней буквой «с»",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 14
+      },
+      {
+        "title": "Объединяем две функции",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 13
+      },
+      {
+        "title": "Угадай учебный пароль",
+        "status": "ACCEPTED",
+        "passed_tests": 5,
+        "total_tests": 5,
+        "failed_test_id": null,
+        "actual_output": null,
+        "execution_time_ms": 3588
+      }
+    ]
+  }
+}

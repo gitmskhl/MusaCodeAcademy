@@ -1,0 +1,1380 @@
+{
+  "snapshot_date": "2026-11-14",
+  "counts": {
+    "sections": 6,
+    "lessons": 40,
+    "tasks": 104,
+    "steps": 128,
+    "theory_steps": 24,
+    "tests": 510,
+    "public_tests": 107,
+    "hidden_tests": 403,
+    "source_tasks": 110,
+    "duplicates": 4,
+    "deferred": 2
+  },
+  "documents": 40,
+  "source_images_reviewed": 90,
+  "inventory": [
+    {
+      "id": "1ShutKMGRTxzgBXodmY6OwpZj7RaojvDN",
+      "title": "recap",
+      "url": "https://drive.google.com/drive/folders/1ShutKMGRTxzgBXodmY6OwpZj7RaojvDN",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1c1-4TVLwEVqYpDfIYk7Jb31yHa3wUhQJ",
+      "title": "recap (algo)",
+      "url": "https://drive.google.com/drive/folders/1c1-4TVLwEVqYpDfIYk7Jb31yHa3wUhQJ",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1ocWmkvB8G8UPplpKwdJlJ2VtMAA0idSs",
+      "title": "Архив",
+      "url": "https://drive.google.com/drive/folders/1ocWmkvB8G8UPplpKwdJlJ2VtMAA0idSs",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1u24Ra6ENOLpWXl60UBqxbeleVz0051TH",
+      "title": "11: generators",
+      "url": "https://drive.google.com/drive/folders/1u24Ra6ENOLpWXl60UBqxbeleVz0051TH",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1OrZ-z1cSoDFnUAwWxYfWhIqxwQ-MXfnY",
+      "title": "web",
+      "url": "https://drive.google.com/drive/folders/1OrZ-z1cSoDFnUAwWxYfWhIqxwQ-MXfnY",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1kiluYDVoO2KdF6DGUwhEufkr2rH7qo1y",
+      "title": "Competitive programming",
+      "url": "https://drive.google.com/drive/folders/1kiluYDVoO2KdF6DGUwhEufkr2rH7qo1y",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "10KLSBJTCi3dpENN57Rm8CeX_SfZtHi59",
+      "title": "01: print / input / variables",
+      "url": "https://drive.google.com/drive/folders/10KLSBJTCi3dpENN57Rm8CeX_SfZtHi59",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1vSsoGtYmemCeRqOeMIdJKxzijagiG8Cr",
+      "title": "02: if / else",
+      "url": "https://drive.google.com/drive/folders/1vSsoGtYmemCeRqOeMIdJKxzijagiG8Cr",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "10ZBEyw7Fhdxy6fOcFO5_x8bGnhJChoD8",
+      "title": "10: os",
+      "url": "https://drive.google.com/drive/folders/10ZBEyw7Fhdxy6fOcFO5_x8bGnhJChoD8",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1fEHMRlj875HGmTgIAkK1mWFX88j31RaN",
+      "title": "09: requests",
+      "url": "https://drive.google.com/drive/folders/1fEHMRlj875HGmTgIAkK1mWFX88j31RaN",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1K6zp4b4nYfVRh5HzV2bIUAUMA1LQnpV5",
+      "title": "08: storages (pickle, sqlite)",
+      "url": "https://drive.google.com/drive/folders/1K6zp4b4nYfVRh5HzV2bIUAUMA1LQnpV5",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1zoxxyrlROk-1gtoqhqtbyLRbCHLU8Ir4",
+      "title": "PyGame",
+      "url": "https://drive.google.com/drive/folders/1zoxxyrlROk-1gtoqhqtbyLRbCHLU8Ir4",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1hBB-OpoEhG0J8RQEy6J0MlCoHOin03sC",
+      "title": "07: dictionaries",
+      "url": "https://drive.google.com/drive/folders/1hBB-OpoEhG0J8RQEy6J0MlCoHOin03sC",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "outside_first_four_sections"
+    },
+    {
+      "id": "1vlXTfounIUWgAz45pLInljXrA7v3SfNW",
+      "title": "06: functions",
+      "url": "https://drive.google.com/drive/folders/1vlXTfounIUWgAz45pLInljXrA7v3SfNW",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1Mym2h4OIh5x55DbArUZ5hq-8pQsqiti-",
+      "title": "05: strings",
+      "url": "https://drive.google.com/drive/folders/1Mym2h4OIh5x55DbArUZ5hq-8pQsqiti-",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1fEYdJImBWMRNHNBHHWoYps5TXCF3DLaB",
+      "title": "04: lists",
+      "url": "https://drive.google.com/drive/folders/1fEYdJImBWMRNHNBHHWoYps5TXCF3DLaB",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1yIl9H8JBZYJ8oqd84n4UsbqM1PXgA3xw",
+      "title": "03: for / while",
+      "url": "https://drive.google.com/drive/folders/1yIl9H8JBZYJ8oqd84n4UsbqM1PXgA3xw",
+      "folder_path": "",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1OAkdj3sKArQMtHyH5mn_IqFLo8WzIKf6BgqL1BxvTh8",
+      "title": "v2.0",
+      "url": "https://docs.google.com/document/d/1OAkdj3sKArQMtHyH5mn_IqFLo8WzIKf6BgqL1BxvTh8/edit?usp=drivesdk",
+      "folder_path": "01: print / input / variables",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs/edit?usp=drivesdk",
+      "folder_path": "01: print / input / variables",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1SPvI1ZlAIx6ubdZCR3exXX53wnM1jGUO2F8b6C1oNCc",
+      "title": "v0.0",
+      "url": "https://docs.google.com/document/d/1SPvI1ZlAIx6ubdZCR3exXX53wnM1jGUO2F8b6C1oNCc/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1fOcg2wd6gmYrchCq4fyVz5pn0L9XmbW4snKW6EnQ-iI",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1fOcg2wd6gmYrchCq4fyVz5pn0L9XmbW4snKW6EnQ-iI/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1FDeCNZRJg7dbo6DhZVDv1al05NSs7h3uoN5QxWJvx0w",
+      "title": "v0.1",
+      "url": "https://docs.google.com/document/d/1FDeCNZRJg7dbo6DhZVDv1al05NSs7h3uoN5QxWJvx0w/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1QT0Mu3zR6C250dLRHeD7Nx8RVbSfwYQnlK3dPsLbPz4",
+      "title": "v2.1",
+      "url": "https://docs.google.com/document/d/1QT0Mu3zR6C250dLRHeD7Nx8RVbSfwYQnlK3dPsLbPz4/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1LLZ6zCU6kHyDWKrPDjmfRcfmms2g_dAT5kp0h-FJbTA",
+      "title": "v2.6",
+      "url": "https://docs.google.com/document/d/1LLZ6zCU6kHyDWKrPDjmfRcfmms2g_dAT5kp0h-FJbTA/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1w-Cq4WxF9j4IglSYOIRJp8hpkM74q97HUyAiwH88IvA",
+      "title": "v2.5",
+      "url": "https://docs.google.com/document/d/1w-Cq4WxF9j4IglSYOIRJp8hpkM74q97HUyAiwH88IvA/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1DMAXYRs5f4Kq0AovBKW4moHf14ipeUijoLE8moeP1EI",
+      "title": "v2.4",
+      "url": "https://docs.google.com/document/d/1DMAXYRs5f4Kq0AovBKW4moHf14ipeUijoLE8moeP1EI/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1sV_WT9N50cgSVzciw2GBxzZca3o-EcqHOYRl5cqAiUM",
+      "title": "v2.3",
+      "url": "https://docs.google.com/document/d/1sV_WT9N50cgSVzciw2GBxzZca3o-EcqHOYRl5cqAiUM/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1ACXFhVAv6jbUcYXIsu96UxuQtGYgQXF_hZjl3wnIXVE",
+      "title": "v2.2",
+      "url": "https://docs.google.com/document/d/1ACXFhVAv6jbUcYXIsu96UxuQtGYgQXF_hZjl3wnIXVE/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "version_not_allowed"
+    },
+    {
+      "id": "1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg",
+      "title": "v2.0",
+      "url": "https://docs.google.com/document/d/1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg/edit?usp=drivesdk",
+      "folder_path": "02: if / else",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U",
+      "title": "v3.0",
+      "url": "https://docs.google.com/document/d/1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM",
+      "title": "v0.0",
+      "url": "https://docs.google.com/document/d/17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4",
+      "title": "v3.1",
+      "url": "https://docs.google.com/document/d/1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1p6petBrNXkvuLwJ7fuRh7g46iy8GJ70o",
+      "title": "hard",
+      "url": "https://drive.google.com/drive/folders/1p6petBrNXkvuLwJ7fuRh7g46iy8GJ70o",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "hard/harder"
+    },
+    {
+      "id": "1_4g11nWpwgvMo48CxoWzKADJA7baVU8-OrGbBHdKhzU",
+      "title": "v2.0",
+      "url": "https://docs.google.com/document/d/1_4g11nWpwgvMo48CxoWzKADJA7baVU8-OrGbBHdKhzU/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "excluded_version"
+    },
+    {
+      "id": "1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E",
+      "title": "v1.2",
+      "url": "https://docs.google.com/document/d/1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs/edit?usp=drivesdk",
+      "folder_path": "03: for / while",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1WdHulsAqqyE4u5EGK3Jz2E1axe0NSEk-",
+      "title": "04: indexes",
+      "url": "https://drive.google.com/drive/folders/1WdHulsAqqyE4u5EGK3Jz2E1axe0NSEk-",
+      "folder_path": "04: lists",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1Rmlz9IPRr18Cu9jgj79FptM5uldWzyVS",
+      "title": "03: for / in",
+      "url": "https://drive.google.com/drive/folders/1Rmlz9IPRr18Cu9jgj79FptM5uldWzyVS",
+      "folder_path": "04: lists",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1eVxyHlXQrpYZp4pIrrLUCke87Q2aMziK",
+      "title": "02: slices",
+      "url": "https://drive.google.com/drive/folders/1eVxyHlXQrpYZp4pIrrLUCke87Q2aMziK",
+      "folder_path": "04: lists",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1dE2c9ZjYI6iRLecLrFjH2GBeoLIcq-wB",
+      "title": "01: basics",
+      "url": "https://drive.google.com/drive/folders/1dE2c9ZjYI6iRLecLrFjH2GBeoLIcq-wB",
+      "folder_path": "04: lists",
+      "type": "application/vnd.google-apps.folder",
+      "status": "traversed",
+      "reason": null
+    },
+    {
+      "id": "1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk",
+      "title": "v2.0",
+      "url": "https://docs.google.com/document/d/1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk/edit?usp=drivesdk",
+      "folder_path": "04: lists / 04: indexes",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I",
+      "title": "v1.3",
+      "url": "https://docs.google.com/document/d/1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I/edit?usp=drivesdk",
+      "folder_path": "04: lists / 04: indexes",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE",
+      "title": "v1.2",
+      "url": "https://docs.google.com/document/d/1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE/edit?usp=drivesdk",
+      "folder_path": "04: lists / 04: indexes",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0/edit?usp=drivesdk",
+      "folder_path": "04: lists / 04: indexes",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc/edit?usp=drivesdk",
+      "folder_path": "04: lists / 04: indexes",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1TCI-hkguT1baBXZLozrpmo2C7FQ2Obla2nSYKf9sJcw",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1TCI-hkguT1baBXZLozrpmo2C7FQ2Obla2nSYKf9sJcw/edit?usp=drivesdk",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0",
+      "title": "v1.3",
+      "url": "https://docs.google.com/document/d/1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0/edit?usp=drivesdk",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ",
+      "title": "v1.4",
+      "url": "https://docs.google.com/document/d/1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ/edit?usp=drivesdk",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "10-W3ta2JMneQGIaLfWLxFGMFJOR5ia_a",
+      "title": "Hard",
+      "url": "https://drive.google.com/drive/folders/10-W3ta2JMneQGIaLfWLxFGMFJOR5ia_a",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.folder",
+      "status": "excluded",
+      "reason": "hard/harder"
+    },
+    {
+      "id": "14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA",
+      "title": "v1.5",
+      "url": "https://docs.google.com/document/d/14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA/edit?usp=drivesdk",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y",
+      "title": "v1.2",
+      "url": "https://docs.google.com/document/d/1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y/edit?usp=drivesdk",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU/edit?usp=drivesdk",
+      "folder_path": "04: lists / 03: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0",
+      "title": "v1.0 (easier)",
+      "url": "https://docs.google.com/document/d/1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0/edit?usp=drivesdk",
+      "folder_path": "04: lists / 02: slices",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1fQsnpr_tZl7eqiHbGV8kediRdXIgRdIR0BbkVDp0s4U",
+      "title": "v1.2",
+      "url": "https://docs.google.com/document/d/1fQsnpr_tZl7eqiHbGV8kediRdXIgRdIR0BbkVDp0s4U/edit?usp=drivesdk",
+      "folder_path": "04: lists / 02: slices",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1uglDnCtHEvfx8gXDLHrbWix00NYe2KDcVVyIKoCNpf8",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1uglDnCtHEvfx8gXDLHrbWix00NYe2KDcVVyIKoCNpf8/edit?usp=drivesdk",
+      "folder_path": "04: lists / 02: slices",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "easier_selected"
+    },
+    {
+      "id": "1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw/edit?usp=drivesdk",
+      "folder_path": "04: lists / 02: slices",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1amwFo4U6bxe_yToy15VSdbvb3pk8OsK_KYej-kQwi0M",
+      "title": "v1.4",
+      "url": "https://docs.google.com/document/d/1amwFo4U6bxe_yToy15VSdbvb3pk8OsK_KYej-kQwi0M/edit?usp=drivesdk",
+      "folder_path": "04: lists / 02: slices",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1aYHyZGsl4o_nD6rOEHmERqR4dwl0p_e343twZ3EC38g",
+      "title": "v1.3",
+      "url": "https://docs.google.com/document/d/1aYHyZGsl4o_nD6rOEHmERqR4dwl0p_e343twZ3EC38g/edit?usp=drivesdk",
+      "folder_path": "04: lists / 02: slices",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "10pdhVcjmFhFLOvK1paLatyvS7ctQnj-PPzfRosjNCzU",
+      "title": "v1.0 (harder)",
+      "url": "https://docs.google.com/document/d/10pdhVcjmFhFLOvK1paLatyvS7ctQnj-PPzfRosjNCzU/edit?usp=drivesdk",
+      "folder_path": "04: lists / 01: basics",
+      "type": "application/vnd.google-apps.document",
+      "status": "excluded",
+      "reason": "hard/harder"
+    },
+    {
+      "id": "1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI",
+      "title": "v0.0",
+      "url": "https://docs.google.com/document/d/1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI/edit?usp=drivesdk",
+      "folder_path": "04: lists / 01: basics",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k/edit",
+      "folder_path": "05: strings / 01: basics",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA/edit",
+      "folder_path": "05: strings / 01: basics",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4",
+      "title": "v1.2",
+      "url": "https://docs.google.com/document/d/1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4/edit",
+      "folder_path": "05: strings / 01: basics",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E",
+      "title": "v1.3",
+      "url": "https://docs.google.com/document/d/1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E/edit",
+      "folder_path": "05: strings / 01: basics",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs/edit",
+      "folder_path": "05: strings / 02: for / in",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1ytPMOY70ZdFe-XZxgr8edamaWPMpDU0UljmzxUCxEDQ",
+      "title": "v0.0",
+      "url": "https://docs.google.com/document/d/1ytPMOY70ZdFe-XZxgr8edamaWPMpDU0UljmzxUCxEDQ/edit",
+      "folder_path": "06: functions",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE",
+      "title": "v1.0",
+      "url": "https://docs.google.com/document/d/1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE/edit",
+      "folder_path": "06: functions",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns",
+      "title": "v1.1",
+      "url": "https://docs.google.com/document/d/1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns/edit",
+      "folder_path": "06: functions",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU",
+      "title": "v1.2",
+      "url": "https://docs.google.com/document/d/1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU/edit",
+      "folder_path": "06: functions",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA",
+      "title": "v1.3",
+      "url": "https://docs.google.com/document/d/1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA/edit",
+      "folder_path": "06: functions",
+      "type": "application/vnd.google-apps.document",
+      "status": "selected",
+      "reason": null
+    },
+    {
+      "id": "19p_rVJwBluVunC4RgoONSjozsFMFydJm",
+      "title": "03 Анализ текстов",
+      "status": "excluded",
+      "reason": "excluded_by_user"
+    },
+    {
+      "id": "1hsU1O93ly1hCDbCGNxGPOz7s-urqO9Wk3-MxqnO3rxs",
+      "title": "v1.1 (Hard)",
+      "status": "excluded",
+      "reason": "hard"
+    },
+    {
+      "id": "1-8aFOnZKxUwMMCxc1cmZR6mZLG2-Mo4ypWWNaS_UliQ",
+      "title": "v1.2 (Hard)",
+      "status": "excluded",
+      "reason": "hard"
+    },
+    {
+      "id": "1EI3iG4YhTMOarAZ3HoE-vN9cS2UAwwwfqtLq3jHXGXU",
+      "title": "v1.4",
+      "status": "excluded",
+      "reason": "excluded_by_user"
+    },
+    {
+      "id": "1TAYf4Szvgbg0HLYpnBI-FPpoy7rGrbuKXmjBCqrjb2Q",
+      "title": "v2.0 Modules",
+      "status": "excluded",
+      "reason": "excluded_by_user"
+    },
+    {
+      "id": "1RkQVkhpbj6B71-L8iLJNb890xh0ZyiWFHORM8yNE5Kg",
+      "title": "v3.0 (Simple calculator)",
+      "status": "excluded",
+      "reason": "excluded_by_user"
+    },
+    {
+      "id": "1Tc6LhEEQueqws4AQedeQADVmUylZmCCqn2XFNwY61Ik",
+      "title": "Special v1",
+      "status": "excluded",
+      "reason": "not_version_vx.x"
+    },
+    {
+      "id": "1BZil9j7v78oNovzIg01Z9IIsZ8pAadQH45Lvhh6HqjI",
+      "title": "Special v2",
+      "status": "excluded",
+      "reason": "not_version_vx.x"
+    }
+  ],
+  "coverage": [
+    {
+      "source_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:3",
+      "notes": "Исправлена опечатка примера: при введённом возрасте 10 выводится 10, а не 13."
+    },
+    {
+      "source_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:4",
+      "status": "imported",
+      "target_key": "gdrive:1nz_PScRJN4zGyCt4PpK46EeNqaMtjnQtFk4sx7qviLs:task:4",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1OAkdj3sKArQMtHyH5mn_IqFLo8WzIKf6BgqL1BxvTh8:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1OAkdj3sKArQMtHyH5mn_IqFLo8WzIKf6BgqL1BxvTh8:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1OAkdj3sKArQMtHyH5mn_IqFLo8WzIKf6BgqL1BxvTh8:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1OAkdj3sKArQMtHyH5mn_IqFLo8WzIKf6BgqL1BxvTh8:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1SPvI1ZlAIx6ubdZCR3exXX53wnM1jGUO2F8b6C1oNCc:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1SPvI1ZlAIx6ubdZCR3exXX53wnM1jGUO2F8b6C1oNCc:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1SPvI1ZlAIx6ubdZCR3exXX53wnM1jGUO2F8b6C1oNCc:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1SPvI1ZlAIx6ubdZCR3exXX53wnM1jGUO2F8b6C1oNCc:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM:task:1",
+      "notes": "Взяты слова из условия; вводная фраза «Вы» из примеров убрана."
+    },
+    {
+      "source_key": "gdrive:1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1D6SCTvzlQiBZXK2OBxzcvCdv9kgHcGc3wz5qXgXEiLM:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fOcg2wd6gmYrchCq4fyVz5pn0L9XmbW4snKW6EnQ-iI:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1fOcg2wd6gmYrchCq4fyVz5pn0L9XmbW4snKW6EnQ-iI:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fOcg2wd6gmYrchCq4fyVz5pn0L9XmbW4snKW6EnQ-iI:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1fOcg2wd6gmYrchCq4fyVz5pn0L9XmbW4snKW6EnQ-iI:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg:task:2",
+      "notes": "В исходнике пропущен балл 90. Сохранён строгий порог >90: для 90 явно установлена оценка 4."
+    },
+    {
+      "source_key": "gdrive:1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1KEXlyaK7ruMrPZ4m6MIMW2B_oCi-R1LRg2MwAPcQ1Pg:task:3",
+      "notes": "В исходнике пропущен возраст 65. Сохранено >65 для пенсионера; возраст 65 отнесён к категории «Зрелый»."
+    },
+    {
+      "source_key": "gdrive:17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM:task:1",
+      "status": "imported",
+      "target_key": "gdrive:17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM:task:2",
+      "status": "imported",
+      "target_key": "gdrive:17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM:task:3",
+      "status": "imported",
+      "target_key": "gdrive:17OZe0jIkWOnLXUC5Mdw5BfPGK76w2-jeuza4ySW7rDM:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo:task:1",
+      "notes": "Сохранены текст сообщения и число повторений, включая отсутствие повторений."
+    },
+    {
+      "source_key": "gdrive:1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1TjMSby1F6OWnPUCaBrCuLFNCmWlozqC0jwCE5sKEbEo:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1_dpMTgfhmduFGb86-T444Ghn23UjZJySP4FqmgGUsbs:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E:task:1",
+      "notes": "Исправлена арифметическая ошибка примера: среди 5,12,3,20,8,15,1 четыре числа меньше 10, а не три."
+    },
+    {
+      "source_key": "gdrive:1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1RNNnjRzdX6hwP8UO74nutjQWbZirmpgwkOdKDCXUu3E:task:3",
+      "notes": "Явно определено, что отрицательные числа с двузначным модулем также двузначные."
+    },
+    {
+      "source_key": "gdrive:1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U:task:1",
+      "notes": "Исправлен пример: Москва, Рязань, Саратов — три города. Строка «стоп» исключена из счётчика."
+    },
+    {
+      "source_key": "gdrive:1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1CxpcMyQ6Fcp7M38iTu4sT8UPBEPo5DzqeSpmyetLE0U:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4:task:1",
+      "notes": "Сохранён исходный строгий порог >18, хотя обычное определение совершеннолетия использует ≥18."
+    },
+    {
+      "source_key": "gdrive:1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4:task:3",
+      "status": "deferred",
+      "target_key": null,
+      "reason": "Случайная цель игры не проверяется существующим сравнением stdin/stdout.",
+      "proposal": "Подавать целевую сумму первой строкой вместо random. Сохранить накопление суммы, сообщения и остановку при достижении либо превышении цели. Согласовать изменение источника цели."
+    },
+    {
+      "source_key": "gdrive:1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI:task:1",
+      "notes": "Исправлено приглашение из примера «5 чисел»: в условии и самом примере четыре числа."
+    },
+    {
+      "source_key": "gdrive:1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI:task:2",
+      "notes": "Команда «стоп» завершает ввод и не сохраняется в список."
+    },
+    {
+      "source_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:1",
+      "notes": "В примере слово tail заменено на head, как в основном условии."
+    },
+    {
+      "source_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:1",
+      "notes": "Уточнено, что переворачивается исходный список."
+    },
+    {
+      "source_key": "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:3",
+      "notes": "По изображению-примеру подтверждено, что завершающий 0 исключён. Добавлена гарантия длины ≥2."
+    },
+    {
+      "source_key": "gdrive:1fQsnpr_tZl7eqiHbGV8kediRdXIgRdIR0BbkVDp0s4U:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1fQsnpr_tZl7eqiHbGV8kediRdXIgRdIR0BbkVDp0s4U:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fQsnpr_tZl7eqiHbGV8kediRdXIgRdIR0BbkVDp0s4U:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1fQsnpr_tZl7eqiHbGV8kediRdXIgRdIR0BbkVDp0s4U:task:2",
+      "notes": "Сохранён исходный пример [6,3,1,0]: в этой задаче завершающий 0 входит в список, что явно оговорено."
+    },
+    {
+      "source_key": "gdrive:1aYHyZGsl4o_nD6rOEHmERqR4dwl0p_e343twZ3EC38g:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1aYHyZGsl4o_nD6rOEHmERqR4dwl0p_e343twZ3EC38g:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1aYHyZGsl4o_nD6rOEHmERqR4dwl0p_e343twZ3EC38g:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1aYHyZGsl4o_nD6rOEHmERqR4dwl0p_e343twZ3EC38g:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1amwFo4U6bxe_yToy15VSdbvb3pk8OsK_KYej-kQwi0M:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1amwFo4U6bxe_yToy15VSdbvb3pk8OsK_KYej-kQwi0M:task:1",
+      "notes": "Уточнено отличие порядковых номеров 1–4 от индексов 0–3."
+    },
+    {
+      "source_key": "gdrive:1amwFo4U6bxe_yToy15VSdbvb3pk8OsK_KYej-kQwi0M:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1amwFo4U6bxe_yToy15VSdbvb3pk8OsK_KYej-kQwi0M:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1TCI-hkguT1baBXZLozrpmo2C7FQ2Obla2nSYKf9sJcw:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1TCI-hkguT1baBXZLozrpmo2C7FQ2Obla2nSYKf9sJcw:task:1",
+      "notes": "Названия выводятся после завершения ввода в исходном порядке."
+    },
+    {
+      "source_key": "gdrive:1TCI-hkguT1baBXZLozrpmo2C7FQ2Obla2nSYKf9sJcw:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1TCI-hkguT1baBXZLozrpmo2C7FQ2Obla2nSYKf9sJcw:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fedOnvzTx5lHHLE4GVLgxIFJDRjQtMIoyLtuuf3_TbU:task:3",
+      "status": "duplicate",
+      "target_key": "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:3",
+      "reason": "Совпадает смысл и число входных элементов."
+    },
+    {
+      "source_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:1",
+      "notes": "Сохранён заголовок «Положительные числа:» перед результатом."
+    },
+    {
+      "source_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0:task:2",
+      "status": "duplicate",
+      "target_key": "gdrive:1xwPRoD-6NNo3Oa4_YG3dYKAH77v0UlIS5XKGasCuE-Y:task:1",
+      "reason": "Совпадает смысл и число входных элементов."
+    },
+    {
+      "source_key": "gdrive:1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1IPtbodiECevLbtfGe0-z7alUlAbnC--jpYNnDMRAvT0:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1vpCxw5j-zVQ859wA_O9QgcUrRjFpTnD6AC_Beqt33xQ:task:3",
+      "status": "deferred",
+      "target_key": null,
+      "reason": "Случайный список не имеет единственного ожидаемого stdout.",
+      "proposal": "Подавать десять исходных чисел и прибавляемое число через stdin. Сохранить создание нового списка и порядок элементов. Согласовать замену random входными данными."
+    },
+    {
+      "source_key": "gdrive:14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA:task:1",
+      "status": "imported",
+      "target_key": "gdrive:14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA:task:2",
+      "status": "imported",
+      "target_key": "gdrive:14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA:task:3",
+      "status": "imported",
+      "target_key": "gdrive:14wuoe3UoreDAbv-nBZqWznVG9bK0Of43bDoFK7YykmA:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc:task:1",
+      "notes": "При нескольких вхождениях выбирается первое, отсчёт индексов с нуля."
+    },
+    {
+      "source_key": "gdrive:1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc:task:2",
+      "notes": "Добавлена гарантия существования следующего элемента; при повторах берётся первое вхождение."
+    },
+    {
+      "source_key": "gdrive:1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1JscdbKJiqtgL07G5ZIyGNzq4KK8EobuaGbO8AQwn3kc:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0:task:1",
+      "notes": "Добавлены гарантии наличия 100 и следующего элемента; при повторах берётся первое вхождение."
+    },
+    {
+      "source_key": "gdrive:1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1cKGJVIXQYI0Vv2yL8Lws8lODizj7pfCQt2D4gOY9KN0:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE:task:2",
+      "notes": "Добавлены гарантии наличия нуля и его левого соседа."
+    },
+    {
+      "source_key": "gdrive:1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1gFdj7smZvjPyUe0TUoBFiqmM7vOcS_kT1057PTdUdvE:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1DMh4CVRlZrYquAB6hGXDW_Smc_BzITZqsy2HGslBJ9I:task:3",
+      "notes": "Уточнён выбор первого максимума и гарантировано существование предыдущего элемента."
+    },
+    {
+      "source_key": "gdrive:1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk:task:2",
+      "notes": "Явно определён выбор первой записи при повторении имени."
+    },
+    {
+      "source_key": "gdrive:1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1iFJ4zfa8UiWDcfDyGA8zIjOhCJ6_clOPiJirQ5iylzk:task:3",
+      "notes": "Явно определён выбор первой записи при одинаковом максимальном возрасте."
+    },
+    {
+      "source_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1n1uIP8CNTkFENY9DhdJGzaNglHuJrtknJF_2sbs5xkA:task:3",
+      "status": "duplicate",
+      "target_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:2",
+      "reason": "Совпадает смысл и число входных элементов."
+    },
+    {
+      "source_key": "gdrive:1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4:task:2",
+      "status": "duplicate",
+      "target_key": "gdrive:1fYHQCLVqiEdlh9RigTANKid6yPYz3MQ_N2zwuykfz5k:task:2",
+      "reason": "Совпадает смысл и число входных элементов."
+    },
+    {
+      "source_key": "gdrive:1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1cSGVBeG9uhPFyLefeHv4hJtzz5ay_eAoQMUo3G_g5W4:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E:task:2",
+      "notes": "Бесконечный ввод заменён вводом до пустой строки для автоматической проверки."
+    },
+    {
+      "source_key": "gdrive:1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1KQP35UcJOPdbAyRlC9TFhyS0hSCtR_elJxIWdpp-g0E:task:3",
+      "notes": "Бесконечный ввод заменён вводом до пустой строки для автоматической проверки."
+    },
+    {
+      "source_key": "gdrive:1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1OylrMMaYmf1oTzkPZIhZp0yI-7bSTGAlw3Txlnrm1rs:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1ytPMOY70ZdFe-XZxgr8edamaWPMpDU0UljmzxUCxEDQ:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1ytPMOY70ZdFe-XZxgr8edamaWPMpDU0UljmzxUCxEDQ:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1ytPMOY70ZdFe-XZxgr8edamaWPMpDU0UljmzxUCxEDQ:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1ytPMOY70ZdFe-XZxgr8edamaWPMpDU0UljmzxUCxEDQ:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1dZfgn-r3K1fjfRNGnkiV_Htxr76-tYfp7trZTKwzjWE:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1rKanXYyXC4KaNrGROVW8U7akcl74nERPl_EvV2O0kns:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1Jax2iyb0yb0DuFJ8DwLr7Q53LJX1BkgB-As9JiIZ3ZU:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA:task:1",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA:task:2",
+      "status": "imported",
+      "target_key": "gdrive:1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA:task:2",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA:task:3",
+      "status": "imported",
+      "target_key": "gdrive:1QYF422O81DTGs_sx7-aru9Y6OKhPmxAMyvB6-Pv33BA:task:3",
+      "notes": null
+    },
+    {
+      "source_key": "gdrive:1Tc6LhEEQueqws4AQedeQADVmUylZmCCqn2XFNwY61Ik:task:1",
+      "status": "imported",
+      "target_key": "gdrive:1Tc6LhEEQueqws4AQedeQADVmUylZmCCqn2XFNwY61Ik:task:1",
+      "notes": null
+    }
+  ]
+}

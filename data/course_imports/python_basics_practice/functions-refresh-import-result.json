@@ -1,0 +1,79 @@
+{
+  "update": {
+    "status": "unchanged",
+    "course_id": 4,
+    "is_published": true,
+    "counts": {
+      "sections": 6,
+      "lessons": 40,
+      "tasks": 104,
+      "steps": 128,
+      "theory_steps": 24,
+      "tests": 510,
+      "public_tests": 107,
+      "hidden_tests": 403,
+      "source_tasks": 110,
+      "duplicates": 4,
+      "deferred": 2
+    }
+  },
+  "repeat": {
+    "status": "unchanged",
+    "course_id": 4,
+    "is_published": true,
+    "counts": {
+      "sections": 6,
+      "lessons": 40,
+      "tasks": 104,
+      "steps": 128,
+      "theory_steps": 24,
+      "tests": 510,
+      "public_tests": 107,
+      "hidden_tests": 403,
+      "source_tasks": 110,
+      "duplicates": 4,
+      "deferred": 2
+    }
+  },
+  "existing_ids_preserved": true,
+  "other_sections_and_student_data_unchanged": true,
+  "added_rows": {},
+  "preview": [
+    {
+      "status": "unchanged",
+      "course_id": 1,
+      "is_published": false,
+      "counts": {
+        "sections": 6,
+        "lessons": 40,
+        "tasks": 104,
+        "steps": 128,
+        "theory_steps": 24,
+        "tests": 510,
+        "public_tests": 107,
+        "hidden_tests": 403,
+        "source_tasks": 110,
+        "duplicates": 4,
+        "deferred": 2
+      }
+    },
+    {
+      "status": "unchanged",
+      "course_id": 1,
+      "is_published": false,
+      "counts": {
+        "sections": 6,
+        "lessons": 40,
+        "tasks": 104,
+        "steps": 128,
+        "theory_steps": 24,
+        "tests": 510,
+        "public_tests": 107,
+        "hidden_tests": 403,
+        "source_tasks": 110,
+        "duplicates": 4,
+        "deferred": 2
+      }
+    }
+  ]
+}

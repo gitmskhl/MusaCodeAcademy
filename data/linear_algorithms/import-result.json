@@ -1,0 +1,356 @@
+[
+  {
+    "environment": "local-postgresql",
+    "first": {
+      "status": "created",
+      "course_id": 4,
+      "course_slug": "python-basics-practice",
+      "is_published": true,
+      "section_id": 16,
+      "lessons": [
+        {
+          "lesson_id": 93,
+          "title": "Минимум и максимум",
+          "steps": [
+            {
+              "step_id": 530,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 531,
+              "title": "Наименьшее из пяти",
+              "task_id": 356
+            },
+            {
+              "step_id": 532,
+              "title": "Самый тёплый день",
+              "task_id": 357
+            },
+            {
+              "step_id": 533,
+              "title": "Перепад температур",
+              "task_id": 358
+            },
+            {
+              "step_id": 534,
+              "title": "Первый самый дешёвый билет",
+              "task_id": 359
+            }
+          ]
+        },
+        {
+          "lesson_id": 94,
+          "title": "Суммы и счётчики",
+          "steps": [
+            {
+              "step_id": 535,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 536,
+              "title": "Выручка за неделю",
+              "task_id": 360
+            },
+            {
+              "step_id": 537,
+              "title": "Заглавные буквы",
+              "task_id": 361
+            },
+            {
+              "step_id": 538,
+              "title": "Сумма положительных",
+              "task_id": 362
+            },
+            {
+              "step_id": 539,
+              "title": "Дни выше плана",
+              "task_id": 363
+            }
+          ]
+        },
+        {
+          "lesson_id": 95,
+          "title": "Среднее и отбор по условию",
+          "steps": [
+            {
+              "step_id": 540,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 541,
+              "title": "Среднее положительных",
+              "task_id": 364
+            },
+            {
+              "step_id": 542,
+              "title": "Среднее чётных",
+              "task_id": 365
+            },
+            {
+              "step_id": 543,
+              "title": "Самое маленькое положительное",
+              "task_id": 366
+            },
+            {
+              "step_id": 544,
+              "title": "Результаты выше среднего",
+              "task_id": 367
+            }
+          ]
+        },
+        {
+          "lesson_id": 96,
+          "title": "Поиск, соседи и серии",
+          "steps": [
+            {
+              "step_id": 545,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 546,
+              "title": "Первый нужный номер",
+              "task_id": 368
+            },
+            {
+              "step_id": 547,
+              "title": "Сколько раз стало теплее",
+              "task_id": 369
+            },
+            {
+              "step_id": 548,
+              "title": "Самая длинная серия",
+              "task_id": 370
+            },
+            {
+              "step_id": 549,
+              "title": "Самый длинный участок без уменьшений",
+              "task_id": 371
+            }
+          ]
+        },
+        {
+          "lesson_id": 97,
+          "title": "Два лучших результата",
+          "steps": [
+            {
+              "step_id": 550,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 551,
+              "title": "Второе по величине",
+              "task_id": 372
+            },
+            {
+              "step_id": 552,
+              "title": "Два призовых результата",
+              "task_id": 373
+            },
+            {
+              "step_id": 553,
+              "title": "Две самые дешёвые покупки",
+              "task_id": 374
+            },
+            {
+              "step_id": 554,
+              "title": "Второе различное значение",
+              "task_id": 375
+            }
+          ]
+        }
+      ]
+    },
+    "repeat": "unchanged",
+    "existing_rows_preserved": true,
+    "existing_row_count": 2826,
+    "added": {
+      "sections": 1,
+      "lessons": 5,
+      "steps": 25,
+      "tasks": 20,
+      "test_cases": 129
+    }
+  },
+  {
+    "environment": "sqlite-preview",
+    "first": {
+      "status": "created",
+      "course_id": 1,
+      "course_slug": "python-basics-practice",
+      "is_published": false,
+      "section_id": 7,
+      "lessons": [
+        {
+          "lesson_id": 40,
+          "title": "Минимум и максимум",
+          "steps": [
+            {
+              "step_id": 127,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 128,
+              "title": "Наименьшее из пяти",
+              "task_id": 104
+            },
+            {
+              "step_id": 129,
+              "title": "Самый тёплый день",
+              "task_id": 105
+            },
+            {
+              "step_id": 130,
+              "title": "Перепад температур",
+              "task_id": 106
+            },
+            {
+              "step_id": 131,
+              "title": "Первый самый дешёвый билет",
+              "task_id": 107
+            }
+          ]
+        },
+        {
+          "lesson_id": 41,
+          "title": "Суммы и счётчики",
+          "steps": [
+            {
+              "step_id": 132,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 133,
+              "title": "Выручка за неделю",
+              "task_id": 108
+            },
+            {
+              "step_id": 134,
+              "title": "Заглавные буквы",
+              "task_id": 109
+            },
+            {
+              "step_id": 135,
+              "title": "Сумма положительных",
+              "task_id": 110
+            },
+            {
+              "step_id": 136,
+              "title": "Дни выше плана",
+              "task_id": 111
+            }
+          ]
+        },
+        {
+          "lesson_id": 42,
+          "title": "Среднее и отбор по условию",
+          "steps": [
+            {
+              "step_id": 137,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 138,
+              "title": "Среднее положительных",
+              "task_id": 112
+            },
+            {
+              "step_id": 139,
+              "title": "Среднее чётных",
+              "task_id": 113
+            },
+            {
+              "step_id": 140,
+              "title": "Самое маленькое положительное",
+              "task_id": 114
+            },
+            {
+              "step_id": 141,
+              "title": "Результаты выше среднего",
+              "task_id": 115
+            }
+          ]
+        },
+        {
+          "lesson_id": 43,
+          "title": "Поиск, соседи и серии",
+          "steps": [
+            {
+              "step_id": 142,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 143,
+              "title": "Первый нужный номер",
+              "task_id": 116
+            },
+            {
+              "step_id": 144,
+              "title": "Сколько раз стало теплее",
+              "task_id": 117
+            },
+            {
+              "step_id": 145,
+              "title": "Самая длинная серия",
+              "task_id": 118
+            },
+            {
+              "step_id": 146,
+              "title": "Самый длинный участок без уменьшений",
+              "task_id": 119
+            }
+          ]
+        },
+        {
+          "lesson_id": 44,
+          "title": "Два лучших результата",
+          "steps": [
+            {
+              "step_id": 147,
+              "title": "Как работает алгоритм",
+              "task_id": null
+            },
+            {
+              "step_id": 148,
+              "title": "Второе по величине",
+              "task_id": 120
+            },
+            {
+              "step_id": 149,
+              "title": "Два призовых результата",
+              "task_id": 121
+            },
+            {
+              "step_id": 150,
+              "title": "Две самые дешёвые покупки",
+              "task_id": 122
+            },
+            {
+              "step_id": 151,
+              "title": "Второе различное значение",
+              "task_id": 123
+            }
+          ]
+        }
+      ]
+    },
+    "repeat": "unchanged",
+    "existing_rows_preserved": true,
+    "existing_row_count": 780,
+    "added": {
+      "sections": 1,
+      "lessons": 5,
+      "steps": 25,
+      "tasks": 20,
+      "test_cases": 129
+    }
+  }
+]

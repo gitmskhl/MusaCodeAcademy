@@ -10,10 +10,11 @@ from app.enums import SubmissionStatus, UserRole
 from app.models import Course
 from app.schemas.admin import (
     AdminCourseOption, AdminSubmissionDetail, AdminSubmissionPage,
-    AdminUser, AdminUserDetail, AdminUserPage, UserBlockUpdate,
+    AdminUser, AdminUserDetail, AdminUserPage, UserBlockUpdate, UserAIAssistanceUpdate,
 )
 from app.services import admin as service
 from app.services.database_backup import DatabaseBackupResponse, create_database_backup
+from app.core.config import settings
 
 router = APIRouter(dependencies=[Depends(require_role(UserRole.ADMIN))])
 Page = Annotated[int, Query(ge=1, le=1_000_000)]
@@ -37,6 +38,11 @@ async def admin_courses(db: DBSession):
     return (await db.execute(select(Course.id, Course.title).order_by(Course.title, Course.id))).mappings().all()
 
 
+@router.get("/ai-models", response_model=list[str])
+async def admin_ai_models():
+    return settings.available_ai_models()
+
+
 @router.get("/users", response_model=AdminUserPage)
 async def admin_users(db: DBSession, q: Search = None, role: UserRole | None = None,
                       blocked: bool | None = None, course_id: OptionalId = None,
@@ -52,6 +58,11 @@ async def admin_user_detail(user_id: RecordId, db: DBSession):
 @router.patch("/users/{user_id}/block", response_model=AdminUser)
 async def admin_user_block(user_id: RecordId, update: UserBlockUpdate, actor: OnlyAdmin, db: DBSession):
     return await service.set_user_block(db, user_id=user_id, actor_id=actor.id, update=update)
+
+
+@router.patch("/users/{user_id}/ai-assistance", response_model=AdminUser)
+async def admin_user_ai_assistance(user_id: RecordId, update: UserAIAssistanceUpdate, db: DBSession):
+    return await service.set_user_ai_assistance(db, user_id=user_id, update=update)
 
 
 @router.get("/submissions", response_model=AdminSubmissionPage)

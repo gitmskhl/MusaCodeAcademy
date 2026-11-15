@@ -42,3 +42,43 @@ def test_namespace_is_fresh_for_each_test():
     for _ in range(2):
         result = json.loads(harness.check_python_test(source, '', '1'))
         assert result['status'] == 'ACCEPTED'
+
+
+def function_result(source, expected=12, **options):
+    case = {'function': 'max2', 'args': [5, 12], 'mode': 'return',
+            'expected': expected, **options}
+    encoded = harness.FUNCTION_TEST_PREFIX + json.dumps(case)
+    return json.loads(harness.check_python_test(source, encoded, str(expected)))
+
+
+def test_function_is_called_and_its_return_value_is_checked():
+    assert function_result('def max2(a, b):\n    return max(a, b)')['status'] == 'ACCEPTED'
+    assert function_result('def max2(a, b):\n    print(max(a, b))')['status'] == 'WRONG ANSWER'
+    assert function_result('print(12)')['status'] == 'WRONG ANSWER'
+    assert function_result('def max2(a, b):\n    return "12"')['status'] == 'WRONG ANSWER'
+
+
+def test_function_arguments_are_protected_and_results_have_correct_types():
+    case = {'function': 'reverse', 'args': [[1, 2]], 'expected': [2, 1],
+            'mode': 'return', 'unchanged_args': True}
+    encoded = harness.FUNCTION_TEST_PREFIX + json.dumps(case)
+    correct = 'def reverse(items):\n    return items[::-1]'
+    mutates = 'def reverse(items):\n    items.reverse()\n    return items'
+    assert json.loads(harness.check_python_test(correct, encoded, '[2, 1]'))['status'] == 'ACCEPTED'
+    assert json.loads(harness.check_python_test(mutates, encoded, '[2, 1]'))['status'] == 'WRONG ANSWER'
+    assert function_result('def max2(a,b):\n    return 1', expected=True)['status'] == 'WRONG ANSWER'
+
+
+def test_password_search_uses_the_supplied_check_function():
+    import hashlib
+    case = {'function': 'find_password', 'args': [], 'mode': 'password',
+            'hash': hashlib.sha256(b'b').hexdigest()}
+    encoded = harness.FUNCTION_TEST_PREFIX + json.dumps(case)
+    source = '''def find_password():
+    for c in "abc":
+        if check_password(c):
+            return c
+'''
+    assert json.loads(harness.check_python_test(source, encoded, 'Пароль найден.'))['status'] == 'ACCEPTED'
+    wrong = 'def find_password():\n    return "a"'
+    assert json.loads(harness.check_python_test(wrong, encoded, 'Пароль найден.'))['status'] == 'WRONG ANSWER'

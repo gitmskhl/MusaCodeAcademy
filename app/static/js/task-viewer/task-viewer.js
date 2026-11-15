@@ -2,6 +2,7 @@ import { createCodeEditorView } from '../step-renderer/codemirror/code-editor-vi
 import { authFetch } from '../course-auth.js';
 import { createSubmissionStatusPanel } from './submission-status-panel.js';
 import { runLocalPythonTests } from './local-python-runner.js';
+import { createAIHintPanel } from './ai-hint-panel.js';
 
 const SUBMIT_LABEL = 'Отправить решение';
 const SUBMITTING_LABEL = 'Отправляем решение...';
@@ -108,10 +109,12 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     submitButton.disabled = true;
     actions.append(submitStatus, submitButton);
     const statusPanel = createSubmissionStatusPanel({ fetcher: authFetch });
+    const hintPanel = createAIHintPanel({ fetcher: authFetch, signal: abortController.signal });
     card.append(
         header,
         createDivider(),
         statusPanel.element,
+        hintPanel.element,
         editorHost,
         createDivider(),
         actions
@@ -137,6 +140,7 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     };
 
     const displaySubmission = (submission, { loadSource = false } = {}) => {
+        hintPanel.render(submission);
         if (!submission) {
             latestSubmissionStatus = null;
             stopPolling();
@@ -235,6 +239,7 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
         }
 
         isSubmitting = true;
+        hintPanel.setBusy(true);
         const submittedSource = sourceCode;
         editor.setEditable(false);
         submitButton.disabled = true;
@@ -301,6 +306,7 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
             }
         } finally {
             isSubmitting = false;
+            hintPanel.setBusy(false);
             if (!isDestroyed) {
                 editor.setEditable(true);
                 if (!ACTIVE_SUBMISSION_STATUSES.has(latestSubmissionStatus)) {

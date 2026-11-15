@@ -33,6 +33,8 @@ class SubmissionDetail(BaseModel):
     total_tests: int | None
     failed_test_id: int | None
     actual_output: str | None
+    ai_hint: str | None
+    ai_hint_model: str | None
     status: SubmissionStatus
     submitted_at: datetime
 

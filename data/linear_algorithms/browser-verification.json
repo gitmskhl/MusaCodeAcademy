@@ -1,0 +1,16 @@
+{
+  "rendering": {
+    "steps": 25,
+    "code_blocks": 10,
+    "console_examples": 50
+  },
+  "mobile_page_overflow": false,
+  "mobile_theory_overflow": false,
+  "pyodide": {
+    "phase": "complete",
+    "passed": 129,
+    "total": 129,
+    "failures": []
+  },
+  "browser": "Chrome 157"
+}

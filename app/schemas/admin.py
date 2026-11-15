@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,6 +18,9 @@ class AdminUser(BaseModel):
     last_login_at: datetime | None
     blocked_at: datetime | None
     block_reason: str | None
+    ai_assistance_enabled: bool
+    ai_daily_limit: int
+    ai_model_limits: dict[str, int] | None
 
 
 class AdminUserListItem(AdminUser):
@@ -56,6 +60,17 @@ class UserBlockUpdate(BaseModel):
     reason: str | None = Field(default=None, max_length=500)
 
 
+class UserAIAssistanceUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    enabled: bool
+    daily_limit: int | None = Field(default=None, ge=1, le=1000)
+    model_limits: dict[
+        Annotated[str, Field(min_length=1, max_length=255)],
+        Annotated[int, Field(strict=True, ge=1, le=1000)],
+    ] | None = Field(default=None, max_length=100)
+
+
 class AdminSubmissionItem(BaseModel):
     id: int
     user_id: int
@@ -84,6 +99,8 @@ class AdminSubmissionDetail(AdminSubmissionItem):
     source_code: str
     failed_test_id: int | None
     actual_output: str | None
+    ai_hint: str | None
+    ai_hint_model: str | None
 
 
 class AdminCourseOption(BaseModel):

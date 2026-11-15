@@ -1,0 +1,14 @@
+{
+  "theory_rendering": {
+    "steps_rendered": 13,
+    "code_examples_checked": 13,
+    "errors": []
+  },
+  "theory_viewer": {
+    "taskVisible": false,
+    "markButtonVisible": true,
+    "codeBlocks": 1
+  },
+  "mobile_page_overflow": false,
+  "browser": "Google Chrome"
+}

@@ -1,0 +1,23 @@
+{
+  "code_examples_checked": 23,
+  "list_comprehensions": 0,
+  "updated_example_output_verified": true,
+  "databases": [
+    {
+      "status": "unchanged",
+      "repeat": "unchanged",
+      "course_id": 4,
+      "changed_step_ids": [],
+      "all_other_data_unchanged": true
+    },
+    {
+      "status": "updated",
+      "repeat": "unchanged",
+      "course_id": 1,
+      "changed_step_ids": [
+        123
+      ],
+      "all_other_data_unchanged": true
+    }
+  ]
+}

@@ -19,6 +19,8 @@ SUBMISSION_DETAIL_FIELDS = {
     "total_tests",
     "failed_test_id",
     "actual_output",
+    "ai_hint",
+    "ai_hint_model",
     "status",
     "submitted_at",
 }

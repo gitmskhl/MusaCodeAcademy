@@ -1,0 +1,27 @@
+{
+  "rendering": {
+    "steps_rendered": 76,
+    "examples_checked": 79,
+    "code_blocks_checked": 79,
+    "errors": []
+  },
+  "pyodide": {
+    "phase": "complete",
+    "passed": 377,
+    "total": 377,
+    "failures": []
+  },
+  "theory_rendering": {
+    "steps_rendered": 13,
+    "code_examples_checked": 13,
+    "errors": []
+  },
+  "theory_viewer": {
+    "taskVisible": false,
+    "markButtonVisible": true,
+    "codeBlocks": 1
+  },
+  "course_is_published": true,
+  "browser": "Google Chrome",
+  "example_style": "complete_user_session"
+}

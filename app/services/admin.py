@@ -7,7 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import SubmissionStatus, UserRole
 from app.models import Course, CourseActivity, Enrollment, Lesson, Section, Step, StepProgress, Submission, Task, User
-from app.schemas.admin import AdminUser, UserBlockUpdate
+from app.schemas.admin import AdminUser, UserBlockUpdate, UserAIAssistanceUpdate
+from app.core.config import settings
+from app.services.ai_hint import AI_USER_LOCK_NAMESPACE
 
 
 def _latest_activity(*values: datetime | None) -> datetime | None:
@@ -154,6 +156,36 @@ async def get_user(db: AsyncSession, user_id: int):
     ]}
 
 
+async def set_user_ai_assistance(db: AsyncSession, *, user_id: int, update: UserAIAssistanceUpdate):
+    try:
+        if not await db.scalar(select(func.pg_try_advisory_xact_lock(AI_USER_LOCK_NAMESPACE, user_id))):
+            raise HTTPException(409, "Подсказка пользователя ещё готовится. Сохраните настройки после её завершения.")
+        target = await db.get(User, user_id, populate_existing=True)
+        if target is None:
+            raise HTTPException(404, "Пользователь не найден")
+        if any(getattr(update, key) is None for key in update.model_fields_set - {"enabled"}):
+            raise HTTPException(422, "Лимиты не могут быть пустыми.")
+        daily_limit = update.daily_limit if update.daily_limit is not None else target.ai_daily_limit
+        allocations = update.model_limits if update.model_limits is not None else target.ai_model_limits
+        if {"daily_limit", "model_limits"} & update.model_fields_set:
+            if allocations is None:
+                available = settings.available_ai_models()
+                allocations = {available[0]: daily_limit} if available else {}
+            if not allocations or sum(allocations.values()) != daily_limit:
+                raise HTTPException(422, "Сумма запросов по моделям должна совпадать с дневным лимитом.")
+            if set(allocations) - set(settings.available_ai_models()):
+                raise HTTPException(422, "Можно выбрать только модели, перечисленные в AI_MODEL_X в .env.")
+            target.ai_daily_limit = daily_limit
+            target.ai_model_limits = allocations
+        target.ai_assistance_enabled = update.enabled
+        target.updated_at = datetime.now(UTC)
+        await db.commit()
+        return target
+    except BaseException:
+        await db.rollback()
+        raise
+
+
 async def set_user_block(db: AsyncSession, *, user_id: int, actor_id: int, update: UserBlockUpdate):
     # Serialize account changes, including simultaneous attempts by two admins
     # to block one another. Recheck the actor after acquiring the locks.
@@ -192,7 +224,7 @@ def _submissions(*, detail=False):
         Submission.status, Submission.submitted_at, Submission.passed_tests, Submission.total_tests,
     ]
     if detail:
-        columns += [Submission.source_code, Submission.failed_test_id, Submission.actual_output]
+        columns += [Submission.source_code, Submission.failed_test_id, Submission.actual_output, Submission.ai_hint, Submission.ai_hint_model]
     return (select(*columns).select_from(Submission)
             .join(User, User.id == Submission.user_id).join(Task, Task.id == Submission.task_id)
             .join(Step, Step.id == Task.step_id).join(Lesson, Lesson.id == Step.lesson_id)

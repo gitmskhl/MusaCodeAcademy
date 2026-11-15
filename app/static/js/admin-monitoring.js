@@ -1,4 +1,5 @@
 import { createCodeEditorView } from './step-renderer/codemirror/code-editor-view.js';
+import { createAIAssistanceSettings } from './admin-ai-assistance.js';
 
 const TOKEN_KEY = 'musa_code_academy_token';
 const view = document.body.dataset.view;
@@ -195,10 +196,11 @@ function syncFilters() {
 }
 function renderUsers(data) {
     const node = section();
-    node.append(table(['ID', 'Пользователь', 'Аккаунт', 'Регистрация', 'Учебная активность', 'Решено задач', 'Отправки'], data.items.map(user => [
+    node.append(table(['ID', 'Пользователь', 'Аккаунт', 'AI-помощь', 'Регистрация', 'Учебная активность', 'Решено задач', 'Отправки'], data.items.map(user => [
         user.id,
         stacked(link(`${user.first_name} ${user.last_name}`, `/admin/users/${user.id}`), user.email),
         stacked(badge(user.blocked_at ? 'Заблокирован' : 'Активен', !user.blocked_at, !!user.blocked_at), user.role === 'admin' ? 'Администратор' : 'Ученик'),
+        badge(user.ai_assistance_enabled ? 'Включена' : 'Выключена', user.ai_assistance_enabled),
         date(user.created_at), date(user.last_activity_at), user.solved_tasks_count,
         link(user.submissions_count, `/admin/submissions?user_id=${user.id}`),
     ])));
@@ -266,6 +268,12 @@ function renderUser(user, submissions) {
         stats.append(stat);
     });
     profile.append(stats);
+    const aiSection = section('AI-помощь');
+    aiSection.append(createAIAssistanceSettings({ user, api, onSaved(message) {
+        const notice = document.querySelector('[data-notice]');
+        notice.textContent = message;
+        notice.hidden = false;
+    } }));
     const courses = section('Прогресс по курсам');
     courses.append(el('p', 'Пройденные шаги учитывают отметки о завершении. Решённые задачи — уникальные задачи с принятым решением.', 'monitoring-muted'));
     courses.append(table(['Курс', 'Запись', 'Пройдено шагов', 'Решено задач', 'Отправки', 'Учебная активность'], user.courses.map(course => {
@@ -283,13 +291,15 @@ function renderUser(user, submissions) {
     const attempts = section('Последние отправки');
     attempts.append(link('Все отправки пользователя →', `/admin/submissions?user_id=${user.id}`, 'monitoring-link'));
     attempts.append(submissionTable(submissions.items));
-    content.append(profile, courses, attempts);
+    content.append(profile, aiSection, courses, attempts);
 }
 function renderSubmission(item) {
     const info = section();
     info.append(meta([
         ['Пользователь', stacked(link(item.user_name, `/admin/users/${item.user_id}`, 'monitoring-link'), item.user_email)],
         ['Результат', statusBadge(item.status)],
+        ['AI-подсказка', item.ai_hint ? badge('Использована', true) : 'Не использована'],
+        ...(item.ai_hint_model ? [['Модель AI', item.ai_hint_model]] : []),
         ['Задача', link(`${item.step_title} (#${item.task_id})`, `/admin/steps/${item.step_id}/task`, 'monitoring-link')],
         ['Курс / урок', `${item.course_title} / ${item.lesson_title}`],
         ['Дата', date(item.submitted_at)], ['Пройдено тестов', `${item.passed_tests} / ${item.total_tests ?? '—'}`],
@@ -304,6 +314,11 @@ function renderSubmission(item) {
     const output = section('Вывод / диагностика');
     output.append(el('pre', item.actual_output ?? 'Сохранённой диагностики нет.', 'monitoring-output'));
     content.append(info, code, output);
+    if (item.ai_hint) {
+        const hint = section('Полученная AI-подсказка');
+        hint.append(el('p', item.ai_hint, 'monitoring-output'));
+        content.append(hint);
+    }
     codeEditor = createCodeEditorView({ parent: editorHost, document: item.source_code, language: 'python', editable: false });
 }
 async function load() {

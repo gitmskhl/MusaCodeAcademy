@@ -1,0 +1,11 @@
+{
+  "task_rendering": {
+    "steps_rendered": 27,
+    "examples_checked": 27,
+    "console_blocks_checked": 27,
+    "errors": []
+  },
+  "numbered_statements": 27,
+  "mobile_page_overflow": false,
+  "browser": "Google Chrome"
+}

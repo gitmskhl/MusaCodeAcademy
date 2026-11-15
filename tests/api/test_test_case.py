@@ -215,8 +215,8 @@ async def test_create_test_case_requires_authentication(
 @pytest.mark.parametrize(
     "payload, loc",
     [
-        ({"task_id": 1, "input": "", "expected_output": "3"}, ["body", "input"]),
-        ({"task_id": 1, "input": "1 2", "expected_output": ""}, ["body", "expected_output"]),
+        ({"task_id": 1, "input": None, "expected_output": "3"}, ["body", "input"]),
+        ({"task_id": 1, "input": "1 2", "expected_output": None}, ["body", "expected_output"]),
     ],
 )
 async def test_create_test_case_validates_payload(
@@ -236,6 +236,29 @@ async def test_create_test_case_validates_payload(
 
 
 # GET /api/test-cases/admin/by-task/{task_id}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stdin, stdout", [("", "14756\n"), ("10\n", ""), ("", "")])
+async def test_create_and_update_allow_empty_streams(
+    client, admin_headers, section_factory, db, stdin, stdout,
+):
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    response = await client.post(
+        create_test_case_url(), headers=admin_headers,
+        json={"task_id": task.id, "input": stdin, "expected_output": stdout},
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    created = response.json()
+    assert created["input"] == stdin and created["expected_output"] == stdout
+    response = await client.patch(
+        update_test_case_url(created["id"]), headers=admin_headers,
+        json={"input": "", "expected_output": ""},
+    )
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["input"] == ""
+    assert response.json()["expected_output"] == ""
 
 
 def test_get_test_cases_uses_expected_url():
@@ -460,8 +483,8 @@ async def test_update_test_case_requires_authentication(
 @pytest.mark.parametrize(
     "payload, loc",
     [
-        ({"input": ""}, ["body", "input"]),
-        ({"expected_output": ""}, ["body", "expected_output"]),
+        ({"input": None}, ["body", "input"]),
+        ({"expected_output": []}, ["body", "expected_output"]),
     ],
 )
 async def test_update_test_case_validates_payload(

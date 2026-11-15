@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from sqlalchemy import Integer, String, DateTime, Enum as SQLEnum
+from sqlalchemy import Boolean, CheckConstraint, Integer, JSON, String, DateTime, Enum as SQLEnum, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, UTC
 
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (CheckConstraint("ai_daily_limit BETWEEN 1 AND 1000", name="ck_users_ai_daily_limit"),)
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     
@@ -30,6 +31,11 @@ class User(Base):
 
     blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     block_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    ai_assistance_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
+    ai_daily_limit: Mapped[int] = mapped_column(Integer, default=10, server_default="10", nullable=False)
+    ai_model_limits: Mapped[dict[str, int] | None] = mapped_column(JSON, nullable=True, default=None)
     
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),

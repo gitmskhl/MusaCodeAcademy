@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY worker ./worker
+COPY data/course_imports/python_basics_practice ./data/course_imports/python_basics_practice
 COPY alembic ./alembic
 COPY alembic.ini ./
 
