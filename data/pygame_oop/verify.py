@@ -105,7 +105,7 @@ def main():
     surface = pygame.Surface((800, 600))
     surface.fill((20, 24, 32))
     spark.alpha = 128
-    spark.draw(surface)
+    spark.render(surface)
     blended = tuple(surface.get_at((100, 100)))[:3]
     assert 120 < blended[0] < 160 and blended != (255, 190, 70)
     assert tuple(surface.get_at((0, 0)))[:3] == (20, 24, 32)
@@ -140,7 +140,7 @@ def main():
     square = scope['SquareParticle'](200, 100, -1, 2, 10)
     for obj in [circle, square]:
         obj.update()
-        obj.draw(surface)
+        obj.render(surface)
     assert (circle.x, circle.y) == (102, 99) and (square.x, square.y) == (199, 102)
     assert tuple(surface.get_at((102, 99)))[:3] == (255, 100, 70)
     assert tuple(surface.get_at((199, 102)))[:3] == (90, 180, 255)

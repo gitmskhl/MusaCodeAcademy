@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 import pytest_asyncio
@@ -6,7 +6,10 @@ from sqlalchemy import func, select, text
 
 from app.core.security import create_access_token, hash_password
 from app.enums import SubmissionStatus, UserRole
-from app.models import CourseActivity, Enrollment, Lesson, Section, Step, StepProgress, Submission, Task, User
+from app.models import (
+    AIHintUsage, AIModelHintUsage, CourseActivity, Enrollment, Lesson, PasswordResetToken,
+    Section, Step, StepProgress, Submission, Task, User,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -64,6 +67,9 @@ async def learning_data(db, course_factory):
     ("GET", "/api/admin/users", None),
     ("GET", "/api/admin/users/1", None),
     ("PATCH", "/api/admin/users/1/block", {"blocked": True, "reason": "test"}),
+    ("DELETE", "/api/admin/users/1", None),
+    ("PUT", "/api/admin/users/1/courses/1", None),
+    ("DELETE", "/api/admin/users/1/courses/1", None),
     ("GET", "/api/admin/submissions", None),
     ("GET", "/api/admin/submissions/1", None),
     ("GET", "/api/admin/courses", None),
@@ -216,6 +222,122 @@ async def test_block_protection_and_validation(client, db, admin_headers):
     assert actor.blocked_at is None
     assert (await client.patch("/api/admin/users/999999/block", headers=admin_headers,
                               json={"blocked": True, "reason": "test"})).status_code == 404
+
+
+@pytest.mark.parametrize("blocked", [False, True])
+async def test_delete_user_removes_all_personal_data(client, db, admin_headers, learning_data, blocked):
+    user, course, tasks, _ = learning_data
+    user_id, email = user.id, user.email
+    old_headers = headers(user)
+    if blocked:
+        user.blocked_at = datetime.now(UTC)
+        user.block_reason = "Спам"
+    other = await make_user(db, "keep@example.com")
+    day = datetime.now(UTC).date()
+    for owner in (user, other):
+        db.add_all([
+            PasswordResetToken(user_id=owner.id, token_hash=f"reset-{owner.id}", expires_at=datetime.now(UTC) + timedelta(hours=1)),
+            AIHintUsage(user_id=owner.id, day=day, requests_count=1),
+            AIModelHintUsage(user_id=owner.id, day=day, model="test-model", requests_count=1),
+        ])
+    db.add_all([
+        Enrollment(user_id=other.id, course_id=course.id),
+        Submission(user_id=other.id, task_id=tasks[0].id, source_code="print('keep')"),
+        StepProgress(user_id=other.id, step_id=tasks[0].step_id),
+        CourseActivity(user_id=other.id, course_id=course.id),
+    ])
+    await db.commit()
+    response = await client.delete(f"/api/admin/users/{user_id}", headers=admin_headers)
+    assert response.status_code == 204 and response.content == b""
+    assert await db.scalar(select(User.id).where(User.id == user_id)) is None
+    for model in (Enrollment, Submission, StepProgress, CourseActivity, PasswordResetToken, AIHintUsage, AIModelHintUsage):
+        assert await db.scalar(select(func.count()).select_from(model).where(model.user_id == user_id)) == 0
+        assert await db.scalar(select(func.count()).select_from(model).where(model.user_id == other.id)) == 1
+    assert (await client.get(f"/api/admin/users/{user_id}", headers=admin_headers)).status_code == 404
+    assert (await client.get("/api/users/me", headers=old_headers)).status_code == 401
+    assert (await client.post("/api/auth/token", data={"username": email, "password": "12345678"})).status_code == 401
+    # Full deletion frees the email, but the old JWT must not access a new account.
+    result = await client.post("/api/auth/register", json={
+        "email": email, "password": "12345678", "first_name": "Иван", "last_name": "Петров",
+    })
+    assert result.status_code == 201
+    assert (await client.get("/api/users/me", headers=old_headers)).status_code == 401
+
+
+async def test_delete_protects_self_and_allows_other_admin(client, db, admin_headers):
+    actor = await db.scalar(select(User).where(User.role == UserRole.ADMIN))
+    assert (await client.delete(f"/api/admin/users/{actor.id}", headers=admin_headers)).status_code == 409
+    other = await make_user(db, "admin2@example.com", role=UserRole.ADMIN)
+    other_headers = headers(other)
+    assert (await client.delete(f"/api/admin/users/{other.id}", headers=admin_headers)).status_code == 204
+    assert (await client.get("/api/admin/users", headers=other_headers)).status_code == 401
+    assert (await client.get("/api/admin/users", headers=admin_headers)).status_code == 200
+
+
+@pytest.mark.parametrize("published", [False, True])
+async def test_admin_enrollment_is_idempotent_and_visible_to_student(client, db, admin_headers, course_factory, published):
+    user = await make_user(db)
+    course = await course_factory(slug="admin-enrollment", is_published=published)
+    path = f"/api/admin/users/{user.id}/courses/{course.id}"
+    for _ in range(2):
+        response = await client.put(path, headers=admin_headers)
+        assert response.status_code == 204 and response.content == b""
+    assert await db.scalar(select(func.count()).select_from(Enrollment).where(Enrollment.user_id == user.id)) == 1
+    detail = (await client.get(f"/api/admin/users/{user.id}", headers=admin_headers)).json()
+    assert detail["courses"][0]["enrolled"] is True
+    assert detail["courses"][0]["is_published"] is published
+    enrolled = await client.get("/api/enrollments/me", headers=headers(user))
+    assert enrolled.status_code == 200
+    assert [item["course_id"] for item in enrolled.json()] == [course.id]
+    options = (await client.get("/api/admin/courses", headers=admin_headers)).json()
+    assert options == [{"id": course.id, "title": course.title, "is_published": published}]
+
+
+async def test_admin_unenrollment_preserves_history_and_other_enrollments(client, db, admin_headers, learning_data, course_factory):
+    user, course, _, _ = learning_data
+    other = await make_user(db, "other@example.com")
+    another_course = await course_factory(slug="another-course")
+    db.add_all([
+        Enrollment(user_id=other.id, course_id=course.id),
+        Enrollment(user_id=user.id, course_id=another_course.id),
+    ])
+    await db.commit()
+    path = f"/api/admin/users/{user.id}/courses/{course.id}"
+    before = (await client.get(f"/api/admin/users/{user.id}", headers=admin_headers)).json()
+    progress = next(item for item in before["courses"] if item["id"] == course.id)
+    for _ in range(2):
+        assert (await client.delete(path, headers=admin_headers)).status_code == 204
+    after = (await client.get(f"/api/admin/users/{user.id}", headers=admin_headers)).json()
+    assert next(item for item in after["courses"] if item["id"] == course.id) == {**progress, "enrolled": False}
+    enrolled = (await client.get("/api/enrollments/me", headers=headers(user))).json()
+    assert [item["course_id"] for item in enrolled] == [another_course.id]
+    assert await db.scalar(select(Enrollment.id).where(Enrollment.user_id == other.id, Enrollment.course_id == course.id))
+    assert (await client.put(path, headers=admin_headers)).status_code == 204
+    restored = (await client.get(f"/api/admin/users/{user.id}", headers=admin_headers)).json()
+    assert next(item for item in restored["courses"] if item["id"] == course.id) == progress
+
+
+@pytest.mark.parametrize("method,suffix", [("DELETE", ""), ("PUT", "/courses/1"), ("DELETE", "/courses/1")])
+async def test_blocked_admin_cannot_manage_users(client, db, admin_headers, method, suffix):
+    actor = await db.scalar(select(User).where(User.role == UserRole.ADMIN))
+    actor.blocked_at = datetime.now(UTC)
+    await db.commit()
+    assert (await client.request(method, f"/api/admin/users/999999{suffix}", headers=admin_headers)).status_code == 403
+
+
+@pytest.mark.parametrize("method,path,code", [
+    ("DELETE", "/api/admin/users/999999", 404),
+    ("DELETE", "/api/admin/users/0", 422),
+    ("DELETE", "/api/admin/users/9999999999", 422),
+    ("PUT", "/api/admin/users/999999/courses/1", 404),
+    ("DELETE", "/api/admin/users/999999/courses/1", 404),
+    ("PUT", "/api/admin/users/1/courses/999999", 404),
+    ("DELETE", "/api/admin/users/1/courses/999999", 404),
+    ("PUT", "/api/admin/users/1/courses/0", 422),
+    ("DELETE", "/api/admin/users/1/courses/9999999999", 422),
+])
+async def test_user_management_missing_records_and_invalid_ids(client, admin_headers, method, path, code):
+    assert (await client.request(method, path, headers=admin_headers)).status_code == code
 
 
 @pytest.mark.parametrize("path,code", [

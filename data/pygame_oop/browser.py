@@ -18,6 +18,7 @@ from app.enums import UserRole
 from app.models import User, Task, Step, Lesson
 from .build import ROOT, SLUG, snapshot
 from .content import illustrated_sections
+from .naming import STEP_TITLE_RENAMES
 
 
 class Browser:
@@ -78,7 +79,7 @@ async def main():
         old_oop = [s for s in backup['steps'] if s['lesson_id'] in old_lesson_ids]
         for old_step in old_oop:
             saved = new_by_id[old_step['id']]
-            assert (saved['title'], saved['lesson_id']) == (old_step['title'], old_step['lesson_id'])
+            assert (saved['title'], saved['lesson_id']) == (STEP_TITLE_RENAMES.get(old_step['title'], old_step['title']), old_step['lesson_id'])
     await engine.dispose()
     token = jwt.encode(dict(sub=str(admin_id), exp=datetime.now(UTC) + timedelta(minutes=15)), cfg['SECRET_KEY'], algorithm=cfg['ALGORITHM'])
     auth = {'Authorization': 'Bearer ' + token}

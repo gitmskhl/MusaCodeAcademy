@@ -30,7 +30,7 @@ class Point:
         self.y = y
         self.color = color
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.circle(surface, self.color, (self.x, self.y), 6)
 ''')
 
@@ -48,7 +48,7 @@ while running:
         break
     screen.fill((20, 24, 32))
     for point in points:
-        point.draw(screen)
+        point.render(screen)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
@@ -67,7 +67,7 @@ class Wave:
     def is_alive(self):
         return self.radius <= 100
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.circle(surface, (100, 190, 255),
                            (self.x, self.y), self.radius, 2)
 ''')
@@ -96,7 +96,7 @@ class Ball:
             return "bottom"
         return None
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.circle(surface, (180, 180, 180),
                            (round(self.x), round(self.y)), self.radius)
 ''')
@@ -121,7 +121,7 @@ class Spark:
     def is_alive(self):
         return self.alpha > 0
 
-    def draw(self, surface):
+    def render(self, surface):
         size = self.radius * 2 + 2
         image = pygame.Surface((size, size), pygame.SRCALPHA)
         pygame.draw.circle(image, (255, 190, 70, self.alpha),
@@ -153,7 +153,7 @@ while running:
     sparks = alive
     screen.fill((20, 24, 32))
     for spark in sparks:
-        spark.draw(screen)
+        spark.render(screen)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
@@ -178,7 +178,7 @@ class Cannon:
     def muzzle(self):
         return self.x + self.width // 2, self.y
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.rect(surface, (90, 190, 130),
                          (self.x, self.y, self.width, self.height))
 ''')
@@ -195,7 +195,7 @@ class Particle:
         self.x += self.vx
         self.y += self.vy
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.circle(surface, (255, 100, 70),
                            (round(self.x), round(self.y)), 4)
 
@@ -204,7 +204,7 @@ class SquareParticle(Particle):
         super().__init__(x, y, vx, vy)
         self.size = size
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.rect(surface, (90, 180, 255),
                          (round(self.x) - self.size // 2,
                           round(self.y) - self.size // 2,
@@ -272,7 +272,7 @@ class Platform:
     def get_hitbox(self):
         return self.rect
 
-    def draw(self, surface):
+    def render(self, surface):
         pygame.draw.rect(surface, (220, 220, 235), self.rect)
 ''')
 
@@ -308,7 +308,7 @@ class Torch:
     def ignite(self):
         self.lit = True
 
-    def draw(self, surface):
+    def render(self, surface):
         color = (255, 170, 50) if self.lit else (90, 80, 70)
         pygame.draw.rect(surface, color, self.rect)
 ''')

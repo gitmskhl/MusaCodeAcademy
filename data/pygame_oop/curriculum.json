@@ -143,7 +143,7 @@
             }
           },
           {
-            "title": "Метод draw и список объектов",
+            "title": "Метод render и список объектов",
             "content": {
               "version": 1,
               "layout": "vertical",
@@ -151,33 +151,33 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Нарисуем точки. draw будет рисовать одну точку. В surface мы передадим экран screen. Сначала посмотри на сам класс:"
+                    "text": "Нарисуем точки. render будет рисовать одну точку. В surface мы передадим экран screen. Сначала посмотри на сам класс:"
                   }
                 },
                 {
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Point:\n    def __init__(self, x, y, color):\n        self.x = x\n        self.y = y\n        self.color = color\n\n    def draw(self, surface):\n        pygame.draw.circle(surface, self.color, (self.x, self.y), 6)\n"
+                    "code": "class Point:\n    def __init__(self, x, y, color):\n        self.x = x\n        self.y = y\n        self.color = color\n\n    def render(self, surface):\n        pygame.draw.circle(surface, self.color, (self.x, self.y), 6)\n"
                   }
                 },
                 {
                   "type": "text",
                   "data": {
-                    "text": "У точки появилось еще одно значение — color, ее цвет. В draw мы берем цвет и координаты именно этой точки: self.color, self.x, self.y.\n\nТеперь полная программа с окном и двумя точками. Найди знакомые части: создание экрана, события, очистку фона и рисование."
+                    "text": "У точки появилось еще одно значение — color, ее цвет. В render мы берем цвет и координаты именно этой точки: self.color, self.x, self.y.\n\nТеперь полная программа с окном и двумя точками. Найди знакомые части: создание экрана, события, очистку фона и рисование."
                   }
                 },
                 {
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "import pygame\n\nclass Point:\n    def __init__(self, x, y, color):\n        self.x = x\n        self.y = y\n        self.color = color\n\n    def draw(self, surface):\n        pygame.draw.circle(surface, self.color, (self.x, self.y), 6)\npygame.init()\nscreen = pygame.display.set_mode((800, 600))\nclock = pygame.time.Clock()\npoints = [Point(200, 250, (255, 180, 70)), Point(500, 350, (80, 180, 255))]\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n    if not running:\n        break\n    screen.fill((20, 24, 32))\n    for point in points:\n        point.draw(screen)\n    pygame.display.flip()\n    clock.tick(60)\npygame.quit()\n"
+                    "code": "import pygame\n\nclass Point:\n    def __init__(self, x, y, color):\n        self.x = x\n        self.y = y\n        self.color = color\n\n    def render(self, surface):\n        pygame.draw.circle(surface, self.color, (self.x, self.y), 6)\npygame.init()\nscreen = pygame.display.set_mode((800, 600))\nclock = pygame.time.Clock()\npoints = [Point(200, 250, (255, 180, 70)), Point(500, 350, (80, 180, 255))]\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n    if not running:\n        break\n    screen.fill((20, 24, 32))\n    for point in points:\n        point.render(screen)\n    pygame.display.flip()\n    clock.tick(60)\npygame.quit()\n"
                   }
                 },
                 {
                   "type": "text",
                   "data": {
-                    "text": "point.draw(screen) означает: «точка, нарисуйся на экране». Скобки означают «выполни действие».\n\npoints — список точек. Как пройти по нему, разберем следующим шагом. Пока попробуй поменять цвет и место первой точки. Вторая должна остаться прежней."
+                    "text": "point.render(screen) означает: «точка, нарисуйся на экране». Скобки означают «выполни действие».\n\npoints — список точек. Как пройти по нему, разберем следующим шагом. Пока попробуй поменять цвет и место первой точки. Вторая должна остаться прежней."
                   }
                 }
               ]
@@ -212,7 +212,7 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "# Внутри игрового цикла после очистки фона:\nfor point in points:\n    point.draw(screen)\n"
+                    "code": "# Внутри игрового цикла после очистки фона:\nfor point in points:\n    point.render(screen)\n"
                   }
                 },
                 {
@@ -245,7 +245,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "### Что нужно сделать\n\n\n1. В классе Point храни x и y; метод draw(surface) рисует белый круг радиусом 5.\n2. Начни с пустого списка points и черного фона.\n3. Одно нажатие левой, средней или правой кнопки создает один новый Point в event.pos. Колесико игнорируй.\n4. Все точки неподвижны, остаются видны одновременно и перерисовываются каждый кадр.\n5. Удержание кнопки без новых нажатий не создает дополнительные точки."
+                    "text": "### Что нужно сделать\n\n\n1. В классе Point храни x и y; метод render(surface) рисует белый круг радиусом 5.\n2. Начни с пустого списка points и черного фона.\n3. Одно нажатие левой, средней или правой кнопки создает один новый Point в event.pos. Колесико игнорируй.\n4. Все точки неподвижны, остаются видны одновременно и перерисовываются каждый кадр.\n5. Удержание кнопки без новых нажатий не создает дополнительные точки."
                   }
                 },
                 {
@@ -299,7 +299,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Три числа — красная, зеленая и синяя части цвета. Выбирай их **один раз при создании точки**. В draw используй сохраненный self.color. Если выбирать цвет в draw, точка будет мигать каждый кадр.\n\nДля еще одной отдельной точки нужен еще один вызов Point(...). Запись other = point новую точку не создает: это просто второе имя той же самой точки.\n\n**Проверь себя:** если поменять цвет одной точки, должны ли поменяться остальные? Нет, у каждой свое сохраненное значение."
+                    "text": "Три числа — красная, зеленая и синяя части цвета. Выбирай их **один раз при создании точки**. В render используй сохраненный self.color. Если выбирать цвет в render, точка будет мигать каждый кадр.\n\nДля еще одной отдельной точки нужен еще один вызов Point(...). Запись other = point новую точку не создает: это просто второе имя той же самой точки.\n\n**Проверь себя:** если поменять цвет одной точки, должны ли поменяться остальные? Нет, у каждой свое сохраненное значение."
                   }
                 }
               ]
@@ -344,7 +344,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "### Подсказка\n\nМожно создавать color в обработчике клика и передавать его в Point. В draw читай self.color."
+                    "text": "### Подсказка\n\nМожно создавать color в обработчике клика и передавать его в Point. В render читай self.color."
                   }
                 },
                 {
@@ -371,7 +371,7 @@
         "description": "Разделяем обновление и рисование, возвращаем результат из метода, удаляем завершенные эффекты.",
         "steps": [
           {
-            "title": "update изменяет, draw показывает",
+            "title": "update изменяет, render показывает",
             "content": {
               "version": 1,
               "layout": "vertical",
@@ -379,20 +379,20 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Представь круги на воде после упавшего камешка. Центр стоит на месте, а радиус растет. Такую волну тоже можно сделать объектом.\n\nДадим ей три действия: update увеличит радиус, draw нарисует круг, is_alive проверит, не пора ли его убрать. Ниже класс для файла с import pygame."
+                    "text": "Представь круги на воде после упавшего камешка. Центр стоит на месте, а радиус растет. Такую волну тоже можно сделать объектом.\n\nДадим ей три действия: update увеличит радиус, render нарисует круг, is_alive проверит, не пора ли его убрать. Ниже класс для файла с import pygame."
                   }
                 },
                 {
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Wave:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n        self.radius = 2\n\n    def update(self):\n        self.radius += 2\n\n    def is_alive(self):\n        return self.radius <= 100\n\n    def draw(self, surface):\n        pygame.draw.circle(surface, (100, 190, 255),\n                           (self.x, self.y), self.radius, 2)\n"
+                    "code": "class Wave:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n        self.radius = 2\n\n    def update(self):\n        self.radius += 2\n\n    def is_alive(self):\n        return self.radius <= 100\n\n    def render(self, surface):\n        pygame.draw.circle(surface, (100, 190, 255),\n                           (self.x, self.y), self.radius, 2)\n"
                   }
                 },
                 {
                   "type": "text",
                   "data": {
-                    "text": "Сначала radius = 2. Каждый update прибавляет 2: получается 4, 6, 8 и так далее. Последняя двойка в draw.circle задает толщину контура.\n\nreturn self.radius <= 100 означает: «верни ответ, не больше ли радиус 100». При 100 ответ True — волна еще нужна. При 102 ответ False — пора убрать.\n\nЗапомни разделение: update меняет числа, draw рисует по этим числам. Так легче понять, где искать ошибку."
+                    "text": "Сначала radius = 2. Каждый update прибавляет 2: получается 4, 6, 8 и так далее. Последняя двойка в pygame.draw.circle задает толщину контура.\n\nreturn self.radius <= 100 означает: «верни ответ, не больше ли радиус 100». При 100 ответ True — волна еще нужна. При 102 ответ False — пора убрать.\n\nЗапомни разделение: update меняет числа, render рисует по этим числам. Так легче понять, где искать ошибку."
                   }
                 }
               ]
@@ -447,7 +447,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "### Что нужно сделать\n\n\n1. Используй Wave с x, y, radius и методами update, is_alive, draw.\n2. Радиус начинается с 2, растет на 2 за кадр. Контур голубой, толщиной 2.\n3. Центр берется из event.pos и больше не меняется. Фон черный.\n4. Волна удаляется при radius > 100. Старые волны продолжают расти после следующего клика."
+                    "text": "### Что нужно сделать\n\n\n1. Используй Wave с x, y, radius и методами update, is_alive, render.\n2. Радиус начинается с 2, растет на 2 за кадр. Контур голубой, толщиной 2.\n3. Центр берется из event.pos и больше не меняется. Фон черный.\n4. Волна удаляется при radius > 100. Старые волны продолжают расти после следующего клика."
                   }
                 },
                 {
@@ -488,7 +488,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Если что-то не получилось, проверь один пункт за другим.\n\n- Видна только последняя волна? Нужно добавлять новую через append, а не заменять весь список.\n- Волна ходит за мышью? В draw бери self.x и self.y, а не текущее место курсора.\n- Волна растет только при движении мыши? update нужен каждый кадр, снаружи цикла событий.\n- Остаются старые круги? Очищай фон перед рисованием нового кадра.\n- Волна не исчезает? Проверь скобки в wave.is_alive(). Только так мы получаем ответ метода.\n\nНе меняй все сразу. Исправь один пункт и снова запусти программу."
+                    "text": "Если что-то не получилось, проверь один пункт за другим.\n\n- Видна только последняя волна? Нужно добавлять новую через append, а не заменять весь список.\n- Волна ходит за мышью? В render бери self.x и self.y, а не текущее место курсора.\n- Волна растет только при движении мыши? update нужен каждый кадр, снаружи цикла событий.\n- Остаются старые круги? Очищай фон перед рисованием нового кадра.\n- Волна не исчезает? Проверь скобки в wave.is_alive(). Только так мы получаем ответ метода.\n\nНе меняй все сразу. Исправь один пункт и снова запусти программу."
                   }
                 }
               ]
@@ -516,7 +516,7 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Ball:\n    def __init__(self, x, y, vx, vy):\n        self.x = x\n        self.y = y\n        self.vx = vx\n        self.vy = vy\n        self.radius = 8\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n\n    def wall(self, width, height):\n        if self.y - self.radius <= 0:\n            return \"top\"\n        if self.x - self.radius <= 0:\n            return \"left\"\n        if self.x + self.radius >= width:\n            return \"right\"\n        if self.y + self.radius >= height:\n            return \"bottom\"\n        return None\n\n    def draw(self, surface):\n        pygame.draw.circle(surface, (180, 180, 180),\n                           (round(self.x), round(self.y)), self.radius)\n"
+                    "code": "class Ball:\n    def __init__(self, x, y, vx, vy):\n        self.x = x\n        self.y = y\n        self.vx = vx\n        self.vy = vy\n        self.radius = 8\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n\n    def wall(self, width, height):\n        if self.y - self.radius <= 0:\n            return \"top\"\n        if self.x - self.radius <= 0:\n            return \"left\"\n        if self.x + self.radius >= width:\n            return \"right\"\n        if self.y + self.radius >= height:\n            return \"bottom\"\n        return None\n\n    def render(self, surface):\n        pygame.draw.circle(surface, (180, 180, 180),\n                           (round(self.x), round(self.y)), self.radius)\n"
                   }
                 },
                 {
@@ -605,7 +605,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Пусть у каждой стены будет свой эффект.\n\n| Стена | Что появляется |\n| --- | --- |\n| Верх — top | Разноцветные квадраты со стороной 1–10 |\n| Лево — left | Красные круги с радиусом 1–8 |\n| Право — right | Синие круги с радиусом 1–8 |\n| Низ — bottom | Разноцветные круги с радиусом 1–8 |\n\nВ Particle добавь shape — вид фигуры, size — размер, color — цвет. Выбирай их по имени стены при создании. В draw посмотри на shape и вызови draw.circle или draw.rect.\n\nДля круга size — радиус, для квадрата — вся сторона. Если x/y — центр квадрата, его левый верхний угол будет (x - size // 2, y - size // 2).\n\nРазмер и цвет сохраняй один раз. Тогда частица не будет мигать на лету."
+                    "text": "Пусть у каждой стены будет свой эффект.\n\n| Стена | Что появляется |\n| --- | --- |\n| Верх — top | Разноцветные квадраты со стороной 1–10 |\n| Лево — left | Красные круги с радиусом 1–8 |\n| Право — right | Синие круги с радиусом 1–8 |\n| Низ — bottom | Разноцветные круги с радиусом 1–8 |\n\nВ Particle добавь shape — вид фигуры, size — размер, color — цвет. Выбирай их по имени стены при создании. В render посмотри на shape и вызови pygame.draw.circle или pygame.draw.rect.\n\nДля круга size — радиус, для квадрата — вся сторона. Если x/y — центр квадрата, его левый верхний угол будет (x - size // 2, y - size // 2).\n\nРазмер и цвет сохраняй один раз. Тогда частица не будет мигать на лету."
                   }
                 }
               ]
@@ -707,20 +707,20 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Чтобы искра исчезала постепенно, добавим alpha — насколько хорошо ее видно. 255 — непрозрачная, 128 — полупрозрачная, 0 — невидимая.\n\nПробел создаст одну искру в центре. Найди знакомые __init__, update и draw в полной программе:"
+                    "text": "Чтобы искра исчезала постепенно, добавим alpha — насколько хорошо ее видно. 255 — непрозрачная, 128 — полупрозрачная, 0 — невидимая.\n\nПробел создаст одну искру в центре. Найди знакомые __init__, update и render в полной программе:"
                   }
                 },
                 {
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "import pygame\nfrom random import uniform, randint\nfrom math import cos, sin, pi\n\nclass Spark:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n        angle = uniform(0, 2 * pi)\n        speed = uniform(1, 4)\n        self.vx = cos(angle) * speed\n        self.vy = sin(angle) * speed\n        self.radius = randint(2, 5)\n        self.alpha = 255\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n        self.alpha = max(0, self.alpha - 5)\n\n    def is_alive(self):\n        return self.alpha > 0\n\n    def draw(self, surface):\n        size = self.radius * 2 + 2\n        image = pygame.Surface((size, size), pygame.SRCALPHA)\n        pygame.draw.circle(image, (255, 190, 70, self.alpha),\n                           (self.radius + 1, self.radius + 1), self.radius)\n        surface.blit(image, (round(self.x) - self.radius - 1,\n                             round(self.y) - self.radius - 1))\npygame.init()\nscreen = pygame.display.set_mode((800, 600))\nclock = pygame.time.Clock()\nsparks = []\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:\n            sparks.append(Spark(400, 300))\n    if not running:\n        break\n    alive = []\n    for spark in sparks:\n        spark.update()\n        if spark.is_alive():\n            alive.append(spark)\n    sparks = alive\n    screen.fill((20, 24, 32))\n    for spark in sparks:\n        spark.draw(screen)\n    pygame.display.flip()\n    clock.tick(60)\npygame.quit()\n"
+                    "code": "import pygame\nfrom random import uniform, randint\nfrom math import cos, sin, pi\n\nclass Spark:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n        angle = uniform(0, 2 * pi)\n        speed = uniform(1, 4)\n        self.vx = cos(angle) * speed\n        self.vy = sin(angle) * speed\n        self.radius = randint(2, 5)\n        self.alpha = 255\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n        self.alpha = max(0, self.alpha - 5)\n\n    def is_alive(self):\n        return self.alpha > 0\n\n    def render(self, surface):\n        size = self.radius * 2 + 2\n        image = pygame.Surface((size, size), pygame.SRCALPHA)\n        pygame.draw.circle(image, (255, 190, 70, self.alpha),\n                           (self.radius + 1, self.radius + 1), self.radius)\n        surface.blit(image, (round(self.x) - self.radius - 1,\n                             round(self.y) - self.radius - 1))\npygame.init()\nscreen = pygame.display.set_mode((800, 600))\nclock = pygame.time.Clock()\nsparks = []\nrunning = True\nwhile running:\n    for event in pygame.event.get():\n        if event.type == pygame.QUIT:\n            running = False\n        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:\n            sparks.append(Spark(400, 300))\n    if not running:\n        break\n    alive = []\n    for spark in sparks:\n        spark.update()\n        if spark.is_alive():\n            alive.append(spark)\n    sparks = alive\n    screen.fill((20, 24, 32))\n    for spark in sparks:\n        spark.render(screen)\n    pygame.display.flip()\n    clock.tick(60)\npygame.quit()\n"
                   }
                 },
                 {
                   "type": "text",
                   "data": {
-                    "text": "В update alpha уменьшается на 5. max(0, ...) не дает числу уйти ниже нуля. is_alive отвечает True, пока alpha больше нуля.\n\nВ draw мы создаем маленький прозрачный «листочек» через Surface(..., pygame.SRCALPHA). Рисуем на нем круг с alpha, а потом накладываем листочек на экран через blit. Так фон просвечивает через искру.\n\nПросто четвертого числа в цвете для обычного экрана недостаточно, поэтому здесь нужен этот листочек.\n\nПопробуй заменить уменьшение на 2: искра будет гаснуть медленнее. Затем верни 5 для задания."
+                    "text": "В update alpha уменьшается на 5. max(0, ...) не дает числу уйти ниже нуля. is_alive отвечает True, пока alpha больше нуля.\n\nВ render мы создаем маленький прозрачный «листочек» через Surface(..., pygame.SRCALPHA). Рисуем на нем круг с alpha, а потом накладываем листочек на экран через blit. Так фон просвечивает через искру.\n\nПросто четвертого числа в цвете для обычного экрана недостаточно, поэтому здесь нужен этот листочек.\n\nПопробуй заменить уменьшение на 2: искра будет гаснуть медленнее. Затем верни 5 для задания."
                   }
                 }
               ]
@@ -747,7 +747,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "### Что нужно сделать\n\n\n1. Используй Spark с x, y, vx, vy, radius, alpha, update, is_alive и draw.\n2. Пока ЛКМ удерживается и курсор внутри окна, создавай по 3 новые искры за кадр в текущей позиции курсора.\n3. Угол — от 0 до 2π, скорость — от 1 до 4, радиус — целое от 2 до 5. Alpha начинается с 255 и уменьшается на 5 за кадр.\n4. После отпускания новые искры не появляются, старые долетают и затухают. Полностью прозрачные удаляются.\n5. Фон `(20, 24, 32)` очищается каждый кадр. Положение мыши не переносит старые частицы."
+                    "text": "### Что нужно сделать\n\n\n1. Используй Spark с x, y, vx, vy, radius, alpha, update, is_alive и render.\n2. Пока ЛКМ удерживается и курсор внутри окна, создавай по 3 новые искры за кадр в текущей позиции курсора.\n3. Угол — от 0 до 2π, скорость — от 1 до 4, радиус — целое от 2 до 5. Alpha начинается с 255 и уменьшается на 5 за кадр.\n4. После отпускания новые искры не появляются, старые долетают и затухают. Полностью прозрачные удаляются.\n5. Фон `(20, 24, 32)` очищается каждый кадр. Положение мыши не переносит старые частицы."
                   }
                 },
                 {
@@ -788,7 +788,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Давай разберемся, что искра помнит о себе. x/y — где она сейчас. vx/vy — куда и как быстро летит. radius — размер. alpha — насколько хорошо она видна.\n\n__init__ задает эти значения при рождении. update двигает искру и гасит ее. draw показывает ее на экране. Основной цикл хранит список и убирает погасшие искры.\n\nОпыт: на время убери update у одной искры. Она перестанет двигаться и гаснуть, но draw сможет ее нарисовать. После проверки верни вызов.\n\nЕсли после долгого удержания игра замедляется, проверь удаление погасших искр."
+                    "text": "Давай разберемся, что искра помнит о себе. x/y — где она сейчас. vx/vy — куда и как быстро летит. radius — размер. alpha — насколько хорошо она видна.\n\n__init__ задает эти значения при рождении. update двигает искру и гасит ее. render показывает ее на экране. Основной цикл хранит список и убирает погасшие искры.\n\nОпыт: на время убери update у одной искры. Она перестанет двигаться и гаснуть, но render сможет ее нарисовать. После проверки верни вызов.\n\nЕсли после долгого удержания игра замедляется, проверь удаление погасших искр."
                   }
                 }
               ]
@@ -971,7 +971,7 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Cannon:\n    def __init__(self):\n        self.x = 380\n        self.y = 550\n        self.width = 40\n        self.height = 30\n        self.speed = 5\n\n    def update(self, keys):\n        if keys[pygame.K_LEFT]:\n            self.x -= self.speed\n        if keys[pygame.K_RIGHT]:\n            self.x += self.speed\n        self.x = max(0, min(self.x, 800 - self.width))\n\n    def muzzle(self):\n        return self.x + self.width // 2, self.y\n\n    def draw(self, surface):\n        pygame.draw.rect(surface, (90, 190, 130),\n                         (self.x, self.y, self.width, self.height))\n"
+                    "code": "class Cannon:\n    def __init__(self):\n        self.x = 380\n        self.y = 550\n        self.width = 40\n        self.height = 30\n        self.speed = 5\n\n    def update(self, keys):\n        if keys[pygame.K_LEFT]:\n            self.x -= self.speed\n        if keys[pygame.K_RIGHT]:\n            self.x += self.speed\n        self.x = max(0, min(self.x, 800 - self.width))\n\n    def muzzle(self):\n        return self.x + self.width // 2, self.y\n\n    def render(self, surface):\n        pygame.draw.rect(surface, (90, 190, 130),\n                         (self.x, self.y, self.width, self.height))\n"
                   }
                 },
                 {
@@ -1088,13 +1088,13 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Particle:\n    def __init__(self, x, y, vx, vy):\n        self.x = x\n        self.y = y\n        self.vx = vx\n        self.vy = vy\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n\n    def draw(self, surface):\n        pygame.draw.circle(surface, (255, 100, 70),\n                           (round(self.x), round(self.y)), 4)\n\nclass SquareParticle(Particle):\n    def __init__(self, x, y, vx, vy, size):\n        super().__init__(x, y, vx, vy)\n        self.size = size\n\n    def draw(self, surface):\n        pygame.draw.rect(surface, (90, 180, 255),\n                         (round(self.x) - self.size // 2,\n                          round(self.y) - self.size // 2,\n                          self.size, self.size))\n"
+                    "code": "class Particle:\n    def __init__(self, x, y, vx, vy):\n        self.x = x\n        self.y = y\n        self.vx = vx\n        self.vy = vy\n\n    def update(self):\n        self.x += self.vx\n        self.y += self.vy\n\n    def render(self, surface):\n        pygame.draw.circle(surface, (255, 100, 70),\n                           (round(self.x), round(self.y)), 4)\n\nclass SquareParticle(Particle):\n    def __init__(self, x, y, vx, vy, size):\n        super().__init__(x, y, vx, vy)\n        self.size = size\n\n    def render(self, surface):\n        pygame.draw.rect(surface, (90, 180, 255),\n                         (round(self.x) - self.size // 2,\n                          round(self.y) - self.size // 2,\n                          self.size, self.size))\n"
                   }
                 },
                 {
                   "type": "text",
                   "data": {
-                    "text": "В class SquareParticle(Particle) скобки показывают, у какого класса берем готовые действия. Своего update здесь нет — работает update из Particle.\n\nsuper().__init__(...) просит готовый класс сохранить координаты и скорости. Потом добавляем self.size.\n\nА draw написан заново и рисует квадрат. Замену готового метода своим называют переопределением. Смысл простой: движение взяли готовое, рисунок изменили."
+                    "text": "В class SquareParticle(Particle) скобки показывают, у какого класса берем готовые действия. Своего update здесь нет — работает update из Particle.\n\nsuper().__init__(...) просит готовый класс сохранить координаты и скорости. Потом добавляем self.size.\n\nА render написан заново и рисует квадрат. Замену готового метода своим называют переопределением. Смысл простой: движение взяли готовое, рисунок изменили."
                   }
                 }
               ]
@@ -1116,13 +1116,13 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "# До игрового цикла:\nparticles = [Particle(100, 200, 1, 0),\n             SquareParticle(300, 200, -1, 0, 10)]\n\n# Внутри игрового цикла:\nfor particle in particles:\n    particle.update()\n    particle.draw(screen)\n"
+                    "code": "# До игрового цикла:\nparticles = [Particle(100, 200, 1, 0),\n             SquareParticle(300, 200, -1, 0, 10)]\n\n# Внутри игрового цикла:\nfor particle in particles:\n    particle.update()\n    particle.render(screen)\n"
                   }
                 },
                 {
                   "type": "text",
                   "data": {
-                    "text": "Команда одна — draw(screen), но круглая частица рисует круг, а квадратная — квадрат. Это называют полиморфизмом: просим сделать одно и то же, каждый делает по-своему.\n\nНаследование полезно, когда новый объект — разновидность старого. Квадратная частица остается частицей. А снаряд не является разновидностью пушки, поэтому наследование между ними не нужно."
+                    "text": "Команда одна — render(screen), но круглая частица рисует круг, а квадратная — квадрат. Это называют полиморфизмом: просим сделать одно и то же, каждый делает по-своему.\n\nНаследование полезно, когда новый объект — разновидность старого. Квадратная частица остается частицей. А снаряд не является разновидностью пушки, поэтому наследование между ними не нужно."
                   }
                 }
               ]
@@ -1137,7 +1137,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Сделай TriangleParticle на основе Particle. Движение возьми готовое, а draw пусть рисует треугольник.\n\nДля рисунка пригодится pygame.draw.polygon(surface, color, points). points — три вершины. Для центра x/y: [(x, y - 6), (x - 6, y + 5), (x + 6, y + 5)].\n\nДобавь треугольник к кругу и квадрату в общий список. В основном цикле оставь update и draw без проверки вида фигуры.\n\nПоменяй скорость только треугольника — другие не должны измениться. Добавь удаление фигур, полностью вышедших за окно."
+                    "text": "Сделай TriangleParticle на основе Particle. Движение возьми готовое, а render пусть рисует треугольник.\n\nДля рисунка пригодится pygame.draw.polygon(surface, color, points). points — три вершины. Для центра x/y: [(x, y - 6), (x - 6, y + 5), (x + 6, y + 5)].\n\nДобавь треугольник к кругу и квадрату в общий список. В основном цикле оставь update и render без проверки вида фигуры.\n\nПоменяй скорость только треугольника — другие не должны измениться. Добавь удаление фигур, полностью вышедших за окно."
                   }
                 }
               ]
@@ -1152,7 +1152,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Четыре идеи на знакомых примерах:\n\n- **Класс и объект:** описали Point, создали несколько отдельных точек.\n- **Данные и действия рядом:** волна хранит радиус и сама умеет его увеличивать. Это помогает не путаться — часть идеи инкапсуляции.\n- **Наследование:** квадратная частица берет готовое движение у Particle.\n- **Полиморфизм:** одна команда draw дает разные рисунки у круга и квадрата.\n\nНе нужно заучивать определения. Важнее показать эти места в своем коде. Дальше добавим столкновения, предметы и здоровье."
+                    "text": "Четыре идеи на знакомых примерах:\n\n- **Класс и объект:** описали Point, создали несколько отдельных точек.\n- **Данные и действия рядом:** волна хранит радиус и сама умеет его увеличивать. Это помогает не путаться — часть идеи инкапсуляции.\n- **Наследование:** квадратная частица берет готовое движение у Particle.\n- **Полиморфизм:** одна команда render дает разные рисунки у круга и квадрата.\n\nНе нужно заучивать определения. Важнее показать эти места в своем коде. Дальше добавим столкновения, предметы и здоровье."
                   }
                 }
               ]
@@ -1220,7 +1220,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "У Player x/y — левый верхний угол. update двигает игрока по стрелкам и оставляет в окне. Сначала двигай, потом проверяй столкновение: get_hitbox покажет новое место.\n\nУ Coin x/y будут центром. Его хитбокс начинается в x − radius, y − radius и имеет ширину и высоту 2 * radius.\n\nrender — просто другое имя знакомого draw. В этой игре используем render у обоих классов для рисования."
+                    "text": "У Player x/y — левый верхний угол. update двигает игрока по стрелкам и оставляет в окне. Сначала двигай, потом проверяй столкновение: get_hitbox покажет новое место.\n\nУ Coin x/y будут центром. Его хитбокс начинается в x − radius, y − radius и имеет ширину и высоту 2 * radius.\n\nrender — название метода рисования. Используем его у игрока и монетки."
                   }
                 }
               ]
@@ -1316,7 +1316,7 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Platform:\n    def __init__(self, x, y):\n        self.rect = pygame.Rect(x, y, 100, 12)\n\n    def get_hitbox(self):\n        return self.rect\n\n    def draw(self, surface):\n        pygame.draw.rect(surface, (220, 220, 235), self.rect)\n"
+                    "code": "class Platform:\n    def __init__(self, x, y):\n        self.rect = pygame.Rect(x, y, 100, 12)\n\n    def get_hitbox(self):\n        return self.rect\n\n    def render(self, surface):\n        pygame.draw.rect(surface, (220, 220, 235), self.rect)\n"
                   }
                 },
                 {
@@ -1569,7 +1569,7 @@
                   "type": "code",
                   "data": {
                     "language": "python",
-                    "code": "class Torch:\n    def __init__(self, x, y):\n        self.rect = pygame.Rect(x, y, 20, 60)\n        self.lit = False\n\n    def is_near(self, player):\n        zone = self.rect.inflate(120, 0)\n        return zone.colliderect(player.get_hitbox())\n\n    def ignite(self):\n        self.lit = True\n\n    def draw(self, surface):\n        color = (255, 170, 50) if self.lit else (90, 80, 70)\n        pygame.draw.rect(surface, color, self.rect)\n"
+                    "code": "class Torch:\n    def __init__(self, x, y):\n        self.rect = pygame.Rect(x, y, 20, 60)\n        self.lit = False\n\n    def is_near(self, player):\n        zone = self.rect.inflate(120, 0)\n        return zone.colliderect(player.get_hitbox())\n\n    def ignite(self):\n        self.lit = True\n\n    def render(self, surface):\n        color = (255, 170, 50) if self.lit else (90, 80, 70)\n        pygame.draw.rect(surface, color, self.rect)\n"
                   }
                 },
                 {
@@ -1670,7 +1670,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "Скачай картинки выключенного и горящего факела. Посмотри, какая из них какая, и назови torch_off.png и torch_on.png.\n\nПосле создания окна загрузи один раз: image = pygame.image.load(\"torch_off.png\").convert_alpha(). Для размера подойдет pygame.transform.scale(image, (20, 60)).\n\nВ draw выбери картинку по lit и покажи через surface.blit(image, self.rect.topleft).\n\nПравила игры прежние: rect хранит место, lit — горит ли факел. Не загружай файлы каждый кадр: это лишняя работа для компьютера."
+                    "text": "Скачай картинки выключенного и горящего факела. Посмотри, какая из них какая, и назови torch_off.png и torch_on.png.\n\nПосле создания окна загрузи один раз: image = pygame.image.load(\"torch_off.png\").convert_alpha(). Для размера подойдет pygame.transform.scale(image, (20, 60)).\n\nВ render выбери картинку по lit и покажи через surface.blit(image, self.rect.topleft).\n\nПравила игры прежние: rect хранит место, lit — горит ли факел. Не загружай файлы каждый кадр: это лишняя работа для компьютера."
                   }
                 }
               ]
@@ -1925,7 +1925,7 @@
                 {
                   "type": "text",
                   "data": {
-                    "text": "### Подсказка\n\nУ Key и Chest будут собственные rect, состояние и draw. В основном цикле связывай взаимодействие с inventory игрока. Не делай picked_up общим атрибутом класса."
+                    "text": "### Подсказка\n\nУ Key и Chest будут собственные rect, состояние и render. В основном цикле связывай взаимодействие с inventory игрока. Не делай picked_up общим атрибутом класса."
                   }
                 },
                 {

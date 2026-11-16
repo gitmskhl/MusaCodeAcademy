@@ -6,6 +6,7 @@ from pathlib import Path
 from hashlib import sha256
 
 from .content import SECTIONS, MAPPING, SOURCES, DEMOS, illustrated_sections
+from .naming import STEP_TITLE_RENAMES
 
 ROOT = Path(__file__).resolve().parent
 SLUG = 'python-gamedev-basics'
@@ -142,14 +143,14 @@ async def revise_section(session, target, desired):
         lesson = by_title[source['title']]
         lesson.order, lesson.description = order, source['description']
         saved = (await session.scalars(select(Step).where(Step.lesson_id == lesson.id))).all()
-        by_step_title = {s.title: s for s in saved}
+        by_step_title = {STEP_TITLE_RENAMES.get(s.title, s.title): s for s in saved}
         assert set(by_step_title) <= {s['title'] for s in source['steps']}
         for position, item in enumerate(source['steps']):
             row = by_step_title.get(item['title'])
             if row is None:
                 session.add(Step(lesson_id=lesson.id, order=position, **item))
             else:
-                row.order, row.content = position, item['content']
+                row.order, row.title, row.content = position, item['title'], item['content']
     await session.flush()
 
 

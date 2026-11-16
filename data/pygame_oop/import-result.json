@@ -32,7 +32,7 @@
             },
             {
               "id": 587,
-              "title": "Метод draw и список объектов"
+              "title": "Метод render и список объектов"
             },
             {
               "id": 647,
@@ -58,7 +58,7 @@
           "steps": [
             {
               "id": 591,
-              "title": "update изменяет, draw показывает"
+              "title": "update изменяет, render показывает"
             },
             {
               "id": 592,
@@ -351,7 +351,7 @@
       ]
     }
   ],
-  "action": "revised",
+  "action": "verified",
   "preserved": {
     "sections": 2,
     "lessons": 10,

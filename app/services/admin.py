@@ -1,8 +1,9 @@
-"""Administrative reads stay separate from student enrollment checks."""
+"""Administrative user management and monitoring."""
 from datetime import UTC, datetime, time, timedelta
 
 from fastapi import HTTPException
-from sqlalchemy import case, distinct, func, or_, select, union_all
+from sqlalchemy import case, delete, distinct, func, or_, select, union_all
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import SubmissionStatus, UserRole
@@ -186,9 +187,9 @@ async def set_user_ai_assistance(db: AsyncSession, *, user_id: int, update: User
         raise
 
 
-async def set_user_block(db: AsyncSession, *, user_id: int, actor_id: int, update: UserBlockUpdate):
+async def _lock_user_for_admin_change(db: AsyncSession, *, user_id: int, actor_id: int) -> User:
     # Serialize account changes, including simultaneous attempts by two admins
-    # to block one another. Recheck the actor after acquiring the locks.
+    # to block or delete one another. Recheck the actor after acquiring locks.
     users = (await db.scalars(select(User).where(or_(
         User.role == UserRole.ADMIN, User.id == user_id
     )).order_by(User.id).with_for_update().execution_options(populate_existing=True))).all()
@@ -198,6 +199,40 @@ async def set_user_block(db: AsyncSession, *, user_id: int, actor_id: int, updat
     target = next((user for user in users if user.id == user_id), None)
     if target is None:
         raise HTTPException(404, "Пользователь не найден")
+    return target
+
+
+async def delete_user(db: AsyncSession, *, user_id: int, actor_id: int) -> None:
+    target = await _lock_user_for_admin_change(db, user_id=user_id, actor_id=actor_id)
+    if target.id == actor_id:
+        raise HTTPException(409, "Нельзя удалить собственный аккаунт")
+    # The ORM removes password reset tokens (their FK has no ON DELETE).
+    # Database cascades remove submissions, progress, activity and AI quotas.
+    await db.delete(target)
+    await db.commit()
+
+
+async def set_user_enrollment(db: AsyncSession, *, user_id: int, course_id: int,
+                              actor_id: int, enrolled: bool) -> None:
+    await _lock_user_for_admin_change(db, user_id=user_id, actor_id=actor_id)
+    course = await db.scalar(select(Course.id).where(Course.id == course_id)
+                             .with_for_update(read=True, key_share=True))
+    if course is None:
+        raise HTTPException(404, "Курс не найден")
+    if enrolled:
+        # Admins can enroll users in drafts as well as published courses.
+        # Upsert also handles a simultaneous student self-enrollment.
+        await db.execute(insert(Enrollment).values(user_id=user_id, course_id=course_id)
+                         .on_conflict_do_nothing(index_elements=[Enrollment.user_id, Enrollment.course_id]))
+    else:
+        await db.execute(delete(Enrollment).where(
+            Enrollment.user_id == user_id, Enrollment.course_id == course_id
+        ))
+    await db.commit()
+
+
+async def set_user_block(db: AsyncSession, *, user_id: int, actor_id: int, update: UserBlockUpdate):
+    target = await _lock_user_for_admin_change(db, user_id=user_id, actor_id=actor_id)
     if target.id == actor_id:
         raise HTTPException(409, "Нельзя изменить блокировку собственного аккаунта")
     reason = (update.reason or "").strip()

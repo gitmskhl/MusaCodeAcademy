@@ -106,3 +106,4 @@ class AdminSubmissionDetail(AdminSubmissionItem):
 class AdminCourseOption(BaseModel):
     id: int
     title: str
+    is_published: bool

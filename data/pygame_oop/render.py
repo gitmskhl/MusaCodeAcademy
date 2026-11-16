@@ -32,7 +32,7 @@ class Particle:
         self.y += self.vy
         self.life -= 1
 
-    def draw(self, surface):
+    def render(self, surface):
         if self.shape == 'square':
             pygame.draw.rect(surface, self.color, (round(self.x) - self.size // 2,
                              round(self.y) - self.size // 2, self.size, self.size))
@@ -333,15 +333,15 @@ class Scene:
                 alive.append(particle)
         self.particles = alive
 
-    def draw(self):
+    def render(self):
         screen = pygame.Surface((800, 600))
         screen.fill((100, 100, 100) if self.number in (11, 12) else ((0, 0, 0) if self.number in (1, 2, 3, 4, 5) else BACKGROUND))
         for point in self.points:
             pygame.draw.circle(screen, point.color, (point.x, point.y), 5)
         for obj in [*self.waves, *self.balls, *self.particles, *self.platforms]:
-            obj.draw(screen)
+            obj.render(screen)
         if self.number == 9:
-            self.cannon.draw(screen)
+            self.cannon.render(screen)
         if self.number == 10:
             self.player.render(screen)
             pygame.draw.circle(screen, (255, 215, 45), self.coin.center, 10)
@@ -357,7 +357,7 @@ class Scene:
                 pygame.draw.rect(screen, (255, 255, 255), (px + eye, py + 10, 5, 6))
         if self.number == 13:
             for torch in self.torches:
-                torch.draw(screen)
+                torch.render(screen)
             if any(not t.lit and t.is_near(self.player) for t in self.torches):
                 self.label(screen, 'Нажмите E', (max(10, self.player.x - 20), 470))
         elif self.number == 14:
@@ -420,18 +420,18 @@ def frames(number):
             last_action, action_frame = scene.action, frame
         if frame % 6:
             continue
-        screen = scene.draw()
+        screen = scene.render()
         game = Image.frombytes('RGB', (800, 600), pygame.image.tobytes(screen, 'RGB'))
         canvas = Image.new('RGB', (800, 680), (24, 30, 44))
         canvas.paste(game, (0, 80))
-        draw = ImageDraw.Draw(canvas)
-        draw.text((15, 10), TITLES[number - 1], font=font, fill='white')
+        render = ImageDraw.Draw(canvas)
+        render.text((15, 10), TITLES[number - 1], font=font, fill='white')
         action = last_action if frame - action_frame < 35 else 'Наблюдаем результат'
-        draw.text((15, 43), action + ' · при повторе начинаем заново', font=font, fill=(190, 205, 225))
+        render.text((15, 43), action + ' · при повторе начинаем заново', font=font, fill=(190, 205, 225))
         if scene.mouse is not None:
             x, y = scene.mouse
-            draw.line((x-7, y+80, x+7, y+80), fill='white', width=1)
-            draw.line((x, y+73, x, y+87), fill='white', width=1)
+            render.line((x-7, y+80, x+7, y+80), fill='white', width=1)
+            render.line((x, y+73, x, y+87), fill='white', width=1)
         yield canvas, scene
 
 

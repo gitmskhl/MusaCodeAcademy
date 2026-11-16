@@ -42,6 +42,10 @@
 .monitoring-ai-model-row { display: grid; grid-template-columns: minmax(0, 1fr) 150px auto; gap: 12px; align-items: end; }
 .monitoring-ai-settings > button { justify-self: start; }
 .monitoring-ai-error { color: var(--danger-text); }
+.monitoring-enrollment-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 18px; }
+.monitoring-enrollment-form .field { flex: 1 1 280px; display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.monitoring-enrollment-form select { width: 100%; min-width: 0; }
+.monitoring-enrollment-form .field-error { flex-basis: 100%; margin: 0; }
 @media (max-width: 640px) {
     .monitoring-ai-model-row { grid-template-columns: minmax(0, 1fr); padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .monitoring-ai-model-row button { justify-self: start; }

@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.responses import FileResponse
 from sqlalchemy import select
 
@@ -35,7 +35,8 @@ async def export_database():
 
 @router.get("/courses", response_model=list[AdminCourseOption])
 async def admin_courses(db: DBSession):
-    return (await db.execute(select(Course.id, Course.title).order_by(Course.title, Course.id))).mappings().all()
+    return (await db.execute(select(Course.id, Course.title, Course.is_published)
+                             .order_by(Course.title, Course.id))).mappings().all()
 
 
 @router.get("/ai-models", response_model=list[str])
@@ -58,6 +59,24 @@ async def admin_user_detail(user_id: RecordId, db: DBSession):
 @router.patch("/users/{user_id}/block", response_model=AdminUser)
 async def admin_user_block(user_id: RecordId, update: UserBlockUpdate, actor: OnlyAdmin, db: DBSession):
     return await service.set_user_block(db, user_id=user_id, actor_id=actor.id, update=update)
+
+
+@router.delete("/users/{user_id}", status_code=204)
+async def admin_user_delete(user_id: RecordId, actor: OnlyAdmin, db: DBSession):
+    await service.delete_user(db, user_id=user_id, actor_id=actor.id)
+    return Response(status_code=204)
+
+
+@router.put("/users/{user_id}/courses/{course_id}", status_code=204)
+async def admin_user_enroll(user_id: RecordId, course_id: RecordId, actor: OnlyAdmin, db: DBSession):
+    await service.set_user_enrollment(db, user_id=user_id, course_id=course_id, actor_id=actor.id, enrolled=True)
+    return Response(status_code=204)
+
+
+@router.delete("/users/{user_id}/courses/{course_id}", status_code=204)
+async def admin_user_unenroll(user_id: RecordId, course_id: RecordId, actor: OnlyAdmin, db: DBSession):
+    await service.set_user_enrollment(db, user_id=user_id, course_id=course_id, actor_id=actor.id, enrolled=False)
+    return Response(status_code=204)
 
 
 @router.patch("/users/{user_id}/ai-assistance", response_model=AdminUser)

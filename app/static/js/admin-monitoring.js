@@ -1,5 +1,6 @@
 import { createCodeEditorView } from './step-renderer/codemirror/code-editor-view.js';
 import { createAIAssistanceSettings } from './admin-ai-assistance.js';
+import { createDeleteUserButton, createEnrollmentAction, createEnrollmentForm } from './admin-user-actions.js';
 
 const TOKEN_KEY = 'musa_code_academy_token';
 const view = document.body.dataset.view;
@@ -71,7 +72,7 @@ async function api(path, options = {}) {
         const data = await response.json().catch(() => ({}));
         throw new Error(typeof data.detail === 'string' ? data.detail : 'Не удалось выполнить запрос. Проверьте фильтры и попробуйте ещё раз.');
     }
-    return response.json();
+    return response.status === 204 ? null : response.json();
 }
 function section(title) {
     const node = el('section', null, 'section-block');
@@ -244,7 +245,7 @@ function openBlockDialog() {
     submit.className = `button button--${blocking ? 'danger' : 'primary'}`;
     dialog.showModal();
 }
-function renderUser(user, submissions) {
+function renderUser(user, submissions, courseOptions) {
     currentUser = user;
     const profile = section();
     const actions = el('div', null, 'monitoring-section-heading');
@@ -253,7 +254,11 @@ function renderUser(user, submissions) {
         `button button--${user.blocked_at ? 'primary' : 'danger'}`);
     toggle.disabled = user.id === currentAdmin.id;
     if (toggle.disabled) toggle.title = 'Нельзя заблокировать собственный аккаунт';
-    actions.append(toggle);
+    const accountActions = el('div', null, 'monitoring-actions');
+    accountActions.append(toggle, createDeleteUserButton({ user, adminId: currentAdmin.id, api,
+        onDeleted: () => location.assign('/admin/users'),
+    }));
+    actions.append(accountActions);
     profile.append(actions, meta([
         ['Email', user.email], ['Роль', user.role === 'admin' ? 'Администратор' : 'Ученик'],
         ['Регистрация', date(user.created_at)], ['Последний вход', date(user.last_login_at)],
@@ -274,9 +279,16 @@ function renderUser(user, submissions) {
         notice.textContent = message;
         notice.hidden = false;
     } }));
-    const courses = section('Прогресс по курсам');
-    courses.append(el('p', 'Пройденные шаги учитывают отметки о завершении. Решённые задачи — уникальные задачи с принятым решением.', 'monitoring-muted'));
-    courses.append(table(['Курс', 'Запись', 'Пройдено шагов', 'Решено задач', 'Отправки', 'Учебная активность'], user.courses.map(course => {
+    const courses = section('Курсы и прогресс');
+    const onEnrollmentSaved = async message => {
+        const notice = document.querySelector('[data-notice]');
+        notice.textContent = message;
+        notice.hidden = false;
+        await load();
+    };
+    courses.append(createEnrollmentForm({ user, courses: courseOptions, api, onSaved: onEnrollmentSaved }));
+    courses.append(el('p', 'При отписке решения и прогресс сохраняются. Пройденные шаги учитывают отметки о завершении. Решённые задачи — уникальные задачи с принятым решением.', 'monitoring-muted'));
+    courses.append(table(['Курс', 'Запись', 'Пройдено шагов', 'Решено задач', 'Отправки', 'Учебная активность', 'Действия'], user.courses.map(course => {
         const progress = el('div', `${course.completed_steps} / ${course.total_steps}`);
         const bar = el('progress', null, 'monitoring-progress');
         bar.max = course.total_steps || 1;
@@ -286,7 +298,8 @@ function renderUser(user, submissions) {
         return [stacked(link(course.title, `/admin/courses/${course.id}`), course.is_published ? 'Опубликован' : 'Черновик'),
             course.enrolled ? 'Записан' : 'Не записан', progress,
             `${course.solved_tasks} / ${course.total_tasks}`,
-            link(course.submissions_count, `/admin/submissions?user_id=${user.id}&course_id=${course.id}`), date(course.last_activity_at)];
+            link(course.submissions_count, `/admin/submissions?user_id=${user.id}&course_id=${course.id}`), date(course.last_activity_at),
+            createEnrollmentAction({ user, course, api, onSaved: onEnrollmentSaved })];
     })));
     const attempts = section('Последние отправки');
     attempts.append(link('Все отправки пользователя →', `/admin/submissions?user_id=${user.id}`, 'monitoring-link'));
@@ -330,10 +343,12 @@ async function load() {
     try {
         let data;
         let submissions;
+        let courseOptions;
         if (view === 'user') {
-            [data, submissions] = await Promise.all([
+            [data, submissions, courseOptions] = await Promise.all([
                 api(`/api/admin/users/${recordId}`),
                 api(`/api/admin/submissions?user_id=${recordId}&page_size=10`),
+                api('/api/admin/courses'),
             ]);
         } else if (view === 'submission') data = await api(`/api/admin/submissions/${recordId}`);
         else data = await api(`/api/admin/${view}${location.search}`);
@@ -345,7 +360,7 @@ async function load() {
         else if (view === 'submissions') renderSubmissions(data);
         else if (view === 'user') {
             document.querySelector('[data-title]').textContent = `${data.first_name} ${data.last_name}`;
-            renderUser(data, submissions);
+            renderUser(data, submissions, courseOptions);
         } else renderSubmission(data);
     } catch (error) {
         if (version !== requestVersion) return;

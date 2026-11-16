@@ -608,5 +608,6 @@ for section in sections:
                     if block['type'] == 'text':
                         block['data']['text'] = block['data']['text'].replace('У Crystal есть собственное положение, on_ground', 'У Crystal есть rect, on_ground')
 
-(ROOT / 'curriculum.json').write_text(json.dumps(sections, ensure_ascii=False, indent=2) + '\n')
+from .naming import use_render
+(ROOT / 'curriculum.json').write_text(json.dumps(use_render(sections), ensure_ascii=False, indent=2) + '\n')
 print('Подготовлена школьная редакция: 63 шага, 4 новых вводных шага.')
