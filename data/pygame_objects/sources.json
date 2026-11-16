@@ -1,0 +1,1502 @@
+{
+  "documents": [
+    {
+      "documentId": "1CObTqLAAz6DRv0p-nyULoC8n0U5hM6pyrrW_LNo0eBU",
+      "title": "v3.0",
+      "revisionId": "AHj4eMQEXGxqdtW60e1LpnaKB72pS32YaItlzUveZvkgNQGVvreo5mS4v6dnkZtJn06glSjpjeiVFz8Vvb7evQ",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Теория\t1",
+          "startIndex": 3,
+          "endIndex": 11,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Один объект — это список\t1",
+          "startIndex": 12,
+          "endIndex": 38,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Много объектов — список списков\t2",
+          "startIndex": 39,
+          "endIndex": 72,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Как выглядит список списков\t2",
+          "startIndex": 73,
+          "endIndex": 102,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Перебор всех объектов\t2",
+          "startIndex": 103,
+          "endIndex": 126,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Изменение объектов\t2",
+          "startIndex": 127,
+          "endIndex": 147,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Задание\t3",
+          "startIndex": 148,
+          "endIndex": 157,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "🔧 Что нужно сделать:\t3",
+          "startIndex": 158,
+          "endIndex": 181,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Теория",
+          "startIndex": 184,
+          "endIndex": 190,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "В игре часто бывает много одинаковых объектов:",
+          "startIndex": 191,
+          "endIndex": 237,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "кружки",
+          "startIndex": 238,
+          "endIndex": 244,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "враги",
+          "startIndex": 245,
+          "endIndex": 250,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "пули",
+          "startIndex": 251,
+          "endIndex": 255,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "предметы",
+          "startIndex": 256,
+          "endIndex": 264,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "У каждого такого объекта есть несколько параметров:",
+          "startIndex": 265,
+          "endIndex": 316,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "положение на экране",
+          "startIndex": 317,
+          "endIndex": 336,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "размер",
+          "startIndex": 337,
+          "endIndex": 343,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "цвет",
+          "startIndex": 344,
+          "endIndex": 348,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Чтобы не создавать много отдельных переменных, мы храним все объекты в одном списке.",
+          "startIndex": 349,
+          "endIndex": 433,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Один объект — это список",
+          "startIndex": 434,
+          "endIndex": 458,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Договоримся:\u000b один объект = один список",
+          "startIndex": 459,
+          "endIndex": 498,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Например, кружок можно хранить так:",
+          "startIndex": 499,
+          "endIndex": 534,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Здесь:",
+          "startIndex": 537,
+          "endIndex": 543,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "circle[0] — координата x",
+          "startIndex": 544,
+          "endIndex": 568,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "circle[1] — координата y",
+          "startIndex": 569,
+          "endIndex": 593,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "circle[2] — цвет (список из 3х чисел)",
+          "startIndex": 594,
+          "endIndex": 631,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "circle[3] — радиус",
+          "startIndex": 632,
+          "endIndex": 650,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "❗ Важно помнить порядок чисел.",
+          "startIndex": 651,
+          "endIndex": 681,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Много объектов — список списков",
+          "startIndex": 682,
+          "endIndex": 713,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Теперь создадим список, в котором будут все кружки:",
+          "startIndex": 714,
+          "endIndex": 765,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Добавим несколько кружков:",
+          "startIndex": 768,
+          "endIndex": 794,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Теперь circles — это список списков.",
+          "startIndex": 797,
+          "endIndex": 833,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Как выглядит список списков",
+          "startIndex": 835,
+          "endIndex": 862,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "каждый внутренний список — один кружок",
+          "startIndex": 865,
+          "endIndex": 903,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "таких кружков может быть сколько угодно",
+          "startIndex": 904,
+          "endIndex": 943,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Перебор всех объектов",
+          "startIndex": 945,
+          "endIndex": 966,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Чтобы нарисовать все кружки, используем цикл for:",
+          "startIndex": 967,
+          "endIndex": 1016,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Изменение объектов",
+          "startIndex": 1019,
+          "endIndex": 1037,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Мы можем менять данные прямо в списке.",
+          "startIndex": 1038,
+          "endIndex": 1076,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Например, сдвинуть все кружки вправо:",
+          "startIndex": 1077,
+          "endIndex": 1114,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Задание",
+          "startIndex": 1118,
+          "endIndex": 1125,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Создай программу на Pygame, в которой на экране каждые несколько секунд появляются кружочки случайного цвета и положения.",
+          "startIndex": 1126,
+          "endIndex": 1247,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "🔧 Что нужно сделать:",
+          "startIndex": 1249,
+          "endIndex": 1270,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_3",
+          "isListItem": false
+        },
+        {
+          "text": "Создай окно игры, например, размером 800 × 600.\u000b",
+          "startIndex": 1271,
+          "endIndex": 1319,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Задай радиус кружков (например, radius = 30) один раз в начале программы.\u000b",
+          "startIndex": 1320,
+          "endIndex": 1394,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Каждые 2 секунды добавляй новый кружок в случайном месте.\u000b",
+          "startIndex": 1395,
+          "endIndex": 1453,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Цвет каждого кружка выбирай случайно.\u000b",
+          "startIndex": 1454,
+          "endIndex": 1492,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Все кружки должны оставаться на экране и отображаться одновременно.",
+          "startIndex": 1493,
+          "endIndex": 1560,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Пример работы программы:",
+          "startIndex": 1561,
+          "endIndex": 1585,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1CObTqLAAz6DRv0p-nyULoC8n0U5hM6pyrrW_LNo0eBU"
+    },
+    {
+      "documentId": "1YyPuvRQIQlaKIXyDWQpnyYfh5GrWawtnzrr75cJh_bw",
+      "title": "Minecraft-rain",
+      "revisionId": "AHj4eMSGQRILK0PWxuEqHHNQRaRt_EX0QZYqxN_964gkpFLUSjMkSnXNV9zuPcPeZnFmPPpS9ag7XM60b77t6i-JhgcBiO_gNkOHtkLOfsg",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Minecraft-rain",
+          "startIndex": 1,
+          "endIndex": 15,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Создай программу на Pygame, в которой сверху постоянно появляются квадраты разных цветов и размеров и падают вниз.",
+          "startIndex": 16,
+          "endIndex": 130,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Требования",
+          "startIndex": 131,
+          "endIndex": 141,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_3",
+          "isListItem": false
+        },
+        {
+          "text": "Создай окно игры (например, 800 × 600) и запусти основной цикл с FPS (например, 60).\u000b",
+          "startIndex": 142,
+          "endIndex": 227,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "В программе должен быть список квадратов.\u000b",
+          "startIndex": 228,
+          "endIndex": 270,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Один квадрат храни как список такого вида:",
+          "startIndex": 271,
+          "endIndex": 313,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "[x, y, size, speed, color]",
+          "startIndex": 315,
+          "endIndex": 341,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "где:",
+          "startIndex": 343,
+          "endIndex": 347,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "x, y — координаты",
+          "startIndex": 348,
+          "endIndex": 365,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "size — размер квадрата (например, 10–30)",
+          "startIndex": 366,
+          "endIndex": 406,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "speed — скорость падения (например, 2–6)",
+          "startIndex": 407,
+          "endIndex": 447,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "color — цвет [r, g, b] (случайный)",
+          "startIndex": 448,
+          "endIndex": 482,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Пример выполнения: https://kinescope.io/usq7n3tgDZ4SrEvqru2AGv",
+          "startIndex": 484,
+          "endIndex": 546,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1YyPuvRQIQlaKIXyDWQpnyYfh5GrWawtnzrr75cJh_bw"
+    },
+    {
+      "documentId": "11G65srESecxpWzmMB9D8_zCaRlHfhk7imoOQu5GbLA4",
+      "title": "v3.1.0",
+      "revisionId": "AHj4eMTEEvN6SlGCpitbs_cvTGQOZauqlcxImAqc7voMjc8wXWBzwH27ghe2C2yVsO3RiVRw0hH1BY4QS11ayg",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Написать программу на Pygame, в которой при каждом клике мыши на экране появляется точка в месте нажатия. Точки остаются на экране, не исчезая.",
+          "startIndex": 1,
+          "endIndex": 144,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "P.S.",
+          "startIndex": 148,
+          "endIndex": 152,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Для проверки того, что была нажата клавиша мыши(любая) используется специальный тип события:",
+          "startIndex": 153,
+          "endIndex": 245,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Основные методы работы с мышью в PyGame:",
+          "startIndex": 248,
+          "endIndex": 288,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "В переменную pos помещается “список” из 2х элементов - координат мышки на экране.",
+          "startIndex": 291,
+          "endIndex": 372,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Далее в переменную mx записываем 1й элемент “списка”, то есть координату x мышки.",
+          "startIndex": 373,
+          "endIndex": 454,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "В переменную my 2й элемент “списка”, то есть координату y мышки.",
+          "startIndex": 455,
+          "endIndex": 519,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/11G65srESecxpWzmMB9D8_zCaRlHfhk7imoOQu5GbLA4"
+    },
+    {
+      "documentId": "1MjkRl7hzDJMZHGknQpl3bMW3q8JUa9hBfdgdfcc9ThI",
+      "title": "v3.2.0.0",
+      "revisionId": "AHj4eMRzFZRyrijHFJTVTKo1PAOSjRm1NcriCEzTbxtglaNpw1lkGa1kTQWCgAoWP-EPC4CvK0dE_t-i6hx3XQ",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Теория\t1",
+          "startIndex": 3,
+          "endIndex": 11,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Задание\t1",
+          "startIndex": 12,
+          "endIndex": 21,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Теория",
+          "startIndex": 24,
+          "endIndex": 30,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Когда объекты в игре двигаются, нам нужно хранить не только их координаты и цвет, но и скорость движения.\u000b Обычно скорость задаётся двумя числами: dx и dy, которые показывают, насколько координаты меняются каждый кадр.",
+          "startIndex": 31,
+          "endIndex": 249,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Например:",
+          "startIndex": 250,
+          "endIndex": 259,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "где",
+          "startIndex": 262,
+          "endIndex": 265,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "x, y — координаты центра,\u000b",
+          "startIndex": 266,
+          "endIndex": 292,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "color — цвет кружка,\u000b",
+          "startIndex": 293,
+          "endIndex": 314,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "dy — скорость падения (например, 3 пикселя за кадр).\u000b",
+          "startIndex": 315,
+          "endIndex": 368,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Чтобы кружки двигались, нужно:",
+          "startIndex": 369,
+          "endIndex": 399,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Каждый кадр добавлять dy к y;\u000b",
+          "startIndex": 400,
+          "endIndex": 430,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Затем снова рисовать кружки на новых позициях.",
+          "startIndex": 431,
+          "endIndex": 477,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Задание",
+          "startIndex": 481,
+          "endIndex": 488,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Создай программу на Pygame, в которой:",
+          "startIndex": 489,
+          "endIndex": 527,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "На экране каждую секунду появляется новый кружок.\u000b",
+          "startIndex": 528,
+          "endIndex": 578,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Кружок создаётся в случайной горизонтальной позиции (x), вверху экрана (y = 0).\u000b",
+          "startIndex": 579,
+          "endIndex": 659,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Цвет каждого кружка выбирается случайно.\u000b",
+          "startIndex": 660,
+          "endIndex": 701,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Каждый кружок падает вниз с разной скоростью (например, от 2 до 6 пикселей за кадр).\u000b",
+          "startIndex": 702,
+          "endIndex": 787,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Радиус всех кружков одинаковый, например radius = 20.",
+          "startIndex": 788,
+          "endIndex": 841,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Пример выполнения:",
+          "startIndex": 843,
+          "endIndex": 861,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1MjkRl7hzDJMZHGknQpl3bMW3q8JUa9hBfdgdfcc9ThI"
+    },
+    {
+      "documentId": "1IAdpF8joIBRWgD1D3q79FIjwQXTc4aWeTkVNAapdt-Y",
+      "title": "v3.3.0",
+      "revisionId": "AHj4eMRlnapMfrKeSDzaqsL-AR4A_uNW6-9zRgL7VJq9avIidRofKusasrdhGfq6w1DyftK1C7Xmqbc9lVM51Q",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Генератор частиц",
+          "startIndex": 1,
+          "endIndex": 17,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Создай программу на Pygame, в которой на экране постоянно появляются разные движущиеся объекты.",
+          "startIndex": 18,
+          "endIndex": 113,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Требования:",
+          "startIndex": 116,
+          "endIndex": 127,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Создай окно игры, например, 800 × 600.\u000b",
+          "startIndex": 128,
+          "endIndex": 167,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "В программе есть список объектов (частиц).\u000b",
+          "startIndex": 168,
+          "endIndex": 211,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Каждые 0.5–1 секунду добавляется новый объект одного из двух типов (выбирается случайно):\u000b",
+          "startIndex": 212,
+          "endIndex": 302,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Тип 1 — падающий кружок",
+          "startIndex": 305,
+          "endIndex": 328,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_3",
+          "isListItem": false
+        },
+        {
+          "text": "появляется вверху экрана (y = 0);\u000b",
+          "startIndex": 329,
+          "endIndex": 363,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "x — случайный;\u000b",
+          "startIndex": 364,
+          "endIndex": 379,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "цвет — случайный;\u000b",
+          "startIndex": 380,
+          "endIndex": 398,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "падает вниз",
+          "startIndex": 399,
+          "endIndex": 410,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Тип 2 — летящий сбоку кружок",
+          "startIndex": 413,
+          "endIndex": 441,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_3",
+          "isListItem": false
+        },
+        {
+          "text": "появляется слева экрана (x = 0);\u000b",
+          "startIndex": 442,
+          "endIndex": 475,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "y — случайный;\u000b",
+          "startIndex": 476,
+          "endIndex": 491,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "цвет — случайный;\u000b",
+          "startIndex": 492,
+          "endIndex": 510,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "летит вправо\u000b",
+          "startIndex": 511,
+          "endIndex": 524,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Для каждого объекта нужно хранить:",
+          "startIndex": 527,
+          "endIndex": 561,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_3",
+          "isListItem": false
+        },
+        {
+          "text": "x, y\u000b",
+          "startIndex": 562,
+          "endIndex": 567,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "dx, dy\u000b",
+          "startIndex": 568,
+          "endIndex": 575,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "color\u000b",
+          "startIndex": 576,
+          "endIndex": 582,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "radius\u000b",
+          "startIndex": 583,
+          "endIndex": 590,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "type (например \"top\" или \"side\")",
+          "startIndex": 591,
+          "endIndex": 623,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Пример",
+          "startIndex": 625,
+          "endIndex": 631,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Пример выполнения: https://kinescope.io/aggXHuWB5wP7w6vCK5jRrh",
+          "startIndex": 633,
+          "endIndex": 695,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1IAdpF8joIBRWgD1D3q79FIjwQXTc4aWeTkVNAapdt-Y"
+    },
+    {
+      "documentId": "1ahbO2UmWuj1trJnOd0XfLJiTZKU7c4VWQEx06zTQ52w",
+      "title": "v3.4.0",
+      "revisionId": "AHj4eMTuoSIPQ9RDEzburBxIt94oHkkXesNKlIUzlqcL6urhZYdXJZev_8YJBLeWKybuGIGIpR9d9WbTjigrjw",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Задание",
+          "startIndex": 1,
+          "endIndex": 8,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Создай программу на Pygame, в которой из текущей позиции мыши постоянно появляются кружки разного размера и цвета и летят вверх.",
+          "startIndex": 9,
+          "endIndex": 137,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Пример выполнения:",
+          "startIndex": 139,
+          "endIndex": 157,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "P.S.",
+          "startIndex": 161,
+          "endIndex": 165,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Основные методы работы с мышью в PyGame:",
+          "startIndex": 166,
+          "endIndex": 206,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "В переменную pos помещается “список” из 2х элементов - координат мышки на экране.",
+          "startIndex": 209,
+          "endIndex": 290,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Далее в переменную mx записываем 1й элемент списка, то есть координату x мышки.",
+          "startIndex": 291,
+          "endIndex": 370,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "В переменную my 2й элемент списка, то есть координату y мышки.",
+          "startIndex": 371,
+          "endIndex": 433,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1ahbO2UmWuj1trJnOd0XfLJiTZKU7c4VWQEx06zTQ52w"
+    },
+    {
+      "documentId": "1LD7sI08S5eihmrwXuUzKW5QwmzoXGmFgXplD4T3Ttdo",
+      "title": "v2.1 Mouse balls",
+      "revisionId": "AHj4eMTfiRqsXTT8BrIFHy1lhimRLrc5Sv7gYCNFWLm0by31Q6j3W2yWgCeSQs0Bl-Y7dH8aqLPjIDHmM2U-g0aL_epp5kPRDuzBHolzOM8",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Mouse balls",
+          "startIndex": 1,
+          "endIndex": 12,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Создай программу на Pygame, в которой при удерживании левой кнопки мыши из курсора постоянно вылетают разноцветные шарики разных размеров и разлетаются в случайных направлениях.",
+          "startIndex": 13,
+          "endIndex": 190,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Требования",
+          "startIndex": 191,
+          "endIndex": 201,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Один шарик храни как список такого вида:",
+          "startIndex": 202,
+          "endIndex": 242,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "где:",
+          "startIndex": 246,
+          "endIndex": 250,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "x, y — координаты центра шарика;",
+          "startIndex": 251,
+          "endIndex": 283,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "radius — радиус шарика (например, случайное число от 2 до 8);",
+          "startIndex": 284,
+          "endIndex": 345,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "speed_x — скорость по горизонтали (случайная);",
+          "startIndex": 346,
+          "endIndex": 392,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "speed_y — скорость по вертикали (случайная);",
+          "startIndex": 393,
+          "endIndex": 437,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "color — цвет [r, g, b] (случайный).",
+          "startIndex": 438,
+          "endIndex": 473,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Для проверки того, что мышь зажата, используй следующий код:",
+          "startIndex": 474,
+          "endIndex": 534,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Пример выполнения",
+          "startIndex": 537,
+          "endIndex": 554,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Пример выполнения: https://kinescope.io/3b8fpsjeQGnzYu4d7RWZdr",
+          "startIndex": 555,
+          "endIndex": 617,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1LD7sI08S5eihmrwXuUzKW5QwmzoXGmFgXplD4T3Ttdo"
+    },
+    {
+      "documentId": "1faMLPg3q-8nE0-vYIE-NIGFiEe5hhvjkmFpBuCh-xd8",
+      "title": "v3.0",
+      "revisionId": "AHj4eMR8Qwl_Np97XRq2hFuXFz8WT_CIVSnAnGiO_gODKQAWMgPnF4tcjmcqnjWHcu1B1EJp1--XNgDP7iKbFqhs7O_-AlbyA57LIc9w9NI",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Simple editor",
+          "startIndex": 1,
+          "endIndex": 14,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Необходимо разработать простой редактор, в котором за курсором мыши постоянно следует прямоугольник. При нажатии левой кнопки мыши в текущем месте появляется новый прямоугольник, который остается на экране.",
+          "startIndex": 15,
+          "endIndex": 221,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Требования",
+          "startIndex": 222,
+          "endIndex": 232,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Создай окно игры (например, 800 × 600) и запусти основной цикл с FPS (например, 60).",
+          "startIndex": 233,
+          "endIndex": 317,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Фон окна должен быть серого цвета.",
+          "startIndex": 318,
+          "endIndex": 352,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "В программе должен быть список прямоугольников.",
+          "startIndex": 353,
+          "endIndex": 400,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Один прямоугольник храни как список такого вида:",
+          "startIndex": 401,
+          "endIndex": 449,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "где:",
+          "startIndex": 453,
+          "endIndex": 457,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "x — координата по горизонтали;",
+          "startIndex": 458,
+          "endIndex": 488,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "y — координата по вертикали.",
+          "startIndex": 489,
+          "endIndex": 517,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Пример выполнения",
+          "startIndex": 518,
+          "endIndex": 535,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Пример работы редактора: https://kinescope.io/tzqh1PLh2yRBKN9c1fAni3",
+          "startIndex": 536,
+          "endIndex": 604,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1faMLPg3q-8nE0-vYIE-NIGFiEe5hhvjkmFpBuCh-xd8"
+    },
+    {
+      "documentId": "1SPkrelZbSVxyxda7VMPlbAUcuvUA0ZD4s4PxHK9Ftpc",
+      "title": "v3.1",
+      "revisionId": "AHj4eMShN_ea1PnUwOa4uR72dgHV1GyzVrUQIG7-qGLkVcyBkkf5s1PNf4GYXrJWZuwPYpinRHwol2HJlxtS08m-_7UJiQjAVbCXjNRROEI",
+      "tabId": null,
+      "paragraphs": [
+        {
+          "text": "Simple Editor 2",
+          "startIndex": 1,
+          "endIndex": 16,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_1",
+          "isListItem": false
+        },
+        {
+          "text": "Необходимо доработать простой редактор фигур.",
+          "startIndex": 17,
+          "endIndex": 62,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "В прошлой версии программы за курсором мыши следовал прямоугольник, а при нажатии левой кнопки мыши прямоугольник добавлялся на экран.",
+          "startIndex": 63,
+          "endIndex": 197,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Теперь редактор должен уметь работать с двумя типами фигур:",
+          "startIndex": 198,
+          "endIndex": 257,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "1 — прямоугольник\u000b2 — круг",
+          "startIndex": 258,
+          "endIndex": 284,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Если пользователь нажал клавишу 1, то выбирается прямоугольник.\u000bЕсли пользователь нажал клавишу 2, то выбирается круг.",
+          "startIndex": 285,
+          "endIndex": 403,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "После этого выбранная фигура должна следовать за курсором мыши.\u000bПри нажатии левой кнопки мыши выбранная фигура должна появляться в текущем месте и оставаться на экране.",
+          "startIndex": 404,
+          "endIndex": 572,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Каждую фигуру храни как список такого вида:",
+          "startIndex": 573,
+          "endIndex": 616,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "где:",
+          "startIndex": 619,
+          "endIndex": 623,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "x — координата фигуры по горизонтали;",
+          "startIndex": 624,
+          "endIndex": 661,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "y — координата фигуры по вертикали;",
+          "startIndex": 662,
+          "endIndex": 697,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "type — тип фигуры.",
+          "startIndex": 698,
+          "endIndex": 716,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Например:",
+          "startIndex": 717,
+          "endIndex": 726,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Это прямоугольник с координатами x = 100, y = 200.",
+          "startIndex": 729,
+          "endIndex": 779,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Это круг с координатами x = 300, y = 150.",
+          "startIndex": 782,
+          "endIndex": 823,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Требования:",
+          "startIndex": 825,
+          "endIndex": 836,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Если пользователь нажимает клавишу 1, текущая фигура должна стать прямоугольником.\u000b",
+          "startIndex": 837,
+          "endIndex": 920,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Если пользователь нажимает клавишу 2, текущая фигура должна стать кругом.\u000b",
+          "startIndex": 921,
+          "endIndex": 995,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "При движении мыши выбранная фигура должна следовать за курсором.\u000b",
+          "startIndex": 996,
+          "endIndex": 1061,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "При нажатии левой кнопки мыши в список фигур должна добавляться новая фигура\u000b",
+          "startIndex": 1062,
+          "endIndex": 1139,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Все фигуры из списка должны постоянно отрисовываться на экране.\u000b",
+          "startIndex": 1140,
+          "endIndex": 1204,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Прямоугольник можно рисовать размером, например, 80 × 50.\u000b",
+          "startIndex": 1205,
+          "endIndex": 1263,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Круг можно рисовать радиусом, например, 30.",
+          "startIndex": 1264,
+          "endIndex": 1307,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": true
+        },
+        {
+          "text": "Пример",
+          "startIndex": 1309,
+          "endIndex": 1315,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "Пример выполнения: https://kinescope.io/mmmLhAmqMPRxgfuLqW9Z91",
+          "startIndex": 1316,
+          "endIndex": 1378,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "P.S.",
+          "startIndex": 1380,
+          "endIndex": 1384,
+          "tabId": "t.0",
+          "namedStyleType": "HEADING_2",
+          "isListItem": false
+        },
+        {
+          "text": "В программе можно создать переменную current_type, которая будет хранить текущий выбранный тип фигуры.",
+          "startIndex": 1385,
+          "endIndex": 1487,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Например:",
+          "startIndex": 1488,
+          "endIndex": 1497,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Когда пользователь нажал 1:",
+          "startIndex": 1500,
+          "endIndex": 1527,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Когда пользователь нажал 2:",
+          "startIndex": 1530,
+          "endIndex": 1557,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        },
+        {
+          "text": "Когда пользователь нажал мышкой, в список добавляется новая фигура:",
+          "startIndex": 1560,
+          "endIndex": 1627,
+          "tabId": "t.0",
+          "namedStyleType": "NORMAL_TEXT",
+          "isListItem": false
+        }
+      ],
+      "document_url": "https://docs.google.com/document/d/1SPkrelZbSVxyxda7VMPlbAUcuvUA0ZD4s4PxHK9Ftpc"
+    }
+  ],
+  "adaptation": "Материалы сгруппированы в пять уроков. Код, отсутствующий в текстовой выгрузке (изображения в оригиналах), разработан заново. Добавлены пояснения таймера кадров, безопасного удаления и различия клика и удержания мыши. Задания выполняются локально без автопроверки stdout."
+}

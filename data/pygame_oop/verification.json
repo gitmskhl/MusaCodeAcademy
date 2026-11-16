@@ -1,0 +1,17 @@
+{
+  "schema": true,
+  "console_programs": 5,
+  "continued_console_fragments": 1,
+  "graphical_programs": 3,
+  "quit_verified": true,
+  "independent_instances": true,
+  "wave_lifetime": true,
+  "walls_and_corner_priority": true,
+  "alpha_blending": true,
+  "player_and_cannon_bounds": true,
+  "polymorphic_drawing": true,
+  "platform_bounce_both_sides": true,
+  "torch_state": true,
+  "damage_timer_and_death": true,
+  "pygame": "2.6.1"
+}

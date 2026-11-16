@@ -1,0 +1,17 @@
+{
+  "digits.gif": {
+    "file_id": 35,
+    "storage_path": "images/e68a6cb3ce2b4a86a2c79221574ffdab.gif",
+    "sha256": "56545d8923216bf5984ae324b8fd79193470325adf98ad4c50e9e1aa4b0747c9"
+  },
+  "traffic.gif": {
+    "file_id": 36,
+    "storage_path": "images/f5f140779fe44f91a4588d4685f4e6bd.gif",
+    "sha256": "bc169a6637ada6564f12590f44b66dfdfa996df31a8293a36211d44ec29e238a"
+  },
+  "direction.gif": {
+    "file_id": 37,
+    "storage_path": "images/7650c8b376884645a330594b186ad500.gif",
+    "sha256": "f061e8d7b0a44ad7af417bf196e21a8d6679c3ae562f0ea69cdcd47fc719210c"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "task-01.gif": {
+    "file_id": 47,
+    "storage_path": "images/f52eaa5aeee140b28035c5a6cc2befad.gif",
+    "sha256": "aba9bb5d815bf93870afb7ca7b837bb50402978b391f8911047e364300413ac9"
+  },
+  "task-02.gif": {
+    "file_id": 48,
+    "storage_path": "images/f9caa178f37d43bea1c4672a2166cd27.gif",
+    "sha256": "9ee1311f071f4e72648f24f767f6c0e30e50b8608ba3c72e9dbf05236ba1c7a8"
+  },
+  "task-03.gif": {
+    "file_id": 49,
+    "storage_path": "images/d669bff7194f4f8faa7fe63333ce6713.gif",
+    "sha256": "e98203a1674d7c1e3ac61feafa7b4047d91949cbba3214c0adceaf8f74445091"
+  },
+  "task-04.gif": {
+    "file_id": 50,
+    "storage_path": "images/8385f350ce174240974cbaedbc484874.gif",
+    "sha256": "2241e93558c13a5528bfbf015760aa68a642626192a8a4971a3ee401b7f1dfc8"
+  },
+  "task-05.gif": {
+    "file_id": 51,
+    "storage_path": "images/10081d567334464f9cda412d3da135b6.gif",
+    "sha256": "95623af4a335ed47aedd0c304c3ce9f55cd9810735dc4105a24c7a086dab3e9d"
+  },
+  "task-06.gif": {
+    "file_id": 52,
+    "storage_path": "images/4c57fec4cdb746d5978ea1cc10f98f5d.gif",
+    "sha256": "3a5466fa598342d0851be58fe7449b374d529dad475f102d0b483049d5058035"
+  },
+  "task-07.gif": {
+    "file_id": 53,
+    "storage_path": "images/5a5787c2ecaa41aa8eb409448cd5ea77.gif",
+    "sha256": "2ac368b43e65323d0a3444c14220d55bcb839c0aa6d202233e3ffdc816ba63c5"
+  },
+  "task-08.gif": {
+    "file_id": 54,
+    "storage_path": "images/7a9db809fe4143a5aa19533ba2c57232.gif",
+    "sha256": "7c905b2a2ca7a219519c348def93517e03bef8eef58d3d9065a41aa80c3a105e"
+  },
+  "task-09.gif": {
+    "file_id": 55,
+    "storage_path": "images/6f4a40b1da9542f19036c71d1b5a49c6.gif",
+    "sha256": "4fcc4aab1d53eea65e6b99ba2af324c84c73225ce1987e140648fa1c2dbe73d2"
+  },
+  "task-10.gif": {
+    "file_id": 56,
+    "storage_path": "images/e1444b651d0b4af29db45d9a0b2bdac5.gif",
+    "sha256": "d2ecb2bfcb5acaeecd21ea2d1b5fe92ff3393c71ba0456702171e2873a7f12cd"
+  },
+  "task-11.gif": {
+    "file_id": 57,
+    "storage_path": "images/73643c8c179e482094120dfc4eff3471.gif",
+    "sha256": "11a6b854a31ad6fe2f5357ce2fe027d71490216a71f7f3afbe5229763c3c4331"
+  },
+  "task-12.gif": {
+    "file_id": 58,
+    "storage_path": "images/b9c8beab8eb84e6e99f6e0014e828133.gif",
+    "sha256": "e08056d8c39a15f45873e9658898e7b2084576dba6c459e1ce1dabce04e016b9"
+  },
+  "task-13.gif": {
+    "file_id": 59,
+    "storage_path": "images/7383141187d94f899b4a0637c6ed9ffb.gif",
+    "sha256": "2f628b2be546b878c1d382cfcacbf35fd7703f609bd1b3198c01186f197bcaea"
+  },
+  "task-14.gif": {
+    "file_id": 60,
+    "storage_path": "images/8144f44ab8824cf7b2f3278751231c6a.gif",
+    "sha256": "b8a3ee1ba455163ece5468ab7310b3d895d98935570f88f56b150bc75e4399a6"
+  },
+  "task-15.gif": {
+    "file_id": 61,
+    "storage_path": "images/aef0ded612954ec9a9e9a7c80838bc37.gif",
+    "sha256": "e1583077af44f19308d7cb7af2e407e2ff0ab0c1b5e10d3009e299c12edc418d"
+  },
+  "task-16.gif": {
+    "file_id": 62,
+    "storage_path": "images/d29e0ed0c3b1491388b886dec79348c2.gif",
+    "sha256": "a85a94b1edff8eb10030b5134de91892c3797c9486e236ebde56cfa2b78077a6"
+  }
+}

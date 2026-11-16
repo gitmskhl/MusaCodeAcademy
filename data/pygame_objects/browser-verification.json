@@ -1,0 +1,560 @@
+{
+  "previous_materials_unchanged": {
+    "sections": 1,
+    "lessons": 5,
+    "steps": 51
+  },
+  "api_steps_verified": 22,
+  "uploaded_gifs_verified": 9,
+  "lesson_redirects_verified": 5,
+  "pages": [
+    {
+      "step_id": 563,
+      "viewport": "desktop",
+      "title": "Один объект — один список",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 564,
+      "viewport": "desktop",
+      "title": "Список списков и append",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 565,
+      "viewport": "desktop",
+      "title": "Рисуем все объекты в каждом кадре",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 566,
+      "viewport": "desktop",
+      "title": "Случайные координаты, размер и цвет",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 567,
+      "viewport": "desktop",
+      "title": "Создаем по таймеру, а не каждый кадр",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 568,
+      "viewport": "desktop",
+      "title": "Задание 1. Кружки появляются каждые две секунды",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 569,
+      "viewport": "desktop",
+      "title": "Скорость принадлежит объекту",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 570,
+      "viewport": "desktop",
+      "title": "Удаляем объекты, полностью покинувшие окно",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 571,
+      "viewport": "desktop",
+      "title": "Задание 2. Minecraft-rain: дождь из квадратов",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 572,
+      "viewport": "desktop",
+      "title": "Задание 3. Кружки падают с разной скоростью",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 573,
+      "viewport": "desktop",
+      "title": "Два типа — один формат данных",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 2,
+      "task_visible": false
+    },
+    {
+      "step_id": 574,
+      "viewport": "desktop",
+      "title": "Задание 4. Генератор частиц",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 2,
+      "task_visible": false
+    },
+    {
+      "step_id": 575,
+      "viewport": "desktop",
+      "title": "Один клик — один новый объект",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 576,
+      "viewport": "desktop",
+      "title": "Задание 5. Точки по клику",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 577,
+      "viewport": "desktop",
+      "title": "Положение курсора и удержание кнопки",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 578,
+      "viewport": "desktop",
+      "title": "Задание 6. Кружки летят вверх из курсора",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 579,
+      "viewport": "desktop",
+      "title": "Разлет: случайная скорость по двум осям",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 580,
+      "viewport": "desktop",
+      "title": "Задание 7. Mouse balls",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 581,
+      "viewport": "desktop",
+      "title": "Сохраненные фигуры и предпросмотр",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 582,
+      "viewport": "desktop",
+      "title": "Задание 8. Simple editor",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 583,
+      "viewport": "desktop",
+      "title": "Запоминаем выбранный тип фигуры",
+      "overflow": false,
+      "images": [],
+      "code": 2,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 584,
+      "viewport": "desktop",
+      "title": "Задание 9. Simple Editor 2",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 563,
+      "viewport": "mobile",
+      "title": "Один объект — один список",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 564,
+      "viewport": "mobile",
+      "title": "Список списков и append",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 565,
+      "viewport": "mobile",
+      "title": "Рисуем все объекты в каждом кадре",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 566,
+      "viewport": "mobile",
+      "title": "Случайные координаты, размер и цвет",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 567,
+      "viewport": "mobile",
+      "title": "Создаем по таймеру, а не каждый кадр",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 568,
+      "viewport": "mobile",
+      "title": "Задание 1. Кружки появляются каждые две секунды",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 569,
+      "viewport": "mobile",
+      "title": "Скорость принадлежит объекту",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 570,
+      "viewport": "mobile",
+      "title": "Удаляем объекты, полностью покинувшие окно",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 571,
+      "viewport": "mobile",
+      "title": "Задание 2. Minecraft-rain: дождь из квадратов",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 572,
+      "viewport": "mobile",
+      "title": "Задание 3. Кружки падают с разной скоростью",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 573,
+      "viewport": "mobile",
+      "title": "Два типа — один формат данных",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 2,
+      "task_visible": false
+    },
+    {
+      "step_id": 574,
+      "viewport": "mobile",
+      "title": "Задание 4. Генератор частиц",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 2,
+      "task_visible": false
+    },
+    {
+      "step_id": 575,
+      "viewport": "mobile",
+      "title": "Один клик — один новый объект",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 576,
+      "viewport": "mobile",
+      "title": "Задание 5. Точки по клику",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 577,
+      "viewport": "mobile",
+      "title": "Положение курсора и удержание кнопки",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 578,
+      "viewport": "mobile",
+      "title": "Задание 6. Кружки летят вверх из курсора",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 579,
+      "viewport": "mobile",
+      "title": "Разлет: случайная скорость по двум осям",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 580,
+      "viewport": "mobile",
+      "title": "Задание 7. Mouse balls",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 581,
+      "viewport": "mobile",
+      "title": "Сохраненные фигуры и предпросмотр",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 582,
+      "viewport": "mobile",
+      "title": "Задание 8. Simple editor",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 583,
+      "viewport": "mobile",
+      "title": "Запоминаем выбранный тип фигуры",
+      "overflow": false,
+      "images": [],
+      "code": 2,
+      "navigation": 4,
+      "task_visible": false
+    },
+    {
+      "step_id": 584,
+      "viewport": "mobile",
+      "title": "Задание 9. Simple Editor 2",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "navigation": 4,
+      "task_visible": false
+    }
+  ]
+}

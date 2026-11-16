@@ -1,0 +1,177 @@
+{
+  "previous_lessons_unchanged": 4,
+  "previous_steps_unchanged": 45,
+  "repeat_import": "all 6 steps match, no duplicates",
+  "uploaded_gifs_verified": 3,
+  "entry_redirect_verified": true,
+  "pages": [
+    {
+      "step_id": 557,
+      "viewport": "desktop",
+      "title": "Подготовка: рисунок зависит от состояния",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 558,
+      "viewport": "desktop",
+      "title": "Задание 1. Цифровое табло",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "tables": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 559,
+      "viewport": "desktop",
+      "title": "Подготовка: меняем состояние по времени",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 560,
+      "viewport": "desktop",
+      "title": "Задание 2. Автоматический светофор",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 620
+        }
+      ],
+      "code": 0,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 561,
+      "viewport": "desktop",
+      "title": "Подготовка: запоминаем направление движения",
+      "overflow": false,
+      "images": [],
+      "code": 2,
+      "tables": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 562,
+      "viewport": "desktop",
+      "title": "Задание 3. Круг поворачивает по WASD",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 557,
+      "viewport": "mobile",
+      "title": "Подготовка: рисунок зависит от состояния",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 558,
+      "viewport": "mobile",
+      "title": "Задание 1. Цифровое табло",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "tables": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 559,
+      "viewport": "mobile",
+      "title": "Подготовка: меняем состояние по времени",
+      "overflow": false,
+      "images": [],
+      "code": 1,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 560,
+      "viewport": "mobile",
+      "title": "Задание 2. Автоматический светофор",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 620
+        }
+      ],
+      "code": 0,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 561,
+      "viewport": "mobile",
+      "title": "Подготовка: запоминаем направление движения",
+      "overflow": false,
+      "images": [],
+      "code": 2,
+      "tables": 1,
+      "navigation": 6,
+      "task_visible": false
+    },
+    {
+      "step_id": 562,
+      "viewport": "mobile",
+      "title": "Задание 3. Круг поворачивает по WASD",
+      "overflow": false,
+      "images": [
+        {
+          "loaded": true,
+          "width": 800,
+          "height": 680
+        }
+      ],
+      "code": 0,
+      "tables": 0,
+      "navigation": 6,
+      "task_visible": false
+    }
+  ]
+}

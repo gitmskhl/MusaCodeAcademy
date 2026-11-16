@@ -1,0 +1,98 @@
+[
+  {
+    "version": "v1.0.0",
+    "urls": [],
+    "images": 7
+  },
+  {
+    "version": "v1.0.1",
+    "urls": [
+      "https://kinescope.io/at8u1C8BQhQBFt51h3iSqi"
+    ],
+    "images": 2
+  },
+  {
+    "version": "v1.1",
+    "urls": [],
+    "images": 2
+  },
+  {
+    "version": "v1.2",
+    "urls": [],
+    "images": 2
+  },
+  {
+    "version": "v1.2.1",
+    "urls": [],
+    "images": 1
+  },
+  {
+    "version": "v1.3",
+    "urls": [],
+    "images": 5
+  },
+  {
+    "version": "v1.4",
+    "urls": [],
+    "images": 3
+  },
+  {
+    "version": "v1.5",
+    "urls": [],
+    "images": 1
+  },
+  {
+    "version": "v1.6",
+    "urls": [],
+    "images": 1
+  },
+  {
+    "version": "v2.0",
+    "urls": [],
+    "images": 1
+  },
+  {
+    "version": "v3.0:1",
+    "urls": [],
+    "images": 1
+  },
+  {
+    "version": "v3.0:2",
+    "urls": [
+      "https://kinescope.io/ak7478yoP6Z2UGj5iPJ7wQ"
+    ],
+    "images": 0
+  },
+  {
+    "version": "v4.0",
+    "urls": [
+      "https://drive.google.com/drive/folders/1t9_VH5KSTkyRz0w3LryDSF5o0leMmQ_s?usp=sharing",
+      "https://kinescope.io/jsrjAcKSGFdMxPjc8PKKKv"
+    ],
+    "images": 0
+  },
+  {
+    "version": "v4.0.0",
+    "urls": [
+      "https://drive.google.com/drive/folders/1XZqPr5HvSDVyQVz-iKlnpZrHzWzYyFRT?usp=drive_link",
+      "https://kinescope.io/amaF1V3mVYrayBeA8kuZFu"
+    ],
+    "images": 0
+  },
+  {
+    "version": "v4.1",
+    "urls": [
+      "https://drive.google.com/drive/folders/1uRr-zbeE-M-xEFVKMDd8UtfkHi0HuWRV?usp=sharing",
+      "https://kinescope.io/iedH3MA4B4NmCHWR41vUu7"
+    ],
+    "images": 0
+  },
+  {
+    "version": "v4.2",
+    "urls": [
+      "https://drive.google.com/drive/folders/1h0ZcoY4xy9QlTz1Dulv2I4X079zbQA6d?usp=drive_link",
+      "https://kinescope.io/xqj71vMg9bEHrpxAsNRrez"
+    ],
+    "images": 0
+  }
+]

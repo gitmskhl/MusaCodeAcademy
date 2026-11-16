@@ -1,0 +1,16 @@
+{
+  "step_id": 602,
+  "viewport": {"width": 1440, "height": 1100},
+  "document_visibility": "visible",
+  "clip": {"x": 450, "y": 550, "width": 500, "height": 400},
+  "sample_interval_ms": 700,
+  "screenshot_sha256": [
+    "b3a419608b51168e6b17d90c111b92a4a7dc64f0babb560b91b79ac38915df9e",
+    "b1e50515a94943b9398d7b78b541d5cc2c06d2aace0b70da0d11359cf3e6dcde",
+    "bda00d5ca2bd04d46466fb10440d268694a520a2be7e24e7df70e1826822604b",
+    "b588b2ecd36f90985cd71c0c7d52870de2a195dad69ccfbec137b5648d70a4b0",
+    "d0049aacd2afb88aac1f6bd0951a8210d3a655734baa5b23d0661948114012d3"
+  ],
+  "distinct_samples": 5,
+  "animation_playing": true
+}

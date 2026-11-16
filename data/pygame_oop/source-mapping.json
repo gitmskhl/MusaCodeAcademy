@@ -1,0 +1,114 @@
+[
+  {
+    "version": "v1.0.0",
+    "source": "https://docs.google.com/document/d/1pcrGPkFxnXUhhU1ntigpOSjxiuipmxOlmZNgVRrl7Vc/edit",
+    "task": "Задание 1. Точки по клику через класс",
+    "gif": "task-01.gif",
+    "video": null
+  },
+  {
+    "version": "v1.0.1",
+    "source": "https://docs.google.com/document/d/1Zh7tOzCSO9AbZl02yns1xwoc4WOwsb1MHicd6liu0S0/edit",
+    "task": "Задание 2. Множество разноцветных точек",
+    "gif": "task-02.gif",
+    "video": "https://kinescope.io/at8u1C8BQhQBFt51h3iSqi"
+  },
+  {
+    "version": "v1.1",
+    "source": "https://docs.google.com/document/d/1LRl4_v0WhXBmNAWWiNTZDyoOCwuBI3YspUPQa_DcejU/edit",
+    "task": "Задание 3. Круговые волны",
+    "gif": "task-03.gif",
+    "video": null
+  },
+  {
+    "version": "v1.2",
+    "source": "https://docs.google.com/document/d/1udO1rJiNiS-WMYe9jIZqNs3juhVQZ2ACcgD8C2k8kDs/edit",
+    "task": "Задание 4. Bullets & Sparks",
+    "gif": "task-04.gif",
+    "video": null
+  },
+  {
+    "version": "v1.2.1",
+    "source": "https://docs.google.com/document/d/1QrCx-yNVOI4tTUpL-Ii8wkv3BCUusbjnY3FYSEk206I/edit",
+    "task": "Задание 5. Bullets & Different Sparks",
+    "gif": "task-05.gif",
+    "video": null
+  },
+  {
+    "version": "v1.3",
+    "source": "https://docs.google.com/document/d/1s826aCreNZ6X9zwbcTSCahBC2sF0Vs4tHKBfscKKCb8/edit",
+    "task": "Задание 6. Искры из-под курсора",
+    "gif": "task-06.gif",
+    "video": null
+  },
+  {
+    "version": "v1.4",
+    "source": "https://docs.google.com/document/d/1a1op8MXhYivN5Il6QA_upHXpCpK4sNdEiTWSEHmgb_I/edit",
+    "task": "Задание 7. Залп и искры у стен",
+    "gif": "task-07.gif",
+    "video": null
+  },
+  {
+    "version": "v1.5",
+    "source": "https://docs.google.com/document/d/1Xy5TY2yGGkUskM_McF-74bJvNSexaZkaPqNIea2GHX8/edit",
+    "task": "Задание 8. Пуля со следом",
+    "gif": "task-08.gif",
+    "video": null
+  },
+  {
+    "version": "v1.6",
+    "source": "https://docs.google.com/document/d/1p1cDmJilFnoUJ-WaKH90ofRYrrEXtxW629SGnv--4WA/edit",
+    "task": "Задание 9. Cannon & Sparks",
+    "gif": "task-09.gif",
+    "video": null
+  },
+  {
+    "version": "v2.0",
+    "source": "https://docs.google.com/document/d/19xA2eTCv6MISQyDV2e_gVfK1cJOwWNeWhLutq7Qw6Bs/edit",
+    "task": "Задание 10. Игрок и монетки",
+    "gif": "task-10.gif",
+    "video": null
+  },
+  {
+    "version": "v3.0:1",
+    "source": "https://docs.google.com/document/d/1pWMAiZlIV0nBdJE0UMEgVeMl0Oadc-6GnyHc7s_UoQE/edit",
+    "task": "Задание 11. Расстановка пяти платформ",
+    "gif": "task-11.gif",
+    "video": null
+  },
+  {
+    "version": "v3.0:2",
+    "source": "https://docs.google.com/document/d/1T3488QmXQprDs7Eejuj9YTQxftoYBfdQjebW_K1AIoM/edit",
+    "task": "Задание 12. Платформы и запуск мячика",
+    "gif": "task-12.gif",
+    "video": "https://kinescope.io/ak7478yoP6Z2UGj5iPJ7wQ"
+  },
+  {
+    "version": "v4.0",
+    "source": "https://docs.google.com/document/d/1hON3xEAoo9VnuUcJP7M2f1hYLYP3WxQrnzvGJmIkX8o/edit",
+    "task": "Задание 13. Зажги все факелы",
+    "gif": "task-13.gif",
+    "video": "https://kinescope.io/jsrjAcKSGFdMxPjc8PKKKv"
+  },
+  {
+    "version": "v4.0.0",
+    "source": "https://docs.google.com/document/d/1JcttyJZWUjnshuPnTiomS6-pLBKyR6y-JgrvfYEbMuE/edit",
+    "task": "Задание 14. Ядовитый гриб",
+    "gif": "task-14.gif",
+    "video": "https://kinescope.io/amaF1V3mVYrayBeA8kuZFu"
+  },
+  {
+    "version": "v4.1",
+    "source": "https://docs.google.com/document/d/1bzK7NkZnwyr5XgQul21rEqY9OlszfOgnT-QjpNxdJks/edit",
+    "task": "Задание 15. Ключ и сундук",
+    "gif": "task-15.gif",
+    "video": "https://kinescope.io/iedH3MA4B4NmCHWR41vUu7"
+  },
+  {
+    "version": "v4.2",
+    "source": "https://docs.google.com/document/d/19Rn1s25dm_wt6_KeHynUKwDCYJINfAXTunGkPOHJiyI/edit",
+    "task": "Задание 16. Подбери и положи кристалл",
+    "gif": "task-16.gif",
+    "video": "https://kinescope.io/xqj71vMg9bEHrpxAsNRrez"
+  }
+]
