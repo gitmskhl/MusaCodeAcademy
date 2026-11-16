@@ -1,4 +1,5 @@
 import { logout } from './course-auth.js';
+import './notification-bell.js';
 
 const profileMenus = document.querySelectorAll('[data-app-profile]');
 const logoutButtons = document.querySelectorAll('[data-app-logout]');

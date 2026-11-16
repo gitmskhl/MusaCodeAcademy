@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Musa Code Academy</title>
+    <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/app-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/student.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
+    <script type="module" src="{{ url_for('static', path='js/student-inbox.js') }}"></script>
+</head>
+<body class="student-app" data-inbox="{{ view }}">
+    {% include 'components/app_header.html' %}
+    <main class="inbox-shell" id="app-main">
+        <p class="notification-feedback" data-inbox-status role="status">Проверка доступа…</p>
+        <div data-inbox-shell hidden>
+            <div class="inbox-heading"><h1>{{ title }}</h1>{% if view == 'notifications' %}<button class="student-secondary-link" type="button" data-read-all disabled>Прочитать все</button>{% endif %}</div>
+            <div class="inbox-list" data-inbox-list aria-live="polite"></div>
+            <div data-inbox-pagination></div>
+        </div>
+    </main>
+    {% include 'components/app_footer.html' %}
+</body>
+</html>

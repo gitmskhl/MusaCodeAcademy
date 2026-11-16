@@ -1,3 +1,5 @@
+import { safeNextUrl } from './safe-next.js';
+
 const form = document.querySelector("#login-form");
 const message = document.querySelector("#form-message");
 const button = form.querySelector('button[type="submit"]');
@@ -19,7 +21,7 @@ async function redirectAuthenticatedUser() {
         });
 
         if (response.status === 200) {
-            window.location.replace("/dashboard");
+            window.location.replace(safeNextUrl(new URLSearchParams(window.location.search).get('next')));
             return;
         }
 
@@ -91,9 +93,7 @@ form.addEventListener("submit", async (event) => {
 
         localStorage.setItem(TOKEN_KEY, data.access_token);
         const nextUrl = new URLSearchParams(window.location.search).get("next");
-        const destination = nextUrl?.startsWith("/") && !nextUrl.startsWith("//")
-            ? nextUrl
-            : "/dashboard";
+        const destination = safeNextUrl(nextUrl);
         window.location.href = destination;
     } catch (error) {
         showMessage(error.message, "error");

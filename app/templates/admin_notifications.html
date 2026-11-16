@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отправить уведомление — Musa Code Academy</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/admin-monitoring.css') }}">
+    <script type="module" src="{{ url_for('static', path='js/admin-bootstrap.js') }}" data-admin-entry="admin-notifications.js"></script>
+</head>
+<body>
+<div class="admin-page">
+    <p class="admin-loading" data-loading role="status">Проверка доступа…</p>
+    <main class="admin-shell" data-shell hidden>
+        {% include 'components/admin_nav.html' %}
+        <header class="admin-header"><h1>Отправить уведомление</h1></header>
+        <section class="section-block">
+            <form class="admin-form notification-form" data-notification-form>
+                <label class="field">Получатели
+                    <select name="mode"><option value="all">Все ученики</option><option value="single">Один ученик</option><option value="multiple">Несколько выбранных учеников</option></select>
+                </label>
+                <div data-student-picker hidden>
+                    <label class="field">Поиск учеников по имени или email<input name="search" type="search" maxlength="255" autocomplete="off" placeholder="Начните вводить имя или email"></label>
+                    <p class="monitoring-muted" data-search-status role="status"></p>
+                    <div class="recipient-results" data-student-results></div>
+                    <div data-search-pagination></div>
+                    <p>Выбрано: <strong data-selected-count>0</strong></p>
+                    <div class="recipient-selected" data-selected-students></div>
+                </div>
+                <label class="field">Заголовок<input name="title" required maxlength="255"></label>
+                <label class="field">Текст<textarea name="text" required maxlength="10000" rows="6"></textarea></label>
+                <div class="monitoring-notice" data-recipient-preview role="status" hidden></div>
+                <p class="field-error" data-form-error role="alert"></p>
+                <p class="monitoring-notice" data-form-success role="status" hidden></p>
+                <div class="form-actions"><button class="button button--primary" type="submit" data-send>Проверить получателей</button></div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

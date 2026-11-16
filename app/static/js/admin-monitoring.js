@@ -1,6 +1,8 @@
 import { createCodeEditorView } from './step-renderer/codemirror/code-editor-view.js';
 import { createAIAssistanceSettings } from './admin-ai-assistance.js';
 import { createDeleteUserButton, createEnrollmentAction, createEnrollmentForm } from './admin-user-actions.js';
+import { createHomeworkSection } from './admin-homework.js';
+import { errorText } from './notifications.js';
 
 const TOKEN_KEY = 'musa_code_academy_token';
 const view = document.body.dataset.view;
@@ -70,7 +72,7 @@ async function api(path, options = {}) {
     }
     if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(typeof data.detail === 'string' ? data.detail : 'Не удалось выполнить запрос. Проверьте фильтры и попробуйте ещё раз.');
+        throw new Error(errorText(data.detail));
     }
     return response.status === 204 ? null : response.json();
 }
@@ -304,7 +306,9 @@ function renderUser(user, submissions, courseOptions) {
     const attempts = section('Последние отправки');
     attempts.append(link('Все отправки пользователя →', `/admin/submissions?user_id=${user.id}`, 'monitoring-link'));
     attempts.append(submissionTable(submissions.items));
-    content.append(profile, aiSection, courses, attempts);
+    content.append(profile);
+    if (user.role === 'student') content.append(createHomeworkSection({ user, api }));
+    content.append(aiSection, courses, attempts);
 }
 function renderSubmission(item) {
     const info = section();

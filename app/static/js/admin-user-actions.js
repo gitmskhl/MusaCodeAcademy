@@ -87,6 +87,15 @@ export function createDeleteUserButton({ user, adminId, api, onDeleted }) {
     return trigger;
 }
 
+export function createDeleteHomeworkButton({ user, homework, api, onDeleted }) {
+    return confirmationButton({
+        label: 'Удалить домашнее задание', title: 'Удалить домашнее задание?',
+        description: `${user.first_name} ${user.last_name} (${user.email}) — «${homework.title}». Домашнее задание и связанное уведомление будут удалены.`,
+        request: () => api(`/api/admin/users/${user.id}/homework/${homework.id}`, { method: 'DELETE' }),
+        onSaved: onDeleted,
+    });
+}
+
 export function createEnrollmentAction({ user, course, api, onSaved }) {
     const path = `/api/admin/users/${user.id}/courses/${course.id}`;
     if (course.enrolled) return confirmationButton({

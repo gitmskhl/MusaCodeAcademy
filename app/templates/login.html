@@ -6,7 +6,7 @@
         document.documentElement.classList.add("is-auth-checking");
     }
 </script>
-<script defer src="{{ url_for('static', path='js/login.js') }}"></script>
+<script type="module" src="{{ url_for('static', path='js/login.js') }}"></script>
 {% endblock %}
 {% block story_title %}Твои идеи.<br>Твой код.<br><span class="highlight">Твой новый шаг.</span>{% endblock %}
 {% block story_description %}Курсы и задачи уже ждут. Возвращайся туда,<br>где остановился, и продолжай создавать своё.{% endblock %}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createDeleteUserButton, createEnrollmentAction, createEnrollmentForm } from '../../app/static/js/admin-user-actions.js';
+import { createDeleteUserButton, createDeleteHomeworkButton, createEnrollmentAction, createEnrollmentForm } from '../../app/static/js/admin-user-actions.js';
 
 class Element {
     constructor(tag) {
@@ -18,6 +18,34 @@ class Element {
 }
 
 const submit = form => form.handlers.submit({ preventDefault() {} });
+
+test('homework deletion asks for confirmation, allows cancel and uses the student-scoped URL', async () => {
+    const page = setup();
+    const trigger = createDeleteHomeworkButton({ ...page, homework: { id: 42, title: '<script>Практика</script>' }, onDeleted: () => page.notices.push('deleted') });
+    const first = page.openDialog(trigger);
+    assert.match(first.form.children[1].textContent, /<script>Практика<\/script>/);
+    assert.match(first.form.children[1].textContent, /связанное уведомление/);
+    first.cancel.handlers.click();
+    assert.deepEqual(page.requests, []);
+    const second = page.openDialog(trigger);
+    await submit(second.form);
+    assert.deepEqual(page.requests, [['/api/admin/users/7/homework/42', { method: 'DELETE' }]]);
+    assert.deepEqual(page.notices, ['deleted']);
+    assert.equal(document.body.children.length, 0);
+});
+
+test('failed homework deletion keeps the dialog open and allows retry', async () => {
+    const page = setup({ fail: true });
+    const trigger = createDeleteHomeworkButton({ ...page, homework: { id: 42, title: 'Практика' }, onDeleted: () => page.notices.push('deleted') });
+    const dialog = page.openDialog(trigger);
+    await submit(dialog.form);
+    assert.equal(dialog.error.textContent, 'Нет доступа');
+    assert.equal(dialog.confirm.disabled, false);
+    assert.deepEqual(page.notices, []);
+    page.state.fail = false;
+    await submit(dialog.form);
+    assert.deepEqual(page.notices, ['deleted']);
+});
 
 function setup({ enrolled = true, fail = false, request } = {}) {
     globalThis.document = { createElement: tag => new Element(tag), body: new Element('body') };

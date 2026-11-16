@@ -62,6 +62,19 @@ async def admin_page(request: Request):
         request,
         "admin.html"
     )
+
+
+@router.get("/notifications", response_class=HTMLResponse, include_in_schema=False)
+@router.get("/homework", response_class=HTMLResponse, include_in_schema=False)
+async def student_inbox_page(request: Request):
+    view = "notifications" if request.url.path == "/notifications" else "homework"
+    title = "Все уведомления" if view == "notifications" else "Мои домашние задания"
+    return templates.TemplateResponse(request, "student_inbox.html", {"view": view, "title": title})
+
+
+@router.get("/admin/notifications", response_class=HTMLResponse, include_in_schema=False)
+async def admin_notifications_page(request: Request):
+    return templates.TemplateResponse(request, "admin_notifications.html")
     
 @router.get("/admin/courses/create", response_class=HTMLResponse, include_in_schema=False)
 async def admin_create_course_page(request: Request):

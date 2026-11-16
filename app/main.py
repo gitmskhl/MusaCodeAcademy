@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, status, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
@@ -8,6 +9,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.staticfiles import StaticFiles
 
 from app.core.logging import configure_logging
+from app.core.static import RevalidatingStaticFiles, static_version
 configure_logging()
 
 from app.api.routers import (
@@ -27,6 +29,7 @@ from app.api.routers import (
 )
 from app.core.database import engine
 from app.api.routers.admin import router as admin_router
+from app.api.routers.notification import router as notification_router
 from app.core.redis import redis
 from app.models import Base
 
@@ -43,11 +46,14 @@ logger = logging.getLogger(__name__)
 
 templates = Jinja2Templates(directory="app/templates")
 
+static_directory = Path("app/static")
 app.mount(
-    "/static",
-    StaticFiles(directory="app/static"),
-    name="static"
+    f"/static/v-{static_version(static_directory)}",
+    RevalidatingStaticFiles(directory=static_directory),
+    name="static",
 )
+# Preserve direct /static links and URLs stored in existing course content.
+app.mount("/static", RevalidatingStaticFiles(directory=static_directory), name="static_legacy")
 
 app.mount(
     "/uploads",
@@ -130,6 +136,7 @@ app.include_router(
 )
 
 app.include_router(admin_router, prefix="/api/admin", tags=["admin"])
+app.include_router(notification_router, prefix="/api", tags=["notifications", "homework"])
 app.include_router(pagesRouter)
 
 

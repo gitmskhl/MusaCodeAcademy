@@ -1,3 +1,5 @@
+@import url('./notifications.css');
+
 :root {
     --app-header-text: #242820;
     --app-header-muted: #69715f;
@@ -7,7 +9,7 @@
 .app-skip-link { position: fixed; top: 10px; left: 15px; z-index: 100; padding: 12px; color: #242820; background: #d4f478; transform: translateY(-160%); }
 .app-skip-link:focus { transform: translateY(0); }
 .app-header { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #dfe4d6; background: #f7f8f2f2; backdrop-filter: blur(18px); }
-.app-header__inner { display: flex; align-items: center; justify-content: space-between; width: min(100% - 80px, 1200px); min-height: var(--app-header-height); margin-inline: auto; gap: 25px; }
+.app-header__inner { display: flex; align-items: center; justify-content: space-between; width: min(100% - 80px, 1200px); min-height: var(--app-header-height); margin-inline: auto; gap: 16px; }
 .app-header__brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; color: var(--app-header-text); font-size: 15px; font-weight: 750; text-decoration: none; }
 .app-header__mark { display: block; flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; }
 .app-header__brand-name { font-size: 24px; letter-spacing: -1px; line-height: 1; font-weight: 800; }
@@ -17,6 +19,7 @@
 .app-header__nav a:hover { color: #384a24; background: #edf1e3; }
 .app-header__nav a[aria-current="page"] { color: #3f5229; background: #e9efdd; }
 .app-header__nav a span { font-size: 16px; }
+.app-header__actions { display: flex; align-items: center; gap: 16px; }
 .app-header__profile { position: relative; }
 .app-header__profile-button { display: inline-grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid #d5dfc2; border-radius: 50%; color: #4d632e; background: #eaf1de; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
 .app-header__profile-button:hover, .app-header__profile-button[aria-expanded="true"] { background: #ddebbf; border-color: #a4bb7e; }
@@ -33,7 +36,7 @@
     .app-header__nav a { padding-inline: 12px; font-size: 11px; }
     .app-header__brand-name { font-size: 21px; }
 }
-@media (max-width: 540px) {
+@media (max-width: 900px) {
     :root { --app-header-height: 114px; }
     .app-header__inner { min-height: 114px; flex-wrap: wrap; gap: 0 18px; padding-block: 13px 8px; }
     .app-header__brand { margin-right: auto; }

@@ -13,6 +13,11 @@ from app.schemas.admin import (
     AdminUser, AdminUserDetail, AdminUserPage, UserBlockUpdate, UserAIAssistanceUpdate,
 )
 from app.services import admin as service
+from app.services import notification as notification_service
+from app.schemas.notification import (
+    HomeworkCreate, HomeworkPage, HomeworkRead, NotificationCreate,
+    RecipientCount, RecipientSelection, StudentOptionPage,
+)
 from app.services.database_backup import DatabaseBackupResponse, create_database_backup
 from app.core.config import settings
 
@@ -22,6 +27,38 @@ PageSize = Annotated[int, Query(ge=1, le=100)]
 OptionalId = Annotated[int | None, Query(gt=0, le=2_147_483_647)]
 RecordId = Annotated[int, Path(gt=0, le=2_147_483_647)]
 Search = Annotated[str | None, Query(max_length=255)]
+
+
+@router.get("/notification-recipients", response_model=StudentOptionPage)
+async def notification_recipients(db: DBSession, q: Search = None, page: Page = 1, page_size: PageSize = 20):
+    return await notification_service.search_students(db, q=q or "", page=page, page_size=page_size)
+
+
+@router.post("/notifications/preview", response_model=RecipientCount)
+async def preview_notification(data: RecipientSelection, db: DBSession):
+    return {"count": await notification_service.recipient_count(db, data)}
+
+
+@router.post("/notifications", response_model=RecipientCount, status_code=201)
+async def send_notification(data: NotificationCreate, db: DBSession):
+    return {"count": await notification_service.send_notification(db, data)}
+
+
+@router.get("/users/{user_id}/homework", response_model=HomeworkPage)
+async def student_homework(user_id: RecordId, db: DBSession, page: Page = 1, page_size: PageSize = 20):
+    await notification_service.require_student(db, user_id)
+    return await notification_service.list_homework(db, user_id=user_id, page=page, page_size=page_size)
+
+
+@router.post("/users/{user_id}/homework", response_model=HomeworkRead, status_code=201)
+async def assign_homework(user_id: RecordId, data: HomeworkCreate, db: DBSession, actor: OnlyAdmin):
+    return await notification_service.assign_homework(db, user_id=user_id, actor_id=actor.id, data=data)
+
+
+@router.delete("/users/{user_id}/homework/{homework_id}", status_code=204)
+async def delete_homework(user_id: RecordId, homework_id: RecordId, db: DBSession):
+    await notification_service.delete_homework(db, user_id=user_id, homework_id=homework_id)
+    return Response(status_code=204)
 
 
 @router.post("/database/export", response_class=FileResponse)

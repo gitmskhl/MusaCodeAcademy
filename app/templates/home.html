@@ -8,7 +8,9 @@
     <title>Musa Code Academy — от первой строки кода к большим идеям</title>
     <link rel="icon" href="{{ url_for('static', path='images/academy-mark.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', path='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/notifications.css') }}">
     <script type="module" src="{{ url_for('static', path='js/home.js') }}"></script>
+    <script type="module" src="{{ url_for('static', path='js/notification-bell.js') }}"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Перейти к содержимому</a>
@@ -22,7 +24,7 @@
             <a href="#learning">Как это работает</a>
             <a href="/courses">Курсы <span aria-hidden="true">↗</span></a>
         </nav>
-        <div class="header-actions"><a class="login-link" href="/login" data-home-guest>Войти</a><a class="button button-small" href="/register" data-home-start>Начать учиться <span aria-hidden="true">↗</span></a></div>
+        <div class="header-actions">{% include 'components/notification_bell.html' %}<a class="login-link" href="/login" data-home-guest>Войти</a><a class="button button-small" href="/register" data-home-start>Начать учиться <span aria-hidden="true">↗</span></a></div>
     </header>
 
     <main id="main">

@@ -4,8 +4,8 @@ const ENROLLED_COURSES_KEY = 'musa_code_academy_enrolled_courses';
 const currentUrl = () =>
     `${window.location.pathname}${window.location.search}${window.location.hash}`;
 
-export const redirectToLogin = () => {
-    const params = new URLSearchParams({ next: currentUrl() });
+export const redirectToLogin = (next = currentUrl()) => {
+    const params = new URLSearchParams({ next });
     window.location.replace(`/login?${params.toString()}`);
 };
 
@@ -15,24 +15,25 @@ export const logout = () => {
     window.location.replace('/login');
 };
 
-export const requireToken = () => {
+export const requireToken = (loginNext) => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (!token) {
-        redirectToLogin();
+        redirectToLogin(loginNext);
         throw new Error('authentication-required');
     }
     return token;
 };
 
 export const authFetch = async (input, init = {}) => {
-    const token = requireToken();
-    const headers = new Headers(init.headers || {});
+    const { loginNext, ...fetchInit } = init;
+    const token = requireToken(loginNext);
+    const headers = new Headers(fetchInit.headers || {});
     headers.set('Authorization', `Bearer ${token}`);
 
-    const response = await fetch(input, { ...init, headers });
+    const response = await fetch(input, { ...fetchInit, headers });
     if (response.status === 401) {
         localStorage.removeItem(TOKEN_KEY);
-        redirectToLogin();
+        redirectToLogin(loginNext);
         throw new Error('authentication-required');
     }
     return response;

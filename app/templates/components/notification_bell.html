@@ -1,0 +1,12 @@
+<div class="notification-bell" data-notification-bell hidden>
+    <button class="notification-bell__button" type="button" aria-label="Уведомления" aria-expanded="false" aria-controls="notification-dropdown" data-notification-toggle>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>
+        <span class="notification-bell__count" data-notification-count hidden></span>
+    </button>
+    <section class="notification-dropdown" id="notification-dropdown" aria-label="Последние уведомления" hidden>
+        <h2>Уведомления</h2>
+        <p class="notification-feedback" data-notification-feedback role="status"></p>
+        <div data-notification-latest></div>
+        <a class="notification-dropdown__all" href="/notifications">Все уведомления →</a>
+    </section>
+</div>

@@ -1,0 +1,42 @@
+.notification-bell { position: relative; flex-shrink: 0; color: #242820; }
+.site-header:has(.notification-bell) { position: relative; z-index: 60; }
+.site-header .notification-bell, .admin-nav .notification-bell { position: static; }
+.admin-nav { position: relative; }
+.notification-bell[hidden], .notification-bell [hidden] { display: none !important; }
+.notification-bell__button { position: relative; display: grid; place-items: center; width: 40px; height: 40px; padding: 6px; border: 1px solid #dfe4d6; border-radius: 50%; background: #fffefa; color: #4d632e; cursor: pointer; }
+.notification-bell__count { position: absolute; right: -6px; top: -5px; min-width: 19px; padding: 2px 4px; border-radius: 10px; background: #4f6931; color: #fff; font: 11px/1.4 Inter, Arial, sans-serif; }
+.notification-dropdown { position: absolute; z-index: 80; top: calc(100% + 12px); right: 0; width: min(390px, calc(100vw - 32px)); max-height: min(75vh, 680px); overflow-y: auto; padding: 16px; border: 1px solid #dfe4d6; border-radius: 12px; background: #fffefa; box-shadow: 0 16px 35px #29391b20; }
+.notification-dropdown h2 { font-size: 17px; margin: 0 0 14px; }
+.notification-dropdown__all { display: block; padding: 16px 0 2px; color: #4f6931; font-size: 13px; text-decoration: underline; }
+.notification-card { padding: 22px; border: 1px solid var(--border, #dfe4d6); border-radius: 11px; background: var(--surface, #fffefa); color: var(--text, #242820); overflow-wrap: anywhere; }
+.notification-card.is-unread { border-inline-start: 4px solid #709641; background: #f0f5e7; }
+.notification-card h2, .notification-card h3 { margin: 0 0 10px; font-size: 18px; }
+.notification-title { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 650; text-align: left; cursor: pointer; }
+.notification-state { display: inline-block; color: var(--muted, #69715f); font-size: 11px; }
+.is-unread .notification-state { color: #4f6931; font-weight: 650; }
+.notification-text { margin: 12px 0; white-space: pre-wrap; line-height: 1.65; font-size: 14px; }
+.notification-meta { margin: 9px 0; color: var(--muted, #69715f); font-size: 12px; line-height: 1.5; }
+.notification-card--compact { padding: 14px; margin-top: 8px; }
+.notification-card--compact h3 { font-size: 14px; }
+.notification-card--compact .notification-text { font-size: 12px; }
+.notification-feedback { color: var(--muted, #69715f); font-size: 13px; overflow-wrap: anywhere; }
+.notification-feedback:empty { display: none; }
+.notification-feedback[role="alert"] { color: #b42318; }
+.homework-open { display: inline-flex; padding: 11px 14px; margin-top: 8px; border: 1px solid #c6d7ae; border-radius: 6px; background: #e9f1da; color: #3f5427 !important; font-size: 12px; text-decoration: none; }
+.notification-bell button:focus-visible, .notification-card button:focus-visible, .notification-card a:focus-visible { outline: 2px solid #809f50; outline-offset: 3px; }
+.inbox-shell { width: min(100% - 80px, 900px); margin: 38px auto 60px; }
+.inbox-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+.inbox-heading h1 { margin: 0; font-size: clamp(25px, 4vw, 36px); letter-spacing: -1px; }
+.inbox-list { display: grid; gap: 16px; }
+.notification-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 24px; font-size: 12px; color: var(--muted, #69715f); }
+.notification-pager button { padding: 10px 14px; border: 1px solid var(--border, #dfe4d6); border-radius: 6px; cursor: pointer; }
+.notification-pager button:disabled, [data-read-all]:disabled { opacity: .5; cursor: default; }
+@media (max-width: 540px) {
+    .inbox-shell { width: calc(100% - 32px); margin-top: 26px; }
+    .notification-card { padding: 17px; }
+    .notification-card--compact { padding: 12px; }
+    .app-header .notification-dropdown { right: -52px; }
+    .notification-bell__button { width: 34px; height: 34px; }
+    .site-header:has(.notification-bell:not([hidden])) { height: auto; min-height: 85px; flex-wrap: wrap; padding-block: 14px; }
+    .site-header:has(.notification-bell:not([hidden])) .header-actions { margin-left: auto; }
+}

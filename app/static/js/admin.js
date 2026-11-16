@@ -956,8 +956,10 @@ import { initCourseIconUpload } from './course-icon-upload.js';
         }
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
+    const init = () => {
         initAdminShell();
         initCourseForm();
-    });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+    else init();
 })();

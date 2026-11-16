@@ -2,5 +2,8 @@
     <a class="button button--ghost" href="/admin"{% if request.url.path == '/admin' %} aria-current="page"{% endif %}>Курсы</a>
     <a class="button button--ghost" href="/admin/users"{% if request.url.path.startswith('/admin/users') %} aria-current="page"{% endif %}>Пользователи</a>
     <a class="button button--ghost" href="/admin/submissions"{% if request.url.path.startswith('/admin/submissions') %} aria-current="page"{% endif %}>Отправки</a>
+    <a class="button button--ghost" href="/admin/notifications"{% if request.url.path == '/admin/notifications' %} aria-current="page"{% endif %}>Уведомления</a>
     <a class="button button--ghost" href="/dashboard">Моё обучение ↗</a>
+    {% include 'components/notification_bell.html' %}
 </nav>
+<script type="module" src="{{ url_for('static', path='js/notification-bell.js') }}"></script>
