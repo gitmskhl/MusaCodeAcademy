@@ -91,5 +91,8 @@ def check_python_test(source_code, test_input, expected_output):
         status = "WRONG ANSWER"
     return json.dumps({
         "status": status,
-        "actual_output": (error or stderr_output or output)[:10000],
+        # A comparison failure must carry the stdout that was compared. Stderr
+        # may contain arbitrary text and cannot explain an output mismatch.
+        "actual_output": (output if status == 'WRONG ANSWER' and not error
+                          else error or stderr_output or output)[:10000],
     })

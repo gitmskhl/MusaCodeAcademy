@@ -44,6 +44,13 @@ def test_namespace_is_fresh_for_each_test():
         assert result['status'] == 'ACCEPTED'
 
 
+def test_wrong_answer_reports_compared_stdout_even_if_stderr_is_present():
+    source = 'import sys\nprint("hello")\nprint("Hello", file=sys.stderr)'
+    result = json.loads(harness.check_python_test(source, '', 'Hello'))
+    assert result['status'] == 'WRONG ANSWER'
+    assert result['actual_output'] == 'hello\n'
+
+
 def function_result(source, expected=12, **options):
     case = {'function': 'max2', 'args': [5, 12], 'mode': 'return',
             'expected': expected, **options}

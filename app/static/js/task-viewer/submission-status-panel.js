@@ -237,6 +237,7 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
             runResult.timed_out,
             runResult.oom_killed,
             submission.actual_output,
+            submission.diagnostics,
         ]);
         if (renderKey === currentRenderKey) return;
         currentRenderKey = renderKey;
@@ -290,6 +291,20 @@ export const createSubmissionStatusPanel = ({ fetcher }) => {
                 submission.actual_output,
                 { code: true }
             ));
+        }
+
+        if (status === 'WRONG_ANSWER' && Array.isArray(submission.diagnostics)) {
+            const messages = [...new Set(submission.diagnostics
+                .map(item => item?.message)
+                .filter(message => typeof message === 'string' && message.trim()))];
+            if (messages.length) {
+                const hint = createElement('section', 'submission-status__result-section');
+                hint.append(createElement('h5', 'submission-status__result-label', '💡 Подсказка'));
+                for (const message of messages) {
+                    hint.append(createElement('p', 'submission-status__result-value', message));
+                }
+                content.append(hint);
+            }
         }
 
         const testCaseId = submission.test_case_id ?? submission.failed_test_id;

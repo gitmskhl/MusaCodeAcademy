@@ -4,6 +4,14 @@ from app.enums import SubmissionStatus
 from typing import Literal
 
 
+class OutputDiagnostic(BaseModel):
+    type: Literal[
+        "case_mismatch", "extra_whitespace", "edge_whitespace",
+        "line_breaks", "extra_text", "number_format",
+    ]
+    message: str
+
+
 class LocalSubmissionResult(BaseModel):
     status: Literal[
         SubmissionStatus.ACCEPTED,
@@ -33,6 +41,7 @@ class SubmissionDetail(BaseModel):
     total_tests: int | None
     failed_test_id: int | None
     actual_output: str | None
+    diagnostics: list[OutputDiagnostic] = Field(default_factory=list)
     ai_hint: str | None
     ai_hint_model: str | None
     status: SubmissionStatus

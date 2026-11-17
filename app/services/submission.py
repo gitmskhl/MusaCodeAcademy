@@ -4,13 +4,43 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.dialects.postgresql import insert
 from fastapi import status, HTTPException
-from app.schemas.submission import SubmissionCreate
+from app.schemas.submission import SubmissionCreate, SubmissionDetail
+from app.services.output_diagnostics import diagnose_output, MAX_OUTPUT_LENGTH
 from app.models import Submission, Task, Step, Lesson, Section, StepProgress, TestCase
 from app.enums import SubmissionStatus, TaskCheckingMode
 from app.queue.submission import enqueu
 
 
 logger = logging.getLogger(__name__)
+
+
+async def submission_detail(submission: Submission | None, db: AsyncSession) -> SubmissionDetail | None:
+    """Enrich the response only; never persist hints or change the saved verdict."""
+    if submission is None:
+        return None
+    detail = SubmissionDetail.model_validate(submission)
+    if (submission.status != SubmissionStatus.WRONG_ANSWER
+            or submission.actual_output is None or submission.failed_test_id is None
+            or len(submission.actual_output) >= MAX_OUTPUT_LENGTH):
+        return detail
+    # Filter visibility and task ownership before reading any expected output.
+    expected = await db.scalar(select(TestCase.expected_output).where(
+        TestCase.id == submission.failed_test_id,
+        TestCase.task_id == submission.task_id,
+        TestCase.is_hidden.is_(False),
+        # Function checks can store an assertion message instead of stdout.
+        ~TestCase.input.startswith('# mca:function-test:v1\n'),
+    ))
+    if expected is not None:
+        try:
+            detail.diagnostics = diagnose_output(
+                status=submission.status, expected=expected, actual=submission.actual_output,
+            )
+        except Exception:
+            # Optional feedback must not prevent delivery of the existing result.
+            logger.exception("Output diagnostics failed for submission %s", submission.id)
+    return detail
+
 
 async def create_submission(user_id: int, submissionInfo: SubmissionCreate, db: AsyncSession) -> Submission:
     task = (

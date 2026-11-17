@@ -19,6 +19,7 @@ SUBMISSION_DETAIL_FIELDS = {
     "total_tests",
     "failed_test_id",
     "actual_output",
+    "diagnostics",
     "ai_hint",
     "ai_hint_model",
     "status",
@@ -849,3 +850,146 @@ async def test_task_without_tests_cannot_be_accepted(client, auth_headers, local
     assert response.status_code == 409
     response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(task, passed_tests=0))
     assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('hidden', [False, True])
+async def test_diagnostics_on_create_get_and_last_respect_test_visibility(
+    client, auth_headers, local_task_context, db, hidden,
+):
+    task, tests, _ = local_task_context
+    case = tests[0]
+    case.expected_output = 'Hello World'
+    case.input = 'private test input' if hidden else ''
+    case.is_hidden = hidden
+    await db.commit()
+    # Server computes diagnostics, ignoring any invented client diagnostics.
+    response = await client.post('/api/submissions', headers=auth_headers, json=local_payload(
+        task, status='WRONG ANSWER', passed_tests=0, failed_test_id=case.id,
+        actual_output='hello  world',
+        diagnostics=[{'type': 'extra_text', 'message': 'Untrusted hint'}],
+    ))
+    assert response.status_code == 201
+    bodies = [response.json()]
+    for url in [get_my_submission_url(bodies[0]['id']), get_last_submission_url(task.id)]:
+        response = await client.get(url, headers=auth_headers)
+        assert response.status_code == 200
+        bodies.append(response.json())
+    for body in bodies:
+        assert body['status'] == 'WRONG ANSWER'
+        assert body['actual_output'] == 'hello  world'
+        assert [item['type'] for item in body['diagnostics']] == (
+            [] if hidden else ['case_mismatch', 'extra_whitespace']
+        )
+        assert 'expected_output' not in body
+        assert 'input' not in body
+        assert 'Untrusted hint' not in str(body)
+    saved = await db.get(Submission, bodies[0]['id'])
+    assert saved.status == SubmissionStatus.WRONG_ANSWER
+    assert saved.actual_output == 'hello  world'
+    assert case.expected_output == 'Hello World'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('result_status', [s for s in SubmissionStatus if s != SubmissionStatus.WRONG_ANSWER])
+async def test_api_does_not_diagnose_other_verdicts(
+    client, auth_headers, local_task_context, db, monkeypatch, result_status,
+):
+    task, tests, user = local_task_context
+    tests[0].expected_output = 'HELLO'
+    await db.commit()
+    saved = await create_submission(
+        db, task.id, user_id=user.id, status_=result_status,
+        failed_test_id=tests[0].id, actual_output='hello',
+    )
+    def unexpected_diagnosis(**kwargs):
+        pytest.fail('Only Wrong Answer may be diagnosed')
+    monkeypatch.setattr(service_submission, 'diagnose_output', unexpected_diagnosis)
+    response = await client.get(get_my_submission_url(saved.id), headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()['diagnostics'] == []
+    assert response.json()['status'] == result_status.value
+
+
+@pytest.mark.asyncio
+async def test_api_does_not_diagnose_hidden_or_unrelated_tests(
+    client, auth_headers, local_task_context, section_factory, db, monkeypatch,
+):
+    task, tests, user = local_task_context
+    tests[1].expected_output = 'HELLO'
+    other_step = await create_step(db, section_factory)
+    other_task = await create_task(db, other_step.id)
+    other_case = TaskTestCase(task_id=other_task.id, input='secret', expected_output='HELLO', is_hidden=False, order=0)
+    db.add(other_case)
+    await db.commit()
+    def unexpected_diagnosis(**kwargs):
+        pytest.fail('Hidden and unrelated tests must never reach diagnosis')
+    monkeypatch.setattr(service_submission, 'diagnose_output', unexpected_diagnosis)
+    for failed_id in [tests[1].id, other_case.id, 999999, None]:
+        saved = await create_submission(
+            db, task.id, user_id=user.id, status_=SubmissionStatus.WRONG_ANSWER,
+            failed_test_id=failed_id, actual_output='hello',
+        )
+        response = await client.get(get_my_submission_url(saved.id), headers=auth_headers)
+        assert response.status_code == 200
+        assert response.json()['diagnostics'] == []
+
+
+@pytest.mark.asyncio
+async def test_function_assertion_is_not_diagnosed_as_stdout(
+    client, auth_headers, local_task_context, db, monkeypatch,
+):
+    task, tests, user = local_task_context
+    tests[0].input = '# mca:function-test:v1\n{}'
+    tests[0].expected_output = '12'
+    await db.commit()
+    saved = await create_submission(
+        db, task.id, user_id=user.id, status_=SubmissionStatus.WRONG_ANSWER,
+        failed_test_id=tests[0].id, actual_output='Неверное возвращаемое значение: 12',
+    )
+    def unexpected_diagnosis(**kwargs):
+        pytest.fail('An assertion message is not program stdout')
+    monkeypatch.setattr(service_submission, 'diagnose_output', unexpected_diagnosis)
+    response = await client.get(get_my_submission_url(saved.id), headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()['diagnostics'] == []
+
+
+@pytest.mark.asyncio
+async def test_admin_submission_detail_has_no_hidden_test_diagnostics(
+    client, admin_headers, user_data, section_factory, db,
+):
+    user = await get_user_by_email(db, user_data['email'])
+    step = await create_step(db, section_factory)
+    task = await create_task(db, step.id)
+    case = TaskTestCase(task_id=task.id, input='secret', expected_output='HELLO', is_hidden=False, order=0)
+    db.add(case)
+    await db.commit()
+    saved = await create_submission(
+        db, task.id, user_id=user.id, status_=SubmissionStatus.WRONG_ANSWER,
+        failed_test_id=case.id, actual_output='hello',
+    )
+    for hidden in [False, True]:
+        case.is_hidden = hidden
+        await db.commit()
+        response = await client.get(get_submission_admin_url(saved.id), headers=admin_headers)
+        assert response.status_code == 200
+        assert [item['type'] for item in response.json()['diagnostics']] == ([] if hidden else ['case_mismatch'])
+
+
+@pytest.mark.asyncio
+async def test_diagnostic_failure_cannot_replace_the_saved_verdict(
+    client, auth_headers, local_task_context, db, monkeypatch,
+):
+    task, tests, user = local_task_context
+    saved = await create_submission(
+        db, task.id, user_id=user.id, status_=SubmissionStatus.WRONG_ANSWER,
+        failed_test_id=tests[0].id, actual_output='4.0',
+    )
+    def broken_diagnosis(**kwargs):
+        raise RuntimeError('diagnostic bug')
+    monkeypatch.setattr(service_submission, 'diagnose_output', broken_diagnosis)
+    response = await client.get(get_my_submission_url(saved.id), headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()['status'] == 'WRONG ANSWER'
+    assert response.json()['diagnostics'] == []

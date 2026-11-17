@@ -73,11 +73,12 @@ async def get_user_task_submissions_admin(task_id: int, user_id: int, _: OnlyAdm
 
 @router.get('/{task_id}/submissions/last', response_model=(SubmissionDetail | None))
 async def get_last_submission(task_id: int, user: CurrentUser, db: DBSession):
-    return await submission_service.get_last_submission(
+    submission = await submission_service.get_last_submission(
         task_id=task_id,
         user_id=user.id,
         db=db
     )
+    return await submission_service.submission_detail(submission, db)
 
 
 @router.post('/{task_id}/tests/upload', status_code=status.HTTP_204_NO_CONTENT)
