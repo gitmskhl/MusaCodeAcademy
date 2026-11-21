@@ -5,14 +5,19 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from app.api.dependencies import DBSession
 from app.services import step as service_step
+from app.services import course as service_course
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/", response_class=HTMLResponse, include_in_schema=False)
-async def home_page(request: Request):
-    return templates.TemplateResponse(request, "home.html")
+async def home_page(request: Request, db: DBSession):
+    courses = await service_course.get_published_courses(db)
+    featured_courses = sorted(courses, key=lambda course: course.id)[:2]
+    return templates.TemplateResponse(
+        request, "home.html", {"featured_courses": featured_courses}
+    )
 
 
 @router.get("/login", response_class=HTMLResponse, include_in_schema=False)

@@ -1,11 +1,7 @@
-const runButton = document.querySelector('[data-run-demo]');
-const output = document.querySelector('[data-demo-output]');
-
-runButton?.addEventListener('click', () => {
-    // Preview one iteration of the illustrative Python loop; no user code is executed.
-    output.textContent = '› Я могу больше!';
-    output.classList.add('is-success');
-    runButton.textContent = '✓ Ещё раз';
+// Broken uploaded covers reveal the neutral code icon already in the card.
+document.querySelectorAll('[data-course-image]').forEach((image) => {
+    image.addEventListener('error', () => image.remove(), { once: true });
+    if (image.complete && image.naturalWidth === 0) image.remove();
 });
 
 const TOKEN_KEY = 'musa_code_academy_token';
