@@ -1,4 +1,5 @@
 {% extends "auth_base.html" %}
+{% from "components/auth_icons.html" import auth_icon %}
 {% block title %}Вход{% endblock %}
 {% block scripts %}
 <script>
@@ -8,24 +9,24 @@
 </script>
 <script type="module" src="{{ url_for('static', path='js/login.js') }}"></script>
 {% endblock %}
-{% block story_title %}Твои идеи.<br>Твой код.<br><span class="highlight">Твой новый шаг.</span>{% endblock %}
-{% block story_description %}Курсы и задачи уже ждут. Возвращайся туда,<br>где остановился, и продолжай создавать своё.{% endblock %}
 {% block form_content %}
-<p class="eyebrow panel-eyebrow">РАДЫ ВИДЕТЬ ТЕБЯ СНОВА</p>
-<h1 id="auth-title">Продолжим учиться?</h1>
-<p class="lead">Войди, чтобы вернуться к своим курсам<br class="wide-break"> и новым открытиям.</p>
-<div class="message" id="form-message" role="status" aria-live="polite"></div>
+<h1 id="auth-title">Вход в аккаунт</h1>
+<div class="message mca-alert" id="form-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="-1"></div>
 
 <form class="form" id="login-form" action="/api/auth/token" method="post">
-    <div class="field">
+    <div class="field mca-field">
         <label for="email">Email</label>
-        <input id="email" type="email" name="username" placeholder="you@example.com" autocapitalize="none" spellcheck="false" autocomplete="email" required>
+        <div class="input-field">
+            {{ auth_icon('email') }}
+            <input class="mca-input" id="email" type="email" name="username" placeholder="Введите email" autocapitalize="none" spellcheck="false" autocomplete="email" required>
+        </div>
     </div>
 
-    <div class="field">
+    <div class="field mca-field">
         <label for="password">Пароль</label>
         <div class="password-field">
-            <input id="password" type="password" name="password" placeholder="Твой пароль" autocomplete="current-password" required>
+            {{ auth_icon('lock') }}
+            <input class="mca-input" id="password" type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
             <button class="password-toggle" type="button" aria-label="Показать пароль" aria-controls="password" aria-pressed="false" data-password-toggle>
                 <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
@@ -37,14 +38,14 @@
     </div>
 
     <p class="forgot-password-link">
-        <a href="/forgot-password">Не помнишь пароль?</a>
+        <a href="/forgot-password">Забыли пароль?</a>
     </p>
 
-    <button type="submit">Продолжить обучение <span aria-hidden="true">↗</span></button>
+    <button class="mca-button mca-button--primary" type="submit">Войти</button>
 </form>
 
 <p class="switch-link">
-    Впервые здесь?
-    <a href="/register">Зарегистрироваться</a>
+    Нет аккаунта?
+    <a href="/register{% if request.query_params.get('next') %}?next={{ request.query_params.get('next') | urlencode }}{% endif %}">Зарегистрироваться</a>
 </p>
 {% endblock %}

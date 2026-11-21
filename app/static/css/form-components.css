@@ -1,0 +1,131 @@
+/* Shared form primitives, enabled only on pages adopting MCA v1. */
+html[data-design-system="mca-v1"] :is(a, button, [tabindex]):focus-visible {
+    outline: var(--mca-focus-width) solid var(--mca-color-focus);
+    outline-offset: var(--mca-focus-offset);
+}
+
+html[data-design-system="mca-v1"] .mca-field {
+    display: grid;
+    align-content: start;
+    gap: var(--mca-space-2);
+    min-width: 0;
+}
+
+html[data-design-system="mca-v1"] .mca-field label {
+    font-size: var(--mca-text-sm);
+    font-weight: var(--mca-weight-semibold);
+}
+
+html[data-design-system="mca-v1"] .mca-input {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--mca-control-height);
+    padding: var(--mca-space-3);
+    border: 1px solid var(--mca-color-border-control);
+    border-radius: var(--mca-radius-control);
+    color: var(--mca-color-text);
+    background: var(--mca-color-surface);
+    font: inherit;
+    transition: border-color var(--mca-duration-fast) var(--mca-easing);
+}
+
+html[data-design-system="mca-v1"] .mca-input::placeholder {
+    color: var(--mca-color-text-subtle);
+    opacity: 1;
+}
+
+html[data-design-system="mca-v1"] .mca-input:hover {
+    border-color: var(--mca-color-border-hover);
+}
+
+html[data-design-system="mca-v1"] .mca-input:focus {
+    border-color: var(--mca-color-focus);
+    outline: var(--mca-focus-width) solid var(--mca-color-focus);
+    outline-offset: var(--mca-focus-offset);
+}
+
+html[data-design-system="mca-v1"] .mca-input[aria-invalid="true"] {
+    border-color: var(--mca-color-danger-text);
+}
+
+html[data-design-system="mca-v1"] .mca-input:user-invalid {
+    border-color: var(--mca-color-danger-text);
+}
+
+html[data-design-system="mca-v1"] .mca-field-error {
+    margin: 0;
+    color: var(--mca-color-danger-text);
+    font-size: var(--mca-text-sm);
+    overflow-wrap: anywhere;
+}
+
+html[data-design-system="mca-v1"] .mca-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mca-space-2);
+    min-width: 0;
+    min-height: var(--mca-control-height);
+    padding: var(--mca-space-3) var(--mca-space-6);
+    border: 1px solid transparent;
+    border-radius: var(--mca-radius-control);
+    font: inherit;
+    font-size: var(--mca-text-sm);
+    font-weight: var(--mca-weight-semibold);
+    line-height: var(--mca-leading-ui);
+    text-align: center;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    transition: background-color var(--mca-duration-fast) var(--mca-easing), border-color var(--mca-duration-fast) var(--mca-easing);
+}
+
+html[data-design-system="mca-v1"] .mca-button--primary {
+    color: var(--mca-color-on-action);
+    border-color: var(--mca-color-action);
+    background: var(--mca-color-action);
+}
+
+html[data-design-system="mca-v1"] .mca-button--primary:hover {
+    border-color: var(--mca-color-action-hover);
+    background: var(--mca-color-action-hover);
+}
+
+html[data-design-system="mca-v1"] .mca-button--primary:active {
+    border-color: var(--mca-color-action-active);
+    background: var(--mca-color-action-active);
+}
+
+html[data-design-system="mca-v1"] .mca-button:disabled {
+    color: var(--mca-color-disabled-text);
+    border-color: var(--mca-color-disabled-border);
+    background: var(--mca-color-disabled-bg);
+    cursor: wait;
+}
+
+html[data-design-system="mca-v1"] .mca-alert {
+    padding: var(--mca-space-3) var(--mca-space-4);
+    border: 1px solid var(--mca-color-border);
+    border-radius: var(--mca-radius-control);
+    font-size: var(--mca-text-sm);
+    line-height: var(--mca-leading-ui);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+html[data-design-system="mca-v1"] .mca-alert.is-error {
+    color: var(--mca-color-danger-text);
+    border-color: var(--mca-color-danger-border);
+    background: var(--mca-color-danger-bg);
+}
+
+html[data-design-system="mca-v1"] .mca-alert.is-success {
+    color: var(--mca-color-success-text);
+    border-color: var(--mca-color-success-border);
+    background: var(--mca-color-success-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html[data-design-system="mca-v1"] :is(.mca-input, .mca-button) {
+        transition: none;
+    }
+}

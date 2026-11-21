@@ -1,11 +1,8 @@
-const form = document.querySelector("#register-form");
-const message = document.querySelector("#form-message");
-const button = form.querySelector('button[type="submit"]');
+import { setupAuthForm } from './auth-form.js';
 
-function showMessage(text, type) {
-    message.textContent = text;
-    message.className = `message is-visible is-${type}`;
-}
+const form = document.querySelector("#register-form");
+const button = form.querySelector('button[type="submit"]');
+const { clearErrors, showMessage, setSubmitting } = setupAuthForm(form);
 
 const FIELD_LABELS = {
     email: "email",
@@ -55,13 +52,17 @@ function getErrorText(detail) {
 
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (button.disabled) return;
+    clearErrors();
 
     if (form.password.value !== form.password_confirm.value) {
-        showMessage("Пароли не совпадают.", "error");
+        showMessage("Пароли не совпадают.", "error", [
+            { name: "password_confirm", text: "Пароли не совпадают." }
+        ]);
         return;
     }
 
-    button.disabled = true;
+    setSubmitting(true, "Создание аккаунта…");
 
     const payload = {
         first_name: form.first_name.value.trim(),
@@ -81,7 +82,11 @@ form.addEventListener("submit", async (event) => {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(getErrorText(data.detail));
+            const errors = Array.isArray(data.detail) ? data.detail.map((error) => ({
+                name: error.loc?.at(-1), text: getValidationErrorText(error)
+            })) : [];
+            showMessage(getErrorText(data.detail), "error", errors);
+            return;
         }
 
         localStorage.setItem("musa_code_academy_token", data.token.access_token);
@@ -93,6 +98,6 @@ form.addEventListener("submit", async (event) => {
     } catch (error) {
         showMessage(error.message, "error");
     } finally {
-        button.disabled = false;
+        setSubmitting(false);
     }
 });

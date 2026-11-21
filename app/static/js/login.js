@@ -1,8 +1,9 @@
 import { safeNextUrl } from './safe-next.js';
+import { setupAuthForm } from './auth-form.js';
 
 const form = document.querySelector("#login-form");
-const message = document.querySelector("#form-message");
 const button = form.querySelector('button[type="submit"]');
+const { clearErrors, showMessage, setSubmitting } = setupAuthForm(form);
 const TOKEN_KEY = "musa_code_academy_token";
 
 async function redirectAuthenticatedUser() {
@@ -33,11 +34,6 @@ async function redirectAuthenticatedUser() {
     }
 
     document.documentElement.classList.remove("is-auth-checking");
-}
-
-function showMessage(text, type) {
-    message.textContent = text;
-    message.className = `message is-visible is-${type}`;
 }
 
 const FIELD_LABELS = {
@@ -78,7 +74,9 @@ function getErrorText(detail) {
 
 form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    button.disabled = true;
+    if (button.disabled) return;
+    clearErrors();
+    setSubmitting(true, "Вход…");
 
     try {
         const response = await fetch(form.action, {
@@ -88,7 +86,11 @@ form.addEventListener("submit", async (event) => {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(getErrorText(data.detail));
+            const errors = Array.isArray(data.detail) ? data.detail.map((error) => ({
+                name: error.loc?.at(-1), text: getValidationErrorText(error)
+            })) : [];
+            showMessage(getErrorText(data.detail), "error", errors);
+            return;
         }
 
         localStorage.setItem(TOKEN_KEY, data.access_token);
@@ -98,7 +100,7 @@ form.addEventListener("submit", async (event) => {
     } catch (error) {
         showMessage(error.message, "error");
     } finally {
-        button.disabled = false;
+        setSubmitting(false);
     }
 });
 

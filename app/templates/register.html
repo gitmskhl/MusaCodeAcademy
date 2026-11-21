@@ -1,36 +1,43 @@
 {% extends "auth_base.html" %}
+{% from "components/auth_icons.html" import auth_icon %}
 {% block title %}Регистрация{% endblock %}
-{% block scripts %}<script defer src="{{ url_for('static', path='js/register.js') }}"></script>{% endblock %}
-{% block story_title %}Большие идеи<br>начинаются<br><span class="highlight">с первого шага.</span>{% endblock %}
-{% block story_description %}Не нужно знать всё, чтобы начать.<br>Разбирайся, пробуй и замечай, как растут твои навыки.{% endblock %}
+{% block scripts %}<script type="module" src="{{ url_for('static', path='js/register.js') }}"></script>{% endblock %}
 {% block form_content %}
-<p class="eyebrow panel-eyebrow">ДАВАЙ НАЧНЁМ</p>
-<h1 id="auth-title">Здесь начинается<br>твой путь в код.</h1>
-<p class="lead">Создай аккаунт — и сделай первый шаг<br class="wide-break"> в программировании.</p>
-<div class="message" id="form-message" role="status" aria-live="polite"></div>
+<h1 id="auth-title">Создать аккаунт</h1>
+<div class="message mca-alert" id="form-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="-1"></div>
 
 <form class="form" id="register-form" action="/api/auth/register" method="post">
     <div class="field-group">
-        <div class="field">
+        <div class="field mca-field">
             <label for="first_name">Имя</label>
-            <input id="first_name" type="text" name="first_name" placeholder="Имя" autocomplete="given-name" minlength="2" maxlength="20" required>
+            <div class="input-field">
+                {{ auth_icon('user') }}
+                <input class="mca-input" id="first_name" type="text" name="first_name" placeholder="Имя" autocomplete="given-name" minlength="2" maxlength="20" required>
+            </div>
         </div>
 
-        <div class="field">
+        <div class="field mca-field">
             <label for="last_name">Фамилия</label>
-            <input id="last_name" type="text" name="last_name" placeholder="Фамилия" autocomplete="family-name" minlength="2" maxlength="20" required>
+            <div class="input-field">
+                {{ auth_icon('user') }}
+                <input class="mca-input" id="last_name" type="text" name="last_name" placeholder="Фамилия" autocomplete="family-name" minlength="2" maxlength="20" required>
+            </div>
         </div>
     </div>
 
-    <div class="field">
+    <div class="field mca-field">
         <label for="email">Email</label>
-        <input id="email" type="email" name="email" placeholder="you@example.com" autocapitalize="none" spellcheck="false" autocomplete="email" required>
+        <div class="input-field">
+            {{ auth_icon('email') }}
+            <input class="mca-input" id="email" type="email" name="email" placeholder="Введите email" autocapitalize="none" spellcheck="false" autocomplete="email" required>
+        </div>
     </div>
 
-    <div class="field">
+    <div class="field mca-field">
         <label for="password">Пароль</label>
         <div class="password-field">
-            <input id="password" type="password" name="password" placeholder="Придумай пароль" autocomplete="new-password" aria-describedby="password-hint" minlength="8" required>
+            {{ auth_icon('lock') }}
+            <input class="mca-input" id="password" type="password" name="password" placeholder="Не меньше 8 символов" autocomplete="new-password" aria-describedby="password-hint" minlength="8" required>
             <button class="password-toggle" type="button" aria-label="Показать пароль" aria-controls="password" aria-pressed="false" data-password-toggle>
                 <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
@@ -42,10 +49,11 @@
         <p class="field-hint" id="password-hint">Не меньше 8 символов. Можно использовать фразу.</p>
     </div>
 
-    <div class="field">
-        <label for="password_confirm">Повтори пароль</label>
+    <div class="field mca-field">
+        <label for="password_confirm">Повторите пароль</label>
         <div class="password-field">
-            <input id="password_confirm" type="password" name="password_confirm" placeholder="Ещё раз, чтобы не ошибиться" autocomplete="new-password" minlength="8" required>
+            {{ auth_icon('lock') }}
+            <input class="mca-input" id="password_confirm" type="password" name="password_confirm" placeholder="Введите пароль ещё раз" autocomplete="new-password" minlength="8" required>
             <button class="password-toggle" type="button" aria-label="Показать повтор пароля" aria-controls="password_confirm" aria-pressed="false" data-password-toggle>
                 <svg class="password-toggle__eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
@@ -56,11 +64,11 @@
         </div>
     </div>
 
-    <button type="submit">Создать аккаунт <span aria-hidden="true">↗</span></button>
+    <button class="mca-button mca-button--primary" type="submit">Зарегистрироваться</button>
 </form>
 
 <p class="switch-link">
     Уже есть аккаунт?
-    <a href="/login">Войти</a>
+    <a href="/login{% if request.query_params.get('next') %}?next={{ request.query_params.get('next') | urlencode }}{% endif %}">Войти</a>
 </p>
 {% endblock %}
