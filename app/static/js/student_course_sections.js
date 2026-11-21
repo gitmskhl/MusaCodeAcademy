@@ -115,7 +115,10 @@ const createSectionCard = (section, index, courseSlug) => {
     const lessons = Array.isArray(section.lessons) ? section.lessons : [];
     const progress = section.progress ?? {};
     const percent = Number(progress.percent) || 0;
-    const link = document.createElement('a');
+    const card = document.createElement('details');
+    const summary = document.createElement('summary');
+    const chevron = document.createElement('span');
+    const body = document.createElement('div');
     const meta = document.createElement('p');
     const title = document.createElement('h2');
     const description = document.createElement('p');
@@ -125,9 +128,13 @@ const createSectionCard = (section, index, courseSlug) => {
     const progressBar = document.createElement('span');
     const progressPercent = document.createElement('strong');
     const progressCount = document.createElement('span');
-    const footer = document.createElement('span');
+    const link = document.createElement('a');
 
-    link.className = 'course-section-card';
+    card.className = 'course-section-card';
+    summary.className = 'course-section-card__summary';
+    chevron.className = 'course-section-card__chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    body.className = 'course-section-card__body';
     link.href =
         `/${encodeURIComponent(courseSlug)}/sections/` +
         `${encodeURIComponent(section.id)}/lessons`;
@@ -136,6 +143,7 @@ const createSectionCard = (section, index, courseSlug) => {
     meta.textContent = `${messages.section} ${index + 1} - ${getLessonCountLabel(lessons.length)}`;
 
     title.textContent = section.title;
+    summary.append(title, chevron);
 
     description.className = 'course-section-card__description';
     description.textContent = section.description || messages.emptyDescription;
@@ -153,17 +161,18 @@ const createSectionCard = (section, index, courseSlug) => {
     progressHeader.append(progressPercent, progressCount);
     progressWrap.append(progressHeader, progressTrack);
 
-    footer.className = 'course-section-card__action';
-    footer.textContent = messages.openSection;
+    link.className = 'course-section-card__action';
+    link.textContent = messages.openSection;
 
-    link.append(meta, title, description, progressWrap);
+    body.append(meta, description, progressWrap);
 
     if (lessons.length > 0) {
-        link.append(createLessonPreview(lessons));
+        body.append(createLessonPreview(lessons));
     }
 
-    link.append(footer);
-    return link;
+    body.append(link);
+    card.append(summary, body);
+    return card;
 };
 
 const renderProgress = (sections) => {

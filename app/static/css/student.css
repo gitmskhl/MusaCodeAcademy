@@ -129,16 +129,25 @@ body.student-app { display: flex; flex-direction: column; min-height: 100svh; ma
 .course-progress-summary { flex-wrap: wrap; gap: 16px; font-size: 14px; font-weight: 500; }
 .course-progress-summary__track { height: 8px; background: var(--mca-color-surface-muted); }
 .course-progress-summary__track span { background: var(--accent); }
-.course-section-card { padding: 22px; border-radius: 13px; box-shadow: none; }
+.student-app .course-section-card { display: block; padding: 0; border-radius: 13px; box-shadow: none; }
 .course-section-card:hover { transform: none; box-shadow: none; border-color: var(--border-strong); }
-.course-section-card h2 { font-size: 20px; font-weight: 650; letter-spacing: -.5px; }
+.course-section-card__summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; padding: 16px 20px; border-radius: 12px; list-style: none; cursor: pointer; }
+.course-section-card__summary::-webkit-details-marker { display: none; }
+.course-section-card__summary:hover { background: var(--mca-color-surface-hover); }
+.student-app .course-section-card__summary:focus-visible { outline: 3px solid var(--mca-color-focus); outline-offset: -3px; }
+.student-app .course-section-card h2 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -.2px; line-height: 1.4; }
+.course-section-card__chevron { flex-shrink: 0; width: 8px; height: 8px; margin: 0 3px 4px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); }
+.course-section-card[open] > .course-section-card__summary { border-radius: 12px 12px 0 0; }
+.course-section-card[open] > .course-section-card__summary .course-section-card__chevron { margin-bottom: 0; transform: rotate(225deg); }
+.course-section-card__body { display: grid; gap: 12px; padding: 16px 20px 20px; border-top: 1px solid var(--border); }
 .course-section-card__meta { color: var(--mca-color-text-subtle); font-size: 12px; }
 .course-section-card__description { font-size: 14px; line-height: 1.6; }
 .course-section-card__progress-header { font-size: 14px; font-weight: 500; }
 .course-section-card__progress-header strong { color: var(--accent); }
 .course-section-card__progress-track { height: 6px; background: var(--mca-color-surface-muted); }
 .course-section-card__progress-track span { background: var(--accent); }
-.course-section-card__action { color: var(--accent); font-size: 14px; font-weight: 600; }
+.course-section-card__action { display: inline-flex; align-items: center; min-height: 40px; color: var(--accent); font-size: 14px; font-weight: 600; }
+.course-section-card__action:hover { text-decoration: underline; text-underline-offset: 3px; }
 .section-hero { padding: 24px; gap: 16px; border-radius: 13px; background: var(--surface); box-shadow: none; }
 .section-hero__eyebrow { color: var(--mca-color-text-subtle); font-size: 12px; letter-spacing: .05em; }
 .section-hero h1 { font-size: clamp(26px, 2.6vw, 32px); font-weight: 700; letter-spacing: -.6px; line-height: 1.25; }
@@ -224,7 +233,9 @@ body.student-app { display: flex; flex-direction: column; min-height: 100svh; ma
     .app-footer > a:last-child { font-size: 12px; }
     .courses-grid { grid-template-columns: 1fr; gap: 16px; }
     .courses-card__visual { height: 120px; }
-    .course-card, .course-section-card, .section-hero { padding: 20px; }
+    .course-card, .section-hero { padding: 20px; }
+    .course-section-card__summary { min-height: 56px; padding: 14px 16px; }
+    .course-section-card__body { padding: 14px 16px 16px; }
     .course-hero { padding-block: 20px 24px; }
     .course-hero > p { font-size: 14px; }
     .course-facts { grid-template-columns: 1fr; }
@@ -324,6 +335,7 @@ body.student-app { display: flex; flex-direction: column; min-height: 100svh; ma
 }
 @media (max-width: 640px) {
     /* Smaller typography still keeps comfortable targets and prevents input zoom. */
+    .course-section-card__action { min-height: 44px; }
     .student-app :is(.student-secondary-link, .catalog-filters button, .courses-card__link, .primary-action, .course-card__button, .course-enroll-button, .empty-state__browse, .course-unenroll-button, .notification-pager button, .homework-open, .unenroll-dialog button, .step-drawer-toggle, .step-drawer__close, .step-viewer__complete-button, .step-viewer__navigation-button, .task-viewer__submit, .browser-code__run, .browser-code__stop, .task-ai-hint__button) { min-height: 44px; }
     .student-app :is(.notification-bell__button, .step-drawer__close, .course-video-dialog__close) { width: 44px; height: 44px; }
     .student-app :is(input, select, textarea) { font-size: 16px; }
