@@ -74,10 +74,20 @@ async def test_home_handles_empty_catalog_without_placeholder_courses(home_clien
     assert 'class="course-card"' not in response.text
 
 
-async def test_redesign_stays_on_home_and_course_api_remains_protected(home_client):
-    for path in ('/courses', '/login', '/register', '/dashboard', '/course-3'):
+async def test_student_pages_share_design_and_course_api_remains_protected(home_client):
+    for path in (
+        '/courses', '/login', '/register', '/dashboard', '/course-3',
+        '/course-3/sections', '/course-3/sections/1/lessons', '/course-3/steps/1',
+        '/notifications', '/homework', '/forgot-password', '/reset-password?token=test',
+    ):
         response = await home_client.get(path)
         assert response.status_code == 200
         assert 'css/home.css' not in response.text
-        assert 'images/home-mark.svg' not in response.text
+        assert 'data-design-system="mca-v1"' in response.text
+        assert 'images/home-mark.svg' in response.text
+    for path in ('/admin', '/admin/notifications', '/admin/steps/1', '/admin/steps/1/task'):
+        response = await home_client.get(path)
+        assert response.status_code == 200
+        assert 'css/student.css' not in response.text
+        assert 'data-design-system="mca-v1"' not in response.text
     assert (await home_client.get('/api/courses')).status_code == 401
