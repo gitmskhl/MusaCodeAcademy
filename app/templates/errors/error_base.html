@@ -1,3 +1,4 @@
+{% from "components/brand_mark.html" import brand_mark with context %}
 <!DOCTYPE html>
 <html lang="ru" data-design-system="mca-v1" data-theme="light">
 <head>
@@ -6,11 +7,13 @@
     {% include "components/student_head.html" %}
     <title>{{ self.code() }} | Musa Code Academy</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/errors.css') }}">
+    {% include "components/theme_styles.html" %}
 </head>
 <body class="mca-error">
-    <a class="error-brand" href="/" aria-label="Musa Code Academy — главная"><img src="{{ url_for('static', path='images/home-mark.svg') }}" width="34" height="34" alt=""><span>Musa Code Academy</span></a>
+    <a class="error-brand" href="/" aria-label="Musa Code Academy — главная">{{ brand_mark(34) }}<span>Musa Code Academy</span></a>
     <main class="error-page" aria-labelledby="error-title">
         <section class="error-card" data-error-code="{{ self.code() }}">
+            {% include "components/theme_picker.html" %}
             <div class="icon-wrap" aria-hidden="true">{% block icon %}{% endblock %}</div>
             <p class="error-code">{% block code %}{% endblock %}</p>
             <h1 class="error-title" id="error-title">{% block heading %}{% endblock %}</h1>

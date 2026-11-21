@@ -1,0 +1,6 @@
+{% macro brand_mark(size=34, class_name='') -%}
+<span class="mca-brand-mark {{ class_name }}" style="--brand-mark-size: {{ size }}px" aria-hidden="true">
+    <img class="mca-brand-mark__light" src="{{ url_for('static', path='images/mca-logo-light.png') }}" width="{{ size }}" height="{{ size }}" alt="">
+    <img class="mca-brand-mark__dark" src="{{ url_for('static', path='images/mca-logo-dark.png') }}" width="{{ size }}" height="{{ size }}" alt="">
+</span>
+{%- endmacro %}

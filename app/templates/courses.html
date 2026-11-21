@@ -10,6 +10,7 @@
     <script type="module" src="{{ url_for('static', path='js/app-header.js') }}"></script>
     <script type="module" src="{{ url_for('static', path='js/courses.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', path='css/student.css') }}">
+    {% include "components/theme_styles.html" %}
 </head>
 <body class="student-app">
     {% include "components/app_header.html" %}

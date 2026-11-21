@@ -1,3 +1,4 @@
+{% from "components/brand_mark.html" import brand_mark with context %}
 {% macro icon(name, size=24) -%}
 <svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     {% if name == 'arrow' %}<path d="M4 12h16m-6-6 6 6-6 6"/>
@@ -12,21 +13,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include "components/theme_head.html" %}
     <meta name="description" content="Изучай Python в Musa Code Academy: понятные уроки, задачи с автоматической проверкой и практика прямо в браузере.">
-    <meta name="theme-color" content="#fcfdff">
     <title>Musa Code Academy — учись программировать на практике</title>
-    <link rel="icon" href="{{ url_for('static', path='images/home-mark.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', path='css/notifications.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/home.css') }}">
     <script type="module" src="{{ url_for('static', path='js/home.js') }}"></script>
     <script type="module" src="{{ url_for('static', path='js/notification-bell.js') }}"></script>
+    {% include "components/theme_styles.html" %}
 </head>
 <body class="mca-home">
     <a class="skip-link" href="#main">Перейти к содержимому</a>
     <header class="site-header">
         <div class="container header-inner">
             <a class="brand" href="/" aria-label="Musa Code Academy — главная">
-                <img src="{{ url_for('static', path='images/home-mark.svg') }}" width="34" height="34" alt="">
+                {{ brand_mark(34) }}
                 <span>Musa Code Academy</span>
             </a>
             <nav class="main-nav" aria-label="Основная навигация">
@@ -35,6 +36,7 @@
                 <a href="#about">О платформе</a>
             </nav>
             <div class="header-actions">
+                {% include "components/theme_picker.html" %}
                 {% include 'components/notification_bell.html' %}
                 <a class="button button-secondary button-small" href="/login" data-home-guest>Войти</a>
                 <a class="button button-small" href="/register" data-home-start>Начать обучение</a>
@@ -122,7 +124,7 @@
     </main>
 
     <footer class="site-footer"><div class="container footer-inner">
-        <a class="brand" href="/"><img src="{{ url_for('static', path='images/home-mark.svg') }}" width="28" height="28" alt=""><span>Musa Code Academy</span></a>
+        <a class="brand" href="/">{{ brand_mark(28) }}<span>Musa Code Academy</span></a>
         <nav aria-label="Навигация в подвале"><a href="/courses">Курсы</a><a href="#learning">Как учиться</a><a href="#about">О платформе</a></nav>
         <a class="account-link" href="/login" data-home-account>Войти</a>
     </div></footer>

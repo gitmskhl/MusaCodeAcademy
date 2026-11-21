@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include "components/theme_head.html" %}
     <title>Редактировать курс</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}?v=course-icons-1">
     <script type="module" src="{{ url_for('static', path='js/edit_course.js') }}?v=course-icons-1"></script>
+    {% include "components/theme_styles.html" %}
 </head>
 <body>
     <div class="admin-page">
@@ -14,6 +16,7 @@
 
         <main class="admin-shell admin-shell--narrow" data-admin-content hidden data-course-id="{{ course_id }}">
             <header class="admin-header admin-header--stacked">
+                {% include "components/theme_picker.html" %}
                 <a class="back-link" href="/admin">&larr; Назад</a>
                 <h1>Редактировать курс</h1>
             </header>

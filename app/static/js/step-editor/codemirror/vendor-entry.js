@@ -10,3 +10,5 @@ export { cpp } from '@codemirror/lang-cpp';
 export { python } from '@codemirror/lang-python';
 export { Compartment, EditorState } from '@codemirror/state';
 export { keymap, placeholder } from '@codemirror/view';
+export { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+export { tags } from '@lezer/highlight';

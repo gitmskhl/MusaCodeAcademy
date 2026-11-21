@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include "components/theme_head.html" %}
     <title>Курс {{ course_id }}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/admin.css') }}">
+    {% include "components/theme_styles.html" %}
 </head>
 <body>
     <div class="admin-page">
         <main class="admin-shell admin-shell--narrow">
             <header class="admin-header admin-header--stacked">
+                {% include "components/theme_picker.html" %}
                 <a class="back-link" href="/admin">&larr; Назад</a>
                 <h1>Карточка курса</h1>
             </header>

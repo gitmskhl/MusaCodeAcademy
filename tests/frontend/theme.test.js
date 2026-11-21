@@ -8,15 +8,23 @@ const storageKey = 'musa_code_academy_theme';
 
 const setup = ({ saved = null, dark = false, unavailable = false } = {}) => {
     const listeners = { document: new Map(), window: new Map(), system: new Map() };
-    const picker = { value: 'system', matches: (selector) => selector === '[data-theme-picker]' };
+    const picker = {
+        attributes: new Map(),
+        setAttribute(name, value) { this.attributes.set(name, value); },
+        closest: (selector) => selector === '[data-theme-picker]' ? picker : null,
+    };
     const themeMeta = { content: '#f7f8f2' };
     const schemeMeta = { content: 'light' };
+    const icon = { href: '/static/images/mca-icon-light.png', dataset: {
+        lightHref: '/static/images/mca-icon-light.png', darkHref: '/static/images/mca-icon-dark.png',
+    } };
     const document = {
         documentElement: { dataset: {} },
         querySelectorAll: (selector) => ({
             '[data-theme-picker]': [picker],
             'meta[name="theme-color"]': [themeMeta],
             'meta[name="color-scheme"]': [schemeMeta],
+            '[data-theme-icon]': [icon],
         })[selector] ?? [],
         addEventListener: (type, listener) => listeners.document.set(type, listener),
     };
@@ -37,10 +45,10 @@ const setup = ({ saved = null, dark = false, unavailable = false } = {}) => {
         },
     });
     return {
-        document, picker, storage, themeMeta, schemeMeta, events,
+        document, picker, storage, themeMeta, schemeMeta, icon, events,
         theme: () => document.documentElement.dataset.theme,
         ready: () => listeners.document.get('DOMContentLoaded')(),
-        select(value) { picker.value = value; listeners.document.get('change')({ target: picker }); },
+        click(target = picker) { listeners.document.get('click')({ target }); },
         systemChange(dark) { system.matches = dark; listeners.system.get('change')(); },
         storageChange(value, key = storageKey) { listeners.window.get('storage')({ key, newValue: value }); },
     };
@@ -49,36 +57,36 @@ const setup = ({ saved = null, dark = false, unavailable = false } = {}) => {
 test('applies the saved theme before DOMContentLoaded, even when the system differs', () => {
     const page = setup({ saved: 'dark' });
     assert.equal(page.theme(), 'dark');
-    assert.equal(page.themeMeta.content, '#171c16');
+    assert.equal(page.themeMeta.content, '#151923');
     assert.equal(page.schemeMeta.content, 'dark');
     page.ready();
-    assert.equal(page.picker.value, 'dark');
+    assert.equal(page.picker.attributes.get('aria-label'), 'Включить светлую тему');
 });
 
-test('follows live system changes until an explicit theme is selected', () => {
+test('follows the system until a click selects the opposite theme', () => {
     const page = setup({ dark: true });
     assert.equal(page.theme(), 'dark');
-    assert.equal(page.picker.value, 'system');
+    assert.equal(page.picker.attributes.get('aria-label'), 'Включить светлую тему');
     page.systemChange(false);
     assert.equal(page.theme(), 'light');
-    page.select('dark');
+    page.click();
     page.systemChange(false);
     assert.equal(page.theme(), 'dark');
     assert.equal(page.storage.get(storageKey), 'dark');
-    page.select('system');
+    page.storageChange(null);
     assert.equal(page.theme(), 'light');
     page.systemChange(true);
     assert.equal(page.theme(), 'dark');
 });
 
-test('notifies mounted editors and synchronizes the selector', () => {
+test('clicking the SVG notifies mounted editors and updates the accessible button label', () => {
     const page = setup();
-    page.select('dark');
+    page.click({ closest: () => page.picker });
     const event = page.events.at(-1);
     assert.equal(event.type, 'academy:theme-change');
     assert.equal(event.detail.theme, 'dark');
     assert.equal(event.detail.preference, 'dark');
-    assert.equal(page.picker.value, 'dark');
+    assert.equal(page.picker.attributes.get('aria-label'), 'Включить светлую тему');
 });
 
 test('synchronizes changes from another tab, including removing the saved preference', () => {
@@ -88,10 +96,10 @@ test('synchronizes changes from another tab, including removing the saved prefer
     page.storageChange('light', 'unrelated');
     assert.equal(page.theme(), 'dark');
     page.storageChange(null);
-    assert.equal(page.picker.value, 'system');
+    assert.equal(page.picker.attributes.get('aria-label'), 'Включить светлую тему');
     page.systemChange(false);
     assert.equal(page.theme(), 'light');
-    page.select('dark');
+    page.click();
     page.storageChange(null, null);
     assert.equal(page.theme(), 'light');
 });
@@ -99,13 +107,29 @@ test('synchronizes changes from another tab, including removing the saved prefer
 test('falls back to the system for invalid preferences', () => {
     const page = setup({ saved: 'unknown', dark: true });
     assert.equal(page.theme(), 'dark');
-    assert.equal(page.picker.value, 'system');
+    assert.equal(page.picker.attributes.get('aria-label'), 'Включить светлую тему');
 });
 
 test('supports switching themes when browser storage is blocked', () => {
     const page = setup({ unavailable: true });
-    page.select('dark');
+    page.click();
     assert.equal(page.theme(), 'dark');
-    page.select('light');
+    page.click();
     assert.equal(page.theme(), 'light');
+    assert.equal(page.picker.attributes.get('aria-label'), 'Включить тёмную тему');
+    assert.equal(page.picker.title, 'Включить тёмную тему');
+});
+
+test('switches the favicon and browser color with the selected and system themes', () => {
+    const page = setup();
+    assert.equal(page.icon.href, '/static/images/mca-icon-light.png');
+    assert.equal(page.themeMeta.content, '#fcfdff');
+    page.click();
+    assert.equal(page.icon.href, '/static/images/mca-icon-dark.png');
+    assert.equal(page.themeMeta.content, '#151923');
+    page.click();
+    assert.equal(page.icon.href, '/static/images/mca-icon-light.png');
+    page.storageChange(null);
+    page.systemChange(true);
+    assert.equal(page.icon.href, '/static/images/mca-icon-dark.png');
 });

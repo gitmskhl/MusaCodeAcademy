@@ -84,10 +84,38 @@ async def test_student_pages_share_design_and_course_api_remains_protected(home_
         assert response.status_code == 200
         assert 'css/home.css' not in response.text
         assert 'data-design-system="mca-v1"' in response.text
-        assert 'images/home-mark.svg' in response.text
+        assert 'images/mca-logo-light.png' in response.text
+        assert 'images/mca-logo-dark.png' in response.text
+        assert 'data-theme-picker' in response.text
+        assert 'js/theme.js' in response.text
     for path in ('/admin', '/admin/notifications', '/admin/steps/1', '/admin/steps/1/task'):
         response = await home_client.get(path)
         assert response.status_code == 200
         assert 'css/student.css' not in response.text
         assert 'data-design-system="mca-v1"' not in response.text
+        assert 'data-theme-picker' in response.text
+        assert 'js/theme.js' in response.text
     assert (await home_client.get('/api/courses')).status_code == 401
+
+
+async def test_theme_is_available_on_public_student_and_author_pages(home_client):
+    for path in (
+        '/', '/login', '/forgot-password', '/dashboard', '/admin',
+        '/admin/courses/create', '/admin/courses/1/edit', '/admin/courses/1',
+        '/admin/lessons/1', '/admin/steps/1', '/admin/steps/1/task',
+        '/admin/notifications', '/admin/users', '/not-a-course',
+    ):
+        html = (await home_client.get(path)).text
+        head = html.split('</head>')[0]
+        assert html.count('data-theme-picker') == 1, path
+        assert head.count('js/theme.js') == 1, path
+        assert head.index('js/theme.js') < head.index('rel="stylesheet"'), path
+        assert head.count('name="theme-color"') == 1, path
+        assert 'images/mca-icon-light.png' in head, path
+        assert 'images/mca-icon-dark.png' in head, path
+        assert 'css/theme.css' in head, path
+
+    for asset in ('logo-light', 'logo-dark', 'icon-light', 'icon-dark'):
+        response = await home_client.get(f'/static/images/mca-{asset}.png')
+        assert response.status_code == 200
+        assert response.content.startswith(b'\x89PNG\r\n\x1a\n')

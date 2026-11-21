@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include "components/theme_head.html" %}
     <title>Редактор шага</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/step-editor.css') }}">
     <script
         type="module"
         src="{{ url_for('static', path='js/step-editor/step-editor.js') }}"
     ></script>
+    {% include "components/theme_styles.html" %}
 </head>
 <body>
     <main class="step-editor" data-step-editor data-step-id="{{ step_id }}">
@@ -23,6 +25,7 @@
             </div>
 
             <div class="editor-toolbar__actions">
+                {% include "components/theme_picker.html" %}
                 <p
                     class="step-save-status"
                     data-save-status

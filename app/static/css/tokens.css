@@ -1,5 +1,5 @@
-/* MCA v1 tokens from docs/design-system.md; opt-in per page. */
-html[data-design-system="mca-v1"] {
+/* Shared MCA palette; page layouts opt in to the design system separately. */
+:root {
     color-scheme: light;
     --mca-color-page: #fcfdff;
     --mca-color-surface: #ffffff;
@@ -101,7 +101,7 @@ html[data-design-system="mca-v1"] {
     --mca-z-skip: 100;
 }
 
-html[data-design-system="mca-v1"][data-theme="dark"] {
+:root[data-theme="dark"] {
     color-scheme: dark;
     --mca-color-page: #151923;
     --mca-color-surface: #1d2432;

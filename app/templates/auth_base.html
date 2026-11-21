@@ -1,27 +1,27 @@
+{% from "components/brand_mark.html" import brand_mark with context %}
 {% from "components/auth_icons.html" import auth_icon %}
 <!DOCTYPE html>
 <html lang="ru" data-design-system="mca-v1" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#edf3ff">
-    <meta name="color-scheme" content="light">
+    {% include "components/theme_head.html" %}
     <title>{% block title %}{% endblock %} | Musa Code Academy</title>
-    <link rel="icon" href="{{ url_for('static', path='images/home-mark.svg') }}" type="image/svg+xml">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/tokens.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/form-components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/password-toggle.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
     <script type="module" src="{{ url_for('static', path='js/password-toggle.js') }}"></script>
     {% block scripts %}{% endblock %}
+    {% include "components/theme_styles.html" %}
 </head>
 <body class="mca-auth">
     <a class="skip-link" href="#auth-form">Перейти к форме</a>
     <header class="auth-header">
         <a class="brand" href="/" aria-label="Musa Code Academy — главная">
-            <img class="brand-mark" src="{{ url_for('static', path='images/home-mark.svg') }}" width="34" height="34" alt="">
+            {{ brand_mark(34, 'brand-mark') }}
             <span>Musa Code Academy</span>
         </a>
+        {% include "components/theme_picker.html" %}
         <a class="back-link" href="/">{{ auth_icon('back') }} На главную</a>
     </header>
 

@@ -4,6 +4,7 @@ import {
     cpp,
     EditorState,
     EditorView,
+    HighlightStyle,
     indentWithTab,
     java,
     javascript,
@@ -12,6 +13,8 @@ import {
     python,
     selectLineDown,
     selectLineUp,
+    syntaxHighlighting,
+    tags,
 } from '../../../vendor/codemirror.esm.js';
 
 const languageExtensions = new Map([
@@ -30,7 +33,7 @@ const getLanguageExtension = (language) => {
     return languageSupport ? languageSupport() : [];
 };
 
-const lightTheme = EditorView.theme({
+const editorStyles = {
     '&': {
         color: '#25272d',
         backgroundColor: '#fcfcfd',
@@ -74,7 +77,37 @@ const lightTheme = EditorView.theme({
     '&:not(.cm-focused) > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': {
         backgroundColor: '#dce8f6',
     },
-});
+};
+
+const lightTheme = EditorView.theme(editorStyles);
+const darkTheme = EditorView.theme({
+    ...editorStyles,
+    '&': { color: '#edf2fc', backgroundColor: '#1d2432', fontSize: '14px' },
+    '.cm-content': { ...editorStyles['.cm-content'], caretColor: '#a8c6ff' },
+    '.cm-cursor, .cm-dropCursor': { ...editorStyles['.cm-cursor, .cm-dropCursor'], borderLeftColor: '#a8c6ff' },
+    '.cm-gutters': { color: '#a4b2cb', backgroundColor: '#232d40', borderRight: '1px solid #43516b' },
+    '.cm-activeLine': { backgroundColor: '#232d40', boxShadow: 'inset 3px 0 0 #789bd3' },
+    '.cm-activeLineGutter': { backgroundColor: '#293e63' },
+    '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': { backgroundColor: '#35568a' },
+    '&:not(.cm-focused) > .cm-scroller > .cm-selectionLayer .cm-selectionBackground': { backgroundColor: '#293e63' },
+    '.cm-selectionMatch': { backgroundColor: '#35568a' },
+    '.cm-matchingBracket': { color: '#a3e2b7', backgroundColor: '#1b3528' },
+    '.cm-panels, .cm-tooltip': { color: '#edf2fc', backgroundColor: '#232d40', borderColor: '#43516b' },
+    '.cm-searchMatch': { backgroundColor: '#5c4926' },
+    '.cm-searchMatch-selected': { backgroundColor: '#796133' },
+}, { dark: true });
+
+const darkHighlighting = syntaxHighlighting(HighlightStyle.define([
+    { tag: tags.keyword, color: '#c3a6ff' },
+    { tag: [tags.name, tags.propertyName], color: '#edf2fc' },
+    { tag: [tags.function(tags.variableName), tags.labelName], color: '#a8c6ff' },
+    { tag: [tags.number, tags.bool, tags.null], color: '#f0d08d' },
+    { tag: [tags.string, tags.regexp], color: '#a3e2b7' },
+    { tag: tags.comment, color: '#a4b2cb', fontStyle: 'italic' },
+    { tag: [tags.typeName, tags.className], color: '#90d6e8' },
+    { tag: [tags.operator, tags.punctuation], color: '#bdc8dc' },
+    { tag: tags.invalid, color: '#ffb8b3' },
+]));
 
 const desktopSelectionKeymap = [
     {
@@ -98,6 +131,10 @@ export const createCodeEditorView = ({
 }) => {
     const languageConfig = new Compartment();
     const editableConfig = new Compartment();
+    const themeConfig = new Compartment();
+    const themeWindow = parent.ownerDocument.defaultView;
+    const themeExtensions = () => parent.ownerDocument.documentElement.dataset.theme === 'dark'
+        ? [darkTheme, darkHighlighting] : lightTheme;
     let changeHandler = onChange;
     let isEditable = editable;
     let activeLanguage = language.trim().toLowerCase();
@@ -120,7 +157,7 @@ export const createCodeEditorView = ({
             placeholder('Напишите или вставьте код...'),
             languageConfig.of(getLanguageExtension(language)),
             editableConfig.of(editableExtensions(editable)),
-            lightTheme,
+            themeConfig.of(themeExtensions()),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged) {
                     changeHandler(update.state.doc.toString());
@@ -129,6 +166,8 @@ export const createCodeEditorView = ({
         ],
     });
     const view = new EditorView({ state, parent });
+    const updateTheme = () => view.dispatch({ effects: themeConfig.reconfigure(themeExtensions()) });
+    themeWindow.addEventListener('academy:theme-change', updateTheme);
 
     return {
         focus: () => view.focus(),
@@ -172,6 +211,9 @@ export const createCodeEditorView = ({
         setOnChange: (nextOnChange) => {
             changeHandler = nextOnChange;
         },
-        destroy: () => view.destroy(),
+        destroy: () => {
+            themeWindow.removeEventListener('academy:theme-change', updateTheme);
+            view.destroy();
+        },
     };
 };
