@@ -12,6 +12,9 @@
 .app-header__nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 12px; border-radius: 7px; color: var(--mca-color-text-muted); font-size: 14px; font-weight: 500; text-decoration: none; }
 .app-header__nav a:hover { color: var(--mca-color-link); background: var(--mca-color-surface-hover); }
 .app-header__nav a[aria-current="page"] { color: var(--mca-color-selected-text); background: var(--mca-color-selected-bg); }
+.app-header__nav a.app-header__admin { color: var(--mca-color-on-action); background: var(--mca-color-action); font-weight: 600; }
+.app-header__nav a.app-header__admin:hover { background: var(--mca-color-action-hover); }
+.app-header__nav a[hidden] { display: none; }
 .app-header__actions { display: flex; align-items: center; gap: 16px; }
 .app-header__profile { position: relative; }
 .app-header__profile-button { display: inline-grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid var(--mca-color-selected-border); border-radius: 50%; color: var(--mca-color-selected-text); background: var(--mca-color-selected-bg); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
@@ -39,7 +42,7 @@
     .app-header__brand-name { max-width: 145px; font-size: 14px; letter-spacing: -.4px; }
     .app-header__mark { width: 30px; height: 30px; }
     .app-header__actions { gap: 8px; }
-    .app-header__nav { gap: 4px; align-items: stretch; }
+    .app-header__nav { gap: 4px; align-items: stretch; flex-wrap: wrap; }
     .app-header__nav a { padding: 8px 5px; font-size: 14px; line-height: 1.35; text-align: center; }
 }
 @media (prefers-reduced-motion: reduce) { .app-header * { transition: none !important; } }

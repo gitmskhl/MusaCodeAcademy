@@ -2,6 +2,7 @@ import { createCodeEditorView } from './step-renderer/codemirror/code-editor-vie
 import { createAIAssistanceSettings } from './admin-ai-assistance.js';
 import { createDeleteUserButton, createEnrollmentAction, createEnrollmentForm } from './admin-user-actions.js';
 import { createHomeworkSection } from './admin-homework.js';
+import { createLatestHomeworkSection } from './admin-homework-progress.js';
 import { errorText } from './notifications.js';
 
 const TOKEN_KEY = 'musa_code_academy_token';
@@ -135,7 +136,7 @@ function submissionTable(items) {
     return table(['Отправка', 'Пользователь', 'Задача / курс', 'Результат', 'Тесты', 'Дата'], items.map(item => [
         link(`#${item.id}`, `/admin/submissions/${item.id}`),
         stacked(link(item.user_name, `/admin/users/${item.user_id}`), item.user_email),
-        stacked(link(item.step_title, `/admin/steps/${item.step_id}/task`), `${item.course_title} · ${item.lesson_title} · Задача #${item.task_id}`),
+        stacked(link(item.step_title, `/${encodeURIComponent(item.course_slug)}/steps/${item.step_id}?preview=1`), `${item.course_title} · ${item.lesson_title} · Задача #${item.task_id}`),
         statusBadge(item.status),
         `${item.passed_tests} / ${item.total_tests ?? '—'}`,
         date(item.submitted_at),
@@ -307,7 +308,10 @@ function renderUser(user, submissions, courseOptions) {
     attempts.append(link('Все отправки пользователя →', `/admin/submissions?user_id=${user.id}`, 'monitoring-link'));
     attempts.append(submissionTable(submissions.items));
     content.append(profile);
-    if (user.role === 'student') content.append(createHomeworkSection({ user, api }));
+    if (user.role === 'student') {
+        const homework = createLatestHomeworkSection({ user, api, submissionTable, pager });
+        content.append(homework.element, createHomeworkSection({ user, api, onChanged: homework.reload }));
+    }
     content.append(aiSection, courses, attempts);
 }
 function renderSubmission(item) {
@@ -317,7 +321,7 @@ function renderSubmission(item) {
         ['Результат', statusBadge(item.status)],
         ['AI-подсказка', item.ai_hint ? badge('Использована', true) : 'Не использована'],
         ...(item.ai_hint_model ? [['Модель AI', item.ai_hint_model]] : []),
-        ['Задача', link(`${item.step_title} (#${item.task_id})`, `/admin/steps/${item.step_id}/task`, 'monitoring-link')],
+        ['Задача', link(`${item.step_title} (#${item.task_id})`, `/${encodeURIComponent(item.course_slug)}/steps/${item.step_id}?preview=1`, 'monitoring-link')],
         ['Курс / урок', `${item.course_title} / ${item.lesson_title}`],
         ['Дата', date(item.submitted_at)], ['Пройдено тестов', `${item.passed_tests} / ${item.total_tests ?? '—'}`],
         ['ID первого непройденного теста', item.failed_test_id ?? '—'],

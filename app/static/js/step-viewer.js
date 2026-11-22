@@ -39,6 +39,7 @@ const format = (template, values) =>
     );
 
 const messages = getLocale();
+const adminPreview = new URLSearchParams(window.location.search).get('preview') === '1';
 
 class AccessDeniedError extends Error {
     constructor() {
@@ -171,7 +172,7 @@ const showDrawerMessage = (message, { error = false } = {}) => {
 
 const getStepUrl = (stepId) => {
     const courseSlug = elements.root.dataset.courseSlug.trim();
-    return `/${encodeURIComponent(courseSlug)}/steps/${encodeURIComponent(stepId)}`;
+    return `/${encodeURIComponent(courseSlug)}/steps/${encodeURIComponent(stepId)}${adminPreview ? '?preview=1' : ''}`;
 };
 
 const setLessonListLink = (sectionId) => {
@@ -248,7 +249,7 @@ const renderProgressState = () => {
 
     const isCompleted = getCompletedStepIds().has(state.currentStepId);
 
-    elements.completeToggle.hidden = state.hasTask;
+    elements.completeToggle.hidden = state.hasTask || adminPreview;
     elements.completeToggle.disabled = state.isProgressSaving;
     elements.completeToggle.classList.toggle('is-completed', isCompleted);
     elements.completeToggle.textContent = isCompleted ? 'Шаг пройден ✓' : 'Отметить шаг как пройденный';
@@ -259,8 +260,9 @@ const renderProgressState = () => {
         elements.lessonProgress.setAttribute('aria-valuenow', String(percent));
         elements.lessonProgressBar.style.width = `${percent}%`;
     } else {
-        elements.lessonProgressLabel.textContent = 'Прогресс временно недоступен';
+        elements.lessonProgressLabel.textContent = adminPreview ? 'Просмотр урока' : 'Прогресс временно недоступен';
     }
+    elements.lessonProgress.hidden = adminPreview;
 
     if (state.lesson) {
         renderDrawer(state.lesson, state.currentStepId);
@@ -499,7 +501,8 @@ const loadTask = async (stepId) => {
 
     try {
         const response = await authFetch(
-            `/api/steps/${encodeURIComponent(stepId)}/task`
+            adminPreview ? `/api/tasks/admin/by-step/${encodeURIComponent(stepId)}`
+                : `/api/steps/${encodeURIComponent(stepId)}/task`
         );
 
         if (response.status === 403) {
@@ -527,6 +530,7 @@ const loadTask = async (stepId) => {
         state.hasTask = true;
         renderTaskViewer(elements.taskViewer, await response.json(), {
             onAccepted: completeCurrentStep,
+            preview: adminPreview,
         });
     } catch {
         renderTaskError(
@@ -551,7 +555,7 @@ const loadStep = async () => {
         course_slug: courseSlug,
     });
     const response = await authFetch(
-        `/api/steps/${encodeURIComponent(stepId)}/viewer?${params}`
+        `/api/steps/${encodeURIComponent(stepId)}/viewer${adminPreview ? '/admin' : ''}?${params}`
     );
     if (response.status === 403) {
         throw new AccessDeniedError();
@@ -564,7 +568,7 @@ const loadStep = async () => {
     const { step, navigation, lesson } = viewer;
     state.currentStepId = step.id;
     state.lesson = lesson;
-    state.progress = await loadLessonProgress(lesson.id);
+    state.progress = adminPreview ? null : await loadLessonProgress(lesson.id);
     try {
         await loadImageSources(step.content);
     } catch {

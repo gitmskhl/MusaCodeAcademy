@@ -10,6 +10,7 @@
             <a href="/dashboard"{% if request.url.path == '/dashboard' or '/sections' in request.url.path or '/steps/' in request.url.path %} aria-current="page"{% endif %}>Моё обучение</a>
             <a href="/homework"{% if request.url.path == '/homework' %} aria-current="page"{% endif %}>Мои домашние задания</a>
             <a href="/courses"{% if request.url.path == '/courses' %} aria-current="page"{% endif %}>Все курсы</a>
+            <a class="app-header__admin" href="/admin" data-admin-link hidden>Админка</a>
         </nav>
         <div class="app-header__actions">
             {% include "components/theme_picker.html" %}

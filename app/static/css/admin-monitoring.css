@@ -56,6 +56,17 @@
 .monitoring-enrollment-form .field { flex: 1 1 280px; display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .monitoring-enrollment-form select { width: 100%; min-width: 0; }
 .monitoring-enrollment-form .field-error { flex-basis: 100%; margin: 0; }
+.homework-progress__content { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
+.homework-progress__content > .homework-open { justify-self: start; }
+.homework-progress__bar { display: block; width: 100%; height: 12px; accent-color: var(--success-text); }
+.homework-progress__steps { display: grid; gap: 8px; margin: 16px 0 24px; padding: 0; list-style: none; }
+.homework-progress__step { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; padding: 14px 16px; border: 1px solid var(--border); border-left: 5px solid var(--muted); border-radius: 8px; background: var(--surface-muted); }
+.homework-progress__step--solved, .homework-progress__step--completed { background: var(--success-bg); border-left-color: var(--success-text); }
+.homework-progress__step--attempted { background: var(--danger-bg); border-left-color: var(--danger-text); }
+.homework-progress__step--checking { background: var(--draft-bg); border-left-color: var(--draft-text); }
+.homework-progress__step-link { min-width: 0; overflow-wrap: anywhere; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.homework-progress__step-details { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 13px; }
+.homework-progress__state { font-weight: 600; }
 @media (max-width: 640px) {
     .monitoring-ai-model-row { grid-template-columns: minmax(0, 1fr); padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .monitoring-ai-model-row button { justify-self: start; }

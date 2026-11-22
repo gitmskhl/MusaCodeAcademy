@@ -1,5 +1,7 @@
 """Administrative user management and monitoring."""
 from datetime import UTC, datetime, time, timedelta
+import re
+from urllib.parse import quote, unquote, urlsplit
 
 from fastapi import HTTPException
 from sqlalchemy import case, delete, distinct, func, or_, select, union_all
@@ -7,10 +9,11 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import SubmissionStatus, UserRole
-from app.models import Course, CourseActivity, Enrollment, Lesson, Section, Step, StepProgress, Submission, Task, User
+from app.models import Course, CourseActivity, Enrollment, Homework, Lesson, Section, Step, StepProgress, Submission, Task, User
 from app.schemas.admin import AdminUser, UserBlockUpdate, UserAIAssistanceUpdate
 from app.core.config import settings
 from app.services.ai_hint import AI_USER_LOCK_NAMESPACE
+from app.services.notification import require_student
 
 
 def _latest_activity(*values: datetime | None) -> datetime | None:
@@ -256,6 +259,7 @@ def _submissions(*, detail=False):
         (User.first_name + " " + User.last_name).label("user_name"), User.email.label("user_email"),
         Submission.task_id, Step.id.label("step_id"), Step.title.label("step_title"),
         Lesson.title.label("lesson_title"), Course.id.label("course_id"), Course.title.label("course_title"),
+        Course.slug.label("course_slug"),
         Submission.status, Submission.submitted_at, Submission.passed_tests, Submission.total_tests,
     ]
     if detail:
@@ -291,3 +295,101 @@ async def get_submission(db: AsyncSession, submission_id: int):
     if row is None:
         raise HTTPException(404, "Отправка не найдена")
     return row
+
+
+def _homework_target(url: str):
+    """Recognize platform links without fetching any supplied URL."""
+    try:
+        parsed = urlsplit(url)
+        if parsed.netloc:
+            platform = urlsplit(settings.frontend_url)
+            if (parsed.hostname, parsed.port) != (platform.hostname, platform.port):
+                return None
+        path = unquote(parsed.path).rstrip("/")
+    except ValueError:
+        return None
+    match = re.fullmatch(r"/([^/]+)/(steps|lessons)/([0-9]+)(/steps)?", path)
+    if not match:
+        return None
+    slug, kind, record_id, suffix = match.groups()
+    if (kind == "steps" and suffix) or len(record_id) > 10 or not 0 < int(record_id) <= 2_147_483_647:
+        return None
+    return slug.lower(), kind, int(record_id)
+
+
+async def latest_homework_progress(db: AsyncSession, *, user_id: int, page: int, page_size: int):
+    await require_student(db, user_id)
+    homework = await db.scalar(select(Homework).where(Homework.user_id == user_id)
+                               .order_by(Homework.created_at.desc(), Homework.id.desc()).limit(1))
+    report = {
+        "homework": homework,
+        "submissions": {"items": [], "total": 0, "page": page, "page_size": page_size},
+    }
+    if homework is None:
+        return report
+    target = _homework_target(homework.url)
+    if target is None:
+        return {**report, "unavailable_reason": "Статистика доступна для ссылок на урок или степ этой платформы."}
+    slug, kind, record_id = target
+    query = (select(Lesson.id, Lesson.title, Course.slug, Course.title.label("course_title"))
+             .join(Section, Section.id == Lesson.section_id)
+             .join(Course, Course.id == Section.course_id).where(Course.slug == slug))
+    if kind == "steps":
+        query = query.join(Step, Step.lesson_id == Lesson.id).where(Step.id == record_id)
+    else:
+        query = query.where(Lesson.id == record_id)
+    lesson = (await db.execute(query)).one_or_none()
+    if lesson is None:
+        return {**report, "unavailable_reason": "Урок или степ по ссылке не найден. Возможно, он удалён или ссылка изменилась."}
+
+    rows = (await db.execute(
+        select(Step.id, Step.title, Task.id.label("task_id"), StepProgress.id.label("progress_id"))
+        .outerjoin(Task, Task.step_id == Step.id)
+        .outerjoin(StepProgress, (StepProgress.step_id == Step.id) & (StepProgress.user_id == user_id))
+        .where(Step.lesson_id == lesson.id).order_by(Step.order, Step.id)
+    )).all()
+    # Slice the same deterministic order as the lesson viewer, including ties.
+    start = next((index for index, row in enumerate(rows) if row.id == record_id), 0) if kind == "steps" else 0
+    scope = rows[start:]
+    task_ids = [row.task_id for row in scope if row.task_id is not None]
+    attempts = (select(Submission).where(Submission.user_id == user_id, Submission.task_id.in_(task_ids))
+                .subquery())
+    summaries = (await db.execute(
+        select(attempts.c.task_id, func.count().label("submissions_count"),
+               func.bool_or(attempts.c.status == SubmissionStatus.ACCEPTED).label("solved"))
+        .group_by(attempts.c.task_id)
+    )).all()
+    summary_by_task = {row.task_id: row for row in summaries}
+    latest_statuses = dict((await db.execute(
+        select(Submission.task_id, Submission.status)
+        .where(Submission.user_id == user_id, Submission.task_id.in_(task_ids))
+        .distinct(Submission.task_id)
+        .order_by(Submission.task_id, Submission.submitted_at.desc(), Submission.id.desc())
+    )).all())
+    steps = []
+    for position, row in enumerate(scope, start=start + 1):
+        summary = summary_by_task.get(row.task_id)
+        if row.task_id is None:
+            status = "completed" if row.progress_id is not None else "not_started"
+        elif summary is not None and summary.solved:
+            status = "solved"
+        elif latest_statuses.get(row.task_id) in {SubmissionStatus.PENDING, SubmissionStatus.RUNNING}:
+            status = "checking"
+        else:
+            status = "attempted" if summary is not None else "not_started"
+        steps.append({
+            "id": row.id, "title": row.title, "position": position,
+            "url": f"/{quote(lesson.slug, safe='')}/steps/{row.id}?preview=1",
+            "task_id": row.task_id, "status": status,
+            "submissions_count": summary.submissions_count if summary is not None else 0,
+        })
+    query = _submissions().where(Submission.user_id == user_id, Submission.task_id.in_(task_ids))
+    items = (await db.execute(query.order_by(Submission.submitted_at.desc(), Submission.id.desc())
+                              .offset((page - 1) * page_size).limit(page_size))).mappings().all()
+    return {
+        **report, "course_title": lesson.course_title, "lesson_title": lesson.title,
+        "steps": steps, "total_tasks": len(task_ids),
+        "solved_tasks": sum(step["status"] == "solved" for step in steps),
+        "submissions": {"items": items, "total": sum(row.submissions_count for row in summaries),
+                        "page": page, "page_size": page_size},
+    }

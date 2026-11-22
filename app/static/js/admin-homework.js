@@ -1,7 +1,7 @@
 import { el, homeworkDetails, jsonPost, pager } from './notifications.js';
 import { createDeleteHomeworkButton } from './admin-user-actions.js';
 
-export function createHomeworkSection({ user, api }) {
+export function createHomeworkSection({ user, api, onChanged = () => {} }) {
     const section = el('section', null, 'section-block');
     section.append(el('h2', 'Домашние задания', 'monitoring-section-heading'));
     const assign = el('button', 'Назначить домашнее задание', 'button button--primary');
@@ -62,6 +62,7 @@ export function createHomeworkSection({ user, api }) {
                 const actions = el('div', null, 'monitoring-actions');
                 actions.append(link, createDeleteHomeworkButton({ user, homework: item, api, onDeleted: async () => {
                     await load(currentPage);
+                    await onChanged();
                     status.textContent = `Домашнее задание и уведомление удалены. ${status.textContent}`;
                 } }));
                 card.append(el('h3', item.title), homeworkDetails(item), actions);
@@ -83,7 +84,7 @@ export function createHomeworkSection({ user, api }) {
         saving = true; save.disabled = cancel.disabled = true; errorBox.textContent = '';
         try {
             await api(`/api/admin/users/${user.id}/homework`, jsonPost(payload));
-            form.reset(); close(); await load();
+            form.reset(); close(); await load(); await onChanged();
             status.textContent = `Домашнее задание назначено, уведомление отправлено. ${status.textContent}`;
         } catch (error) { errorBox.textContent = error.message; }
         finally { saving = false; save.disabled = cancel.disabled = false; }

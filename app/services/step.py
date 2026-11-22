@@ -226,6 +226,7 @@ async def get_step_viewer(
     step_id: int,
     course_slug: str,
     db: AsyncSession,
+    check_course_published: bool = True,
 ) -> StepViewer:
     selected_step = aliased(Step)
     lesson_step = aliased(Step)
@@ -245,7 +246,7 @@ async def get_step_viewer(
         .where(
             selected_step.id == step_id,
             Course.slug == course_slug,
-            Course.is_published.is_(True),
+            Course.is_published.is_(True) if check_course_published else True,
         )
         .order_by(lesson_step.order, lesson_step.id)
     )

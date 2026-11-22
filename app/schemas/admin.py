@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.enums import SubmissionStatus, UserRole
+from app.schemas.notification import HomeworkRead
 
 
 class AdminUser(BaseModel):
@@ -81,6 +82,7 @@ class AdminSubmissionItem(BaseModel):
     step_title: str
     lesson_title: str
     course_id: int
+    course_slug: str
     course_title: str
     status: SubmissionStatus
     submitted_at: datetime
@@ -107,3 +109,24 @@ class AdminCourseOption(BaseModel):
     id: int
     title: str
     is_published: bool
+
+
+class AdminHomeworkStep(BaseModel):
+    id: int
+    title: str
+    position: int
+    url: str
+    task_id: int | None
+    status: Literal["solved", "attempted", "checking", "not_started", "completed"]
+    submissions_count: int
+
+
+class AdminHomeworkProgress(BaseModel):
+    homework: HomeworkRead | None
+    unavailable_reason: str | None = None
+    course_title: str | None = None
+    lesson_title: str | None = None
+    steps: list[AdminHomeworkStep] = Field(default_factory=list)
+    total_tasks: int = 0
+    solved_tasks: int = 0
+    submissions: AdminSubmissionPage

@@ -9,7 +9,7 @@ from app.api.dependencies import DBSession, OnlyAdmin, require_role
 from app.enums import SubmissionStatus, UserRole
 from app.models import Course
 from app.schemas.admin import (
-    AdminCourseOption, AdminSubmissionDetail, AdminSubmissionPage,
+    AdminCourseOption, AdminHomeworkProgress, AdminSubmissionDetail, AdminSubmissionPage,
     AdminUser, AdminUserDetail, AdminUserPage, UserBlockUpdate, UserAIAssistanceUpdate,
 )
 from app.services import admin as service
@@ -53,6 +53,11 @@ async def student_homework(user_id: RecordId, db: DBSession, page: Page = 1, pag
 @router.post("/users/{user_id}/homework", response_model=HomeworkRead, status_code=201)
 async def assign_homework(user_id: RecordId, data: HomeworkCreate, db: DBSession, actor: OnlyAdmin):
     return await notification_service.assign_homework(db, user_id=user_id, actor_id=actor.id, data=data)
+
+
+@router.get("/users/{user_id}/homework/latest-progress", response_model=AdminHomeworkProgress)
+async def latest_student_homework(user_id: RecordId, db: DBSession, page: Page = 1, page_size: PageSize = 25):
+    return await service.latest_homework_progress(db, user_id=user_id, page=page, page_size=page_size)
 
 
 @router.delete("/users/{user_id}/homework/{homework_id}", status_code=204)

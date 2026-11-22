@@ -64,7 +64,7 @@ export const renderTaskError = (container, message) => {
     container.hidden = false;
 };
 
-export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
+export const renderTaskViewer = (container, task, { onAccepted, preview = false } = {}) => {
     cleanupActiveTaskViewer();
 
     let sourceCode = task.starter_code || '';
@@ -108,6 +108,10 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     const submitButton = createSubmitButton();
     submitButton.disabled = true;
     actions.append(submitStatus, submitButton);
+    if (preview) {
+        submitButton.hidden = true;
+        submitStatus.textContent = 'Просмотр задания';
+    }
     const statusPanel = createSubmissionStatusPanel({ fetcher: authFetch });
     const hintPanel = createAIHintPanel({ fetcher: authFetch, signal: abortController.signal });
     card.append(
@@ -228,7 +232,7 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
     };
 
     submitButton.addEventListener('click', async () => {
-        if (isSubmitting || isHistoryLoading || isDestroyed) {
+        if (preview || isSubmitting || isHistoryLoading || isDestroyed) {
             return;
         }
 
@@ -333,5 +337,5 @@ export const renderTaskViewer = (container, task, { onAccepted } = {}) => {
 
     cleanupActiveTaskViewer = cleanup;
     window.addEventListener('pagehide', cleanup, { once: true });
-    loadLastSubmission();
+    if (!preview) loadLastSubmission();
 };
