@@ -128,6 +128,48 @@ async def test_user_progress_counts_and_unenrolled_history(client, db, admin_hea
     assert data["courses"] == [] and data["submissions_count"] == 0 and data["last_activity_at"] is None
 
 
+@pytest.mark.parametrize("sort_by,sort_order,expected", [
+    ("id", "asc", [0, 1, 2, 3, 4, 5]),
+    ("id", "desc", [5, 4, 3, 2, 1, 0]),
+    ("created_at", "asc", [3, 5, 1, 2, 4, 0]),
+    ("created_at", "desc", [0, 4, 2, 1, 5, 3]),
+    ("last_activity_at", "asc", [0, 1, 3, 2, 4, 5]),
+    ("last_activity_at", "desc", [2, 3, 1, 0, 5, 4]),
+])
+async def test_user_list_sorting_across_pages(client, db, admin_headers, learning_data,
+                                              sort_by, sort_order, expected):
+    user, course, tasks, _ = learning_data
+    users = [user]
+    for index in range(1, 6):
+        other = await make_user(db, f"sort{index}@example.com")
+        users.append(other)
+        db.add(Enrollment(user_id=other.id, course_id=course.id))
+    for account, day in zip(users, [4, 2, 2, 1, 3, 1]):
+        account.created_at = datetime(2026, 10, day, tzinfo=UTC)
+    db.add_all([
+        Submission(user_id=users[1].id, task_id=tasks[0].id, source_code="pass",
+                   status=SubmissionStatus.ACCEPTED, submitted_at=datetime(2026, 11, 5, tzinfo=UTC)),
+        StepProgress(user_id=users[2].id, step_id=tasks[0].step_id,
+                     completed_at=datetime(2026, 11, 6, tzinfo=UTC)),
+        CourseActivity(user_id=users[3].id, course_id=course.id,
+                       last_visited_at=datetime(2026, 11, 5, tzinfo=UTC)),
+    ])
+    await db.commit()
+    params = {"course_id": course.id, "role": "student", "blocked": False,
+              "sort_by": sort_by, "sort_order": sort_order, "page_size": 2}
+    ids = []
+    for page in range(1, 4):
+        response = await client.get("/api/admin/users", headers=admin_headers, params={**params, "page": page})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 6
+        ids.extend(item["id"] for item in data["items"])
+    assert ids == [users[index].id for index in expected]
+    if sort_by == "created_at" and sort_order == "desc":
+        response = await client.get("/api/admin/users", headers=admin_headers, params={"course_id": course.id})
+        assert [item["id"] for item in response.json()["items"]] == ids
+
+
 async def test_user_list_latest_homework_deadline(client, db, admin_headers):
     user = await make_user(db)
     other = await make_user(db, "other@example.com")
@@ -388,6 +430,7 @@ async def test_user_management_missing_records_and_invalid_ids(client, admin_hea
 @pytest.mark.parametrize("path,code", [
     ("/api/admin/users/999999", 404), ("/api/admin/submissions/999999", 404),
     ("/api/admin/users?page=0", 422), ("/api/admin/users?page_size=101", 422),
+    ("/api/admin/users?sort_by=email", 422), ("/api/admin/users?sort_order=invalid", 422),
     ("/api/admin/submissions?status=invalid", 422),
     ("/api/admin/submissions?user_id=9999999999", 422),
     ("/api/admin/users/9999999999", 422),

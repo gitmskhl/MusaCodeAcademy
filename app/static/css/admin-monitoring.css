@@ -18,6 +18,9 @@
 .monitoring-table-wrap { overflow-x: auto; }
 .monitoring-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
 .monitoring-table th { color: var(--muted); background: var(--surface-muted); font-weight: 600; }
+.monitoring-sort { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.monitoring-sort:hover, .monitoring-table th[aria-sort="ascending"], .monitoring-table th[aria-sort="descending"] { color: var(--primary); }
+.monitoring-sort:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; border-radius: 2px; }
 .monitoring-table th, .monitoring-table td { padding: 14px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .monitoring-table tbody tr:hover { background: #f8faff; }
 .monitoring-table a, .monitoring-link { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }

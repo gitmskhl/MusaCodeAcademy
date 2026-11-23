@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.responses import FileResponse
@@ -89,8 +89,13 @@ async def admin_ai_models():
 @router.get("/users", response_model=AdminUserPage)
 async def admin_users(db: DBSession, q: Search = None, role: UserRole | None = None,
                       blocked: bool | None = None, course_id: OptionalId = None,
+                      sort_by: Literal["id", "created_at", "last_activity_at"] = "created_at",
+                      sort_order: Literal["asc", "desc"] = "desc",
                       page: Page = 1, page_size: PageSize = 25):
-    return await service.list_users(db, q=q, role=role, blocked=blocked, course_id=course_id, page=page, page_size=page_size)
+    return await service.list_users(
+        db, q=q, role=role, blocked=blocked, course_id=course_id,
+        sort_by=sort_by, sort_order=sort_order, page=page, page_size=page_size,
+    )
 
 
 @router.get("/users/{user_id}", response_model=AdminUserDetail)

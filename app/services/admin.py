@@ -94,7 +94,8 @@ def _user_search(q: str):
     return or_(*conditions)
 
 
-async def list_users(db: AsyncSession, *, q, role, blocked, course_id, page, page_size):
+async def list_users(db: AsyncSession, *, q, role, blocked, course_id, page, page_size,
+                     sort_by="created_at", sort_order="desc"):
     query = _user_summary()
     if q:
         query = query.where(_user_search(q.strip()))
@@ -107,7 +108,16 @@ async def list_users(db: AsyncSession, *, q, role, blocked, course_id, page, pag
             Enrollment.user_id == User.id, Enrollment.course_id == course_id
         ).exists())
     total = await db.scalar(select(func.count()).select_from(query.subquery()))
-    rows = (await db.execute(query.order_by(User.created_at.desc(), User.id.desc())
+    sort_column = {
+        "id": User.id,
+        "created_at": User.created_at,
+        "last_activity_at": query.selected_columns.last_activity_at,
+    }[sort_by]
+    ascending = sort_order == "asc"
+    order = sort_column.asc() if ascending else sort_column.desc()
+    # Keep users without activity last in either direction, and break ties by ID
+    # so users with equal timestamps cannot move between pages.
+    rows = (await db.execute(query.order_by(order.nulls_last(), User.id.asc() if ascending else User.id.desc())
                              .offset((page - 1) * page_size).limit(page_size))).all()
     return {"items": [_user_dict(row) for row in rows], "total": total, "page": page, "page_size": page_size}
 

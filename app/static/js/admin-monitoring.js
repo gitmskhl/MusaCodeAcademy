@@ -83,7 +83,7 @@ function section(title) {
     if (title) node.append(el('h2', title, 'monitoring-section-heading'));
     return node;
 }
-function table(headers, rows) {
+function table(headers, rows, { sortColumns = {}, sortBy, sortOrder, onSort } = {}) {
     if (!rows.length) return el('p', 'По этим условиям ничего не найдено.', 'monitoring-empty');
     const wrap = el('div', null, 'monitoring-table-wrap');
     const node = el('table', null, 'monitoring-table');
@@ -92,6 +92,18 @@ function table(headers, rows) {
     headers.forEach(text => {
         const cell = el('th', text);
         cell.scope = 'col';
+        const sortKey = sortColumns[text];
+        if (sortKey) {
+            const active = sortBy === sortKey;
+            cell.textContent = '';
+            cell.setAttribute('aria-sort', active ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none');
+            const control = button(text, () => onSort(sortKey), 'monitoring-sort');
+            control.title = `Сортировать по ${active && sortOrder === 'desc' ? 'возрастанию' : 'убыванию'}`;
+            const arrow = el('span', active ? (sortOrder === 'asc' ? '↑' : '↓') : '↕');
+            arrow.setAttribute('aria-hidden', 'true');
+            control.append(arrow);
+            cell.append(control);
+        }
         headRow.append(cell);
     });
     head.append(headRow);
@@ -189,6 +201,12 @@ async function setupFilters() {
         event.preventDefault();
         const params = new URLSearchParams();
         for (const [key, value] of new FormData(filterForm)) if (value) params.set(key, value);
+        if (view === 'users') {
+            const current = new URLSearchParams(location.search);
+            for (const key of ['sort_by', 'sort_order']) {
+                if (current.has(key)) params.set(key, current.get(key));
+            }
+        }
         setQuery(params);
     });
     document.querySelector('[data-filters]').hidden = false;
@@ -201,6 +219,9 @@ function syncFilters() {
 }
 function renderUsers(data) {
     const node = section();
+    const params = new URLSearchParams(location.search);
+    const sortBy = params.get('sort_by') || 'created_at';
+    const sortOrder = params.get('sort_order') || 'desc';
     node.append(table(['ID', 'Пользователь', 'Аккаунт', 'AI-помощь', 'Регистрация', 'Учебная активность', 'Решено задач', 'Отправки'], data.items.map(user => [
         createUserIdWithHomework(user),
         stacked(link(`${user.first_name} ${user.last_name}`, `/admin/users/${user.id}`), user.email),
@@ -208,7 +229,17 @@ function renderUsers(data) {
         badge(user.ai_assistance_enabled ? 'Включена' : 'Выключена', user.ai_assistance_enabled),
         date(user.created_at), date(user.last_activity_at), user.solved_tasks_count,
         link(user.submissions_count, `/admin/submissions?user_id=${user.id}`),
-    ])));
+    ]), {
+        sortColumns: { ID: 'id', 'Регистрация': 'created_at', 'Учебная активность': 'last_activity_at' },
+        sortBy, sortOrder,
+        onSort(key) {
+            const next = new URLSearchParams(location.search);
+            next.set('sort_by', key);
+            next.set('sort_order', key === sortBy && sortOrder === 'desc' ? 'asc' : 'desc');
+            next.delete('page');
+            setQuery(next);
+        },
+    }));
     node.append(pager(data, page => {
         const params = new URLSearchParams(location.search);
         params.set('page', page);
