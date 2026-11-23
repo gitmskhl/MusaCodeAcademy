@@ -34,7 +34,7 @@
   "gdrive:1HwMpVGdrVIWBPWSwiQ3Uf6uWgGfqjXpnMW9xDa0hla4:task:2": "count = 0\nwhile True:\n    n = int(input('Введите число:\\n'))\n    if n < 0:\n        break\n    if n > 0:\n        count += 1\nprint(\"Количество чисел >0:\", count)\n",
   "gdrive:1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI:task:1": "print('Введите 4 числа:')\nnumbers = []\nfor i in range(4):\n    numbers.append(int(input()))\nprint(\"Список:\", numbers)\n",
   "gdrive:1JDRBZsrckMT0TmXXgkHPfXboGIgTXveVVrkgK0X0yYI:task:2": "print('Вводите слова')\nwords = []\nwhile True:\n    word = input()\n    if word == \"стоп\":\n        break\n    words.append(word)\nprint(\"Вы ввели:\", words)\n",
-  "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:1": "print('Введите числа')\nvalues = []\nwhile True:\n    n = int(input())\n    if n == 0:\n        break\n    values.append(n)\nhead = int(input('Введите head\\n'))\nfor n in values[:head]:\n    print(n)\n",
+  "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:1": "print('Введите числа')\nvalues = []\nwhile True:\n    n = int(input())\n    if n == 0:\n        break\n    values.append(n)\nhead = int(input('Введите head\\n'))\nprint(values[:head])\n",
   "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:2": "print('Введите 5 чисел:')\nvalues = []\nfor i in range(5):\n    values.append(int(input()))\nprint(\"Вывод:\")\nfor i in range(5):\n    print(*values[i:])\n",
   "gdrive:1D1dnmiXSkyOZHjoa3VjaK_09dhHsYa7GssLnGgWgNz0:task:3": "print('Введите 6 чисел')\nvalues = []\nfor i in range(6):\n    values.append(int(input()))\nprint(*values[::-1])\n",
   "gdrive:1aF605mGzsLmKG_43kQLxwEgITTbdbpfsQgv4LHFnUVw:task:1": "values = [10, 20, 30, 40, 50, 60, 70, 80, 90]\nprint(values[4:7])\nprint(values[::-1])\n",

@@ -3,6 +3,7 @@ import { createAIAssistanceSettings } from './admin-ai-assistance.js';
 import { createDeleteUserButton, createEnrollmentAction, createEnrollmentForm } from './admin-user-actions.js';
 import { createHomeworkSection } from './admin-homework.js';
 import { createLatestHomeworkSection } from './admin-homework-progress.js';
+import { createUserIdWithHomework, refreshHomeworkDeadlines } from './admin-homework-deadline.js';
 import { errorText } from './notifications.js';
 
 const TOKEN_KEY = 'musa_code_academy_token';
@@ -201,7 +202,7 @@ function syncFilters() {
 function renderUsers(data) {
     const node = section();
     node.append(table(['ID', 'Пользователь', 'Аккаунт', 'AI-помощь', 'Регистрация', 'Учебная активность', 'Решено задач', 'Отправки'], data.items.map(user => [
-        user.id,
+        createUserIdWithHomework(user),
         stacked(link(`${user.first_name} ${user.last_name}`, `/admin/users/${user.id}`), user.email),
         stacked(badge(user.blocked_at ? 'Заблокирован' : 'Активен', !user.blocked_at, !!user.blocked_at), user.role === 'admin' ? 'Администратор' : 'Ученик'),
         badge(user.ai_assistance_enabled ? 'Включена' : 'Выключена', user.ai_assistance_enabled),
@@ -412,6 +413,12 @@ blockForm.addEventListener('submit', async event => {
     }
 });
 window.addEventListener('popstate', () => void load());
+if (view === 'users') {
+    window.setInterval(() => refreshHomeworkDeadlines(content), 60_000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) refreshHomeworkDeadlines(content);
+    });
+}
 
 async function init() {
     try {

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 import pytest_asyncio
@@ -126,6 +126,47 @@ async def test_user_progress_counts_and_unenrolled_history(client, db, admin_hea
     empty_user = await make_user(db, "empty@example.com")
     data = (await client.get(f"/api/admin/users/{empty_user.id}", headers=admin_headers)).json()
     assert data["courses"] == [] and data["submissions_count"] == 0 and data["last_activity_at"] is None
+
+
+async def test_user_list_latest_homework_deadline(client, db, admin_headers):
+    user = await make_user(db)
+    other = await make_user(db, "other@example.com")
+    created_at = datetime(2026, 11, 20, tzinfo=UTC)
+    older = Homework(user_id=user.id, title="Старое ДЗ", url="/old", due_date=date(2027, 1, 1),
+                     created_at=created_at - timedelta(days=1))
+    newer = Homework(user_id=user.id, title="Новое ДЗ", url="/new", due_date=date(2026, 11, 23),
+                     created_at=created_at)
+    undated = Homework(user_id=user.id, title="Без срока", url="/undated", due_date=None,
+                       created_at=created_at)
+    # Insert the older assignment last so created_at takes priority over ID.
+    db.add_all([newer, undated, older,
+                Homework(user_id=other.id, title="Чужое ДЗ", url="/other", due_date=date(2028, 1, 1))])
+    await db.commit()
+
+    async def summaries(**params):
+        response = await client.get("/api/admin/users", headers=admin_headers, params=params)
+        assert response.status_code == 200
+        return response.json()
+
+    data = await summaries()
+    items = {item["id"]: item for item in data["items"]}
+    assert data["total"] == 3  # Multiple assignments must not duplicate users.
+    assert items[user.id]["latest_homework"] == {"id": undated.id, "due_date": None}
+    assert items[other.id]["latest_homework"]["due_date"] == "2028-01-01"
+    assert next(item for item in data["items"] if item["role"] == "admin")["latest_homework"] is None
+    assert (await summaries(q=str(user.id), page_size=1))["items"][0]["latest_homework"]["id"] == undated.id
+
+    await db.delete(undated)
+    await db.commit()
+    assert (await summaries(q=str(user.id)))["items"][0]["latest_homework"] == {
+        "id": newer.id, "due_date": "2026-11-23",
+    }
+    await db.delete(newer)
+    await db.commit()
+    assert (await summaries(q=str(user.id)))["items"][0]["latest_homework"]["id"] == older.id
+    await db.delete(older)
+    await db.commit()
+    assert (await summaries(q=str(user.id)))["items"][0]["latest_homework"] is None
 
 
 @pytest.mark.parametrize("table,column", [

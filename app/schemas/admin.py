@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -24,10 +24,16 @@ class AdminUser(BaseModel):
     ai_model_limits: dict[str, int] | None
 
 
+class AdminHomeworkDeadline(BaseModel):
+    id: int
+    due_date: date | None
+
+
 class AdminUserListItem(AdminUser):
     last_activity_at: datetime | None
     submissions_count: int
     solved_tasks_count: int
+    latest_homework: AdminHomeworkDeadline | None
 
 
 class AdminUserPage(BaseModel):

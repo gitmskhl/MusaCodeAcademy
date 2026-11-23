@@ -4,7 +4,7 @@ import re
 from urllib.parse import quote, unquote, urlsplit
 
 from fastapi import HTTPException
-from sqlalchemy import case, delete, distinct, func, or_, select, union_all
+from sqlalchemy import case, delete, distinct, func, or_, select, true, union_all
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,15 +50,24 @@ def _user_summary():
         select(StepProgress.user_id, StepProgress.completed_at.label("at")),
     ).subquery()
     activity = select(events.c.user_id, func.max(events.c.at).label("last_activity_at")).group_by(events.c.user_id).subquery()
+    latest_homework = (
+        select(Homework.id, Homework.due_date)
+        .where(Homework.user_id == User.id)
+        .order_by(Homework.created_at.desc(), Homework.id.desc())
+        .limit(1).correlate(User).lateral()
+    )
     return (
         select(
             User,
             func.coalesce(attempts.c.submissions_count, 0).label("submissions_count"),
             func.coalesce(attempts.c.solved_tasks_count, 0).label("solved_tasks_count"),
             activity.c.last_activity_at,
+            latest_homework.c.id.label("latest_homework_id"),
+            latest_homework.c.due_date.label("latest_homework_due_date"),
         )
         .outerjoin(attempts, attempts.c.user_id == User.id)
         .outerjoin(activity, activity.c.user_id == User.id)
+        .outerjoin(latest_homework, true())
     )
 
 
@@ -68,6 +77,10 @@ def _user_dict(row):
         "submissions_count": row.submissions_count,
         "solved_tasks_count": row.solved_tasks_count,
         "last_activity_at": row.last_activity_at,
+        "latest_homework": {
+            "id": row.latest_homework_id,
+            "due_date": row.latest_homework_due_date,
+        } if row.latest_homework_id is not None else None,
     }
 
 

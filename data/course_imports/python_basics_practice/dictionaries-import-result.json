@@ -1,0 +1,460 @@
+{
+  "base_reference_tests": 510,
+  "dictionaries_reference_tests": 64,
+  "databases": [
+    {
+      "database": "local PostgreSQL",
+      "result": {
+        "status": "unchanged",
+        "course_id": 4,
+        "is_published": true,
+        "slice_step_id": 439,
+        "dictionaries_section_id": 20,
+        "lessons": [
+          {
+            "id": 119,
+            "title": "Создание словаря и чтение по ключу"
+          },
+          {
+            "id": 120,
+            "title": "Добавление, изменение и удаление записей"
+          },
+          {
+            "id": 121,
+            "title": "Проверка наличия ключа"
+          },
+          {
+            "id": 122,
+            "title": "Перебор, отбор и поиск в словаре"
+          },
+          {
+            "id": 123,
+            "title": "Частотные словари"
+          },
+          {
+            "id": 124,
+            "title": "Словарь со списками значений"
+          }
+        ]
+      },
+      "repeated": "unchanged",
+      "changed_existing_rows": [],
+      "added": {
+        "alembic_version": 0,
+        "courses": 0,
+        "files": 0,
+        "users": 0,
+        "ai_hint_usage": 0,
+        "ai_model_hint_usage": 0,
+        "enrollments": 0,
+        "homework": 0,
+        "password_reset_tokens": 0,
+        "sections": 0,
+        "lessons": 0,
+        "notifications": 0,
+        "steps": 0,
+        "course_activity": 0,
+        "step_progress": 0,
+        "tasks": 0,
+        "submissions": 0,
+        "test_cases": 0
+      },
+      "steps": [
+        {
+          "lesson_id": 119,
+          "step_id": 648,
+          "task_id": null,
+          "title": "Краткое напоминание: Ключи и значения"
+        },
+        {
+          "lesson_id": 119,
+          "step_id": 649,
+          "task_id": 377,
+          "title": "Количество товара"
+        },
+        {
+          "lesson_id": 119,
+          "step_id": 650,
+          "task_id": 378,
+          "title": "Столица страны"
+        },
+        {
+          "lesson_id": 119,
+          "step_id": 651,
+          "task_id": 379,
+          "title": "Анкета в словаре"
+        },
+        {
+          "lesson_id": 120,
+          "step_id": 652,
+          "task_id": null,
+          "title": "Краткое напоминание: Изменение словаря"
+        },
+        {
+          "lesson_id": 120,
+          "step_id": 653,
+          "task_id": 380,
+          "title": "Новая цена"
+        },
+        {
+          "lesson_id": 120,
+          "step_id": 654,
+          "task_id": 381,
+          "title": "Пополнение склада"
+        },
+        {
+          "lesson_id": 120,
+          "step_id": 655,
+          "task_id": 382,
+          "title": "Удаление записи"
+        },
+        {
+          "lesson_id": 121,
+          "step_id": 656,
+          "task_id": null,
+          "title": "Краткое напоминание: Безопасная работа с ключами"
+        },
+        {
+          "lesson_id": 121,
+          "step_id": 657,
+          "task_id": 383,
+          "title": "Телефонная книга"
+        },
+        {
+          "lesson_id": 121,
+          "step_id": 658,
+          "task_id": 384,
+          "title": "Регистрация без замены"
+        },
+        {
+          "lesson_id": 121,
+          "step_id": 659,
+          "task_id": 385,
+          "title": "Безопасное удаление"
+        },
+        {
+          "lesson_id": 122,
+          "step_id": 660,
+          "task_id": null,
+          "title": "Краткое напоминание: Цикл по ключам"
+        },
+        {
+          "lesson_id": 122,
+          "step_id": 661,
+          "task_id": 386,
+          "title": "Общее количество"
+        },
+        {
+          "lesson_id": 122,
+          "step_id": 662,
+          "task_id": 387,
+          "title": "Товары с достаточным запасом"
+        },
+        {
+          "lesson_id": 122,
+          "step_id": 663,
+          "task_id": 388,
+          "title": "Самый большой запас"
+        },
+        {
+          "lesson_id": 123,
+          "step_id": 664,
+          "task_id": null,
+          "title": "Краткое напоминание: Подсчёт повторов"
+        },
+        {
+          "lesson_id": 123,
+          "step_id": 665,
+          "task_id": 389,
+          "title": "Сколько раз встретилось слово"
+        },
+        {
+          "lesson_id": 123,
+          "step_id": 666,
+          "task_id": 390,
+          "title": "Самое частое слово"
+        },
+        {
+          "lesson_id": 123,
+          "step_id": 667,
+          "task_id": 391,
+          "title": "Частоты символов"
+        },
+        {
+          "lesson_id": 124,
+          "step_id": 668,
+          "task_id": null,
+          "title": "Краткое напоминание: Несколько значений по одному ключу"
+        },
+        {
+          "lesson_id": 124,
+          "step_id": 669,
+          "task_id": 392,
+          "title": "Все оценки ученика"
+        },
+        {
+          "lesson_id": 124,
+          "step_id": 670,
+          "task_id": 393,
+          "title": "Сумма оценок по ученикам"
+        },
+        {
+          "lesson_id": 124,
+          "step_id": 671,
+          "task_id": 394,
+          "title": "У кого больше оценок"
+        }
+      ]
+    },
+    {
+      "database": "SQLite preview",
+      "result": {
+        "status": "updated",
+        "course_id": 1,
+        "is_published": false,
+        "slice_step_id": 36,
+        "dictionaries_section_id": 8,
+        "lessons": [
+          {
+            "id": 46,
+            "title": "Создание словаря и чтение по ключу"
+          },
+          {
+            "id": 47,
+            "title": "Добавление, изменение и удаление записей"
+          },
+          {
+            "id": 48,
+            "title": "Проверка наличия ключа"
+          },
+          {
+            "id": 49,
+            "title": "Перебор, отбор и поиск в словаре"
+          },
+          {
+            "id": 50,
+            "title": "Частотные словари"
+          },
+          {
+            "id": 51,
+            "title": "Словарь со списками значений"
+          }
+        ]
+      },
+      "repeated": "unchanged",
+      "changed_existing_rows": [
+        {
+          "table": "steps",
+          "id": 36,
+          "fields": [
+            "content",
+            "updated_at"
+          ]
+        },
+        {
+          "table": "test_cases",
+          "id": 190,
+          "fields": [
+            "expected_output"
+          ]
+        },
+        {
+          "table": "test_cases",
+          "id": 191,
+          "fields": [
+            "expected_output"
+          ]
+        },
+        {
+          "table": "test_cases",
+          "id": 192,
+          "fields": [
+            "expected_output"
+          ]
+        },
+        {
+          "table": "test_cases",
+          "id": 193,
+          "fields": [
+            "expected_output"
+          ]
+        },
+        {
+          "table": "test_cases",
+          "id": 194,
+          "fields": [
+            "expected_output"
+          ]
+        },
+        {
+          "table": "test_cases",
+          "id": 195,
+          "fields": [
+            "expected_output"
+          ]
+        }
+      ],
+      "added": {
+        "courses": 0,
+        "files": 0,
+        "users": 0,
+        "enrollments": 0,
+        "password_reset_tokens": 0,
+        "sections": 1,
+        "lessons": 6,
+        "steps": 24,
+        "course_activity": 0,
+        "step_progress": 0,
+        "tasks": 18,
+        "submissions": 0,
+        "test_cases": 64
+      },
+      "steps": [
+        {
+          "lesson_id": 46,
+          "step_id": 154,
+          "task_id": null,
+          "title": "Краткое напоминание: Ключи и значения"
+        },
+        {
+          "lesson_id": 46,
+          "step_id": 155,
+          "task_id": 125,
+          "title": "Количество товара"
+        },
+        {
+          "lesson_id": 46,
+          "step_id": 156,
+          "task_id": 126,
+          "title": "Столица страны"
+        },
+        {
+          "lesson_id": 46,
+          "step_id": 157,
+          "task_id": 127,
+          "title": "Анкета в словаре"
+        },
+        {
+          "lesson_id": 47,
+          "step_id": 158,
+          "task_id": null,
+          "title": "Краткое напоминание: Изменение словаря"
+        },
+        {
+          "lesson_id": 47,
+          "step_id": 159,
+          "task_id": 128,
+          "title": "Новая цена"
+        },
+        {
+          "lesson_id": 47,
+          "step_id": 160,
+          "task_id": 129,
+          "title": "Пополнение склада"
+        },
+        {
+          "lesson_id": 47,
+          "step_id": 161,
+          "task_id": 130,
+          "title": "Удаление записи"
+        },
+        {
+          "lesson_id": 48,
+          "step_id": 162,
+          "task_id": null,
+          "title": "Краткое напоминание: Безопасная работа с ключами"
+        },
+        {
+          "lesson_id": 48,
+          "step_id": 163,
+          "task_id": 131,
+          "title": "Телефонная книга"
+        },
+        {
+          "lesson_id": 48,
+          "step_id": 164,
+          "task_id": 132,
+          "title": "Регистрация без замены"
+        },
+        {
+          "lesson_id": 48,
+          "step_id": 165,
+          "task_id": 133,
+          "title": "Безопасное удаление"
+        },
+        {
+          "lesson_id": 49,
+          "step_id": 166,
+          "task_id": null,
+          "title": "Краткое напоминание: Цикл по ключам"
+        },
+        {
+          "lesson_id": 49,
+          "step_id": 167,
+          "task_id": 134,
+          "title": "Общее количество"
+        },
+        {
+          "lesson_id": 49,
+          "step_id": 168,
+          "task_id": 135,
+          "title": "Товары с достаточным запасом"
+        },
+        {
+          "lesson_id": 49,
+          "step_id": 169,
+          "task_id": 136,
+          "title": "Самый большой запас"
+        },
+        {
+          "lesson_id": 50,
+          "step_id": 170,
+          "task_id": null,
+          "title": "Краткое напоминание: Подсчёт повторов"
+        },
+        {
+          "lesson_id": 50,
+          "step_id": 171,
+          "task_id": 137,
+          "title": "Сколько раз встретилось слово"
+        },
+        {
+          "lesson_id": 50,
+          "step_id": 172,
+          "task_id": 138,
+          "title": "Самое частое слово"
+        },
+        {
+          "lesson_id": 50,
+          "step_id": 173,
+          "task_id": 139,
+          "title": "Частоты символов"
+        },
+        {
+          "lesson_id": 51,
+          "step_id": 174,
+          "task_id": null,
+          "title": "Краткое напоминание: Несколько значений по одному ключу"
+        },
+        {
+          "lesson_id": 51,
+          "step_id": 175,
+          "task_id": 140,
+          "title": "Все оценки ученика"
+        },
+        {
+          "lesson_id": 51,
+          "step_id": 176,
+          "task_id": 141,
+          "title": "Сумма оценок по ученикам"
+        },
+        {
+          "lesson_id": 51,
+          "step_id": 177,
+          "task_id": 142,
+          "title": "У кого больше оценок"
+        }
+      ]
+    }
+  ]
+}

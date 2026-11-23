@@ -23,6 +23,10 @@
 .monitoring-table a, .monitoring-link { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
 .monitoring-table td { min-width: 100px; }
 .monitoring-table td:nth-child(2) { min-width: 180px; }
+.monitoring-user-id { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+.homework-deadline { display: inline-block; flex-shrink: 0; width: 8px; height: 26px; border-radius: 5px; background: #98a2b3; box-shadow: 0 0 8px #98a2b34d; }
+.homework-deadline--upcoming { background: #16a34a; box-shadow: 0 0 10px #16a34a66; }
+.homework-deadline--overdue { background: #dc2626; box-shadow: 0 0 10px #dc262666; }
 .monitoring-muted { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .monitoring-pager, .monitoring-section-heading, .monitoring-actions { display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 .monitoring-pager { margin-top: 18px; font-size: 13px; }
